@@ -1,0 +1,28 @@
+# Enforce consistent line endings (LF) across the repo
+# Text files will be normalized and checked out with LF
+* text=auto eol=lf
+
+# Common binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+
+# Keep shell scripts with LF
+*.sh text eol=lf
+
+# Explicit text types
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.json text
+*.css text
+*.scss text
+*.html text
+*.md text
+*.yml text
+*.yaml text
