@@ -2,7 +2,7 @@ import {Button} from "@heroui/button"
 
 export default function Hero() {
     return (
-        <section className="flex flex-col items-center bg-gradient-to-br from-gray-900 via-magenta-fuchsia-900 to-gray-800 min-h-[70vh] w-full gap-8 sm:gap-10 md:gap-12 relative overflow-hidden px-4 sm:px-8 lg:px-16">
+        <section className="flex flex-col items-center bg-gradient-to-br from-gray-900 via-magenta-fuchsia-900 to-gray-800 min-h-[60vh] w-full gap-8 sm:gap-10 md:gap-12 relative overflow-hidden px-4 sm:px-8 lg:px-16">
             <div className="pt-8 sm:pt-12 md:pt-16 lg:pt-24 flex justify-center w-full">
                 <img 
                     className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20" 
