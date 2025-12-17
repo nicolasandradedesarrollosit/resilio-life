@@ -56,13 +56,13 @@ export default function SecondSection() {
                     {steps.map((step, index) => (
                         <Card 
                             key={index} 
-                            className="h-full bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col items-center text-center shadow-sm hover:shadow-xl hover:border-magenta-fuchsia-200 transition-all duration-500 group relative overflow-hidden"
+                            className="h-full bg-white border-[3px] border-magenta-fuchsia-200 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col items-center text-center shadow-sm hover:scale-105 transition-all duration-500 group "
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-magenta-fuchsia-50/0 to-magenta-fuchsia-50/0 group-hover:from-magenta-fuchsia-50/30 group-hover:to-transparent transition-all duration-500 rounded-2xl sm:rounded-3xl"></div>
                             
                             <CardHeader className="relative z-10">
-                                <div className="bg-gradient-to-br from-gray-100 to-gray-50 rounded-full p-4 sm:p-5 mb-6 sm:mb-8 inline-flex items-center justify-center group-hover:from-magenta-fuchsia-100 group-hover:to-magenta-fuchsia-50 transition-all duration-500">
-                                    <span className="inline-flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 text-gray-700 group-hover:text-magenta-fuchsia-600 transition-colors duration-500">
+                                <div className="bg-gradient-to-br from-gray-100 to-gray-50 rounded-full p-4 sm:p-5 mb-6 sm:mb-8 inline-flex items-center justify-center">
+                                    <span className="inline-flex items-center text-magenta-fuchsia-600 justify-center h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 text-gray-700">
                                         {step.svg}
                                     </span>
                                 </div>
@@ -78,7 +78,7 @@ export default function SecondSection() {
                             </CardBody>
 
                             <div className="mt-6 sm:mt-8 relative z-10">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-medium text-gray-400 group-hover:border-magenta-fuchsia-500 group-hover:text-magenta-fuchsia-600 transition-all duration-500">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 text-magenta-fuchsia-600 flex items-center justify-center text-sm font-medium text-gray-400">
                                     {index + 1}
                                 </div>
                             </div>
@@ -86,7 +86,6 @@ export default function SecondSection() {
                     ))}
                 </div>
 
-                {/* CTA */}
                 <div className="flex justify-center mt-12 sm:mt-16 md:mt-20 lg:mt-24">
                     <button className="px-8 cursor-pointer sm:px-10 py-3 sm:py-4 bg-magenta-fuchsia-600 text-white font-light text-base sm:text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-magenta-fuchsia-700 transition-all duration-300 border border-magenta-fuchsia-600">
                         Comenzar ahora

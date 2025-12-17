@@ -1,6 +1,12 @@
+"use client"
+
+import {useRouter} from "next/navigation"
+
 import {Button} from "@heroui/button"
 
 export default function Hero() {
+    const router = useRouter();
+
     return (
         <section className="flex flex-col items-center bg-gradient-to-br from-gray-900 via-magenta-fuchsia-900 to-gray-800 min-h-[60vh] w-full gap-8 sm:gap-10 md:gap-12 relative overflow-hidden px-4 sm:px-8 lg:px-16">
             <div className="pt-8 sm:pt-12 md:pt-16 lg:pt-24 flex justify-center w-full">
@@ -26,6 +32,9 @@ export default function Hero() {
                     size="lg" 
                     variant="bordered" 
                     className="text-white font-light border-white/30 hover:bg-white/10 transition-all duration-300 w-full sm:w-auto min-w-[180px]"
+                    onPress={() => {
+                        router.push('/contact');
+                    }}
                 >
                     Contáctanos
                 </Button>
@@ -33,6 +42,9 @@ export default function Hero() {
                     radius="full" 
                     size="lg" 
                     className="bg-magenta-fuchsia-600 text-white font-light hover:bg-magenta-fuchsia-700 transition-all duration-300 w-full sm:w-auto min-w-[180px]"
+                    onPress={() => {
+                        router.push('/login');
+                    }}
                 >
                     Iniciar sesión
                 </Button>
