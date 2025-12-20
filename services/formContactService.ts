@@ -1,6 +1,6 @@
 export async function sendContactForm(formData: {name: string; email: string; subject: string; message: string}) {
     try {
-        const url = 'https://api-resilio-life.onrender.com';
+        const url = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${url}/api/messages`, {
             method: 'POST',
             headers: {
