@@ -10,6 +10,7 @@ interface ContactFormData {
     email: string;
     subject: string;
     message: string;
+    origin: string;
 }
 
 export default function SecondComponent() {
@@ -62,7 +63,10 @@ export default function SecondComponent() {
                 Array.from(formData.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
             ) as unknown as ContactFormData;
 
-            const result = await sendContactForm(data);
+            const dataAppended = { ...data, origin: 'Resilio B2C SAAS APP' };
+
+
+            const result = await sendContactForm(dataAppended as any);
 
             const okStatus = (res: any) => (typeof res === 'object' && res !== null && ('status' in res ? [200, 201].includes(res.status) : true));
             if (!okStatus(result)) {

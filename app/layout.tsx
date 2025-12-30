@@ -2,11 +2,13 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { Link } from "@heroui/link";
 import clsx from "clsx";
+import { ConsoleBlocker } from "@/helpers/ConsoleBlock";
 
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+import { Console } from "console";
 
 export const metadata: Metadata = {
   title: {
@@ -39,6 +41,7 @@ export default function RootLayout({
           "min-h-screen text-foreground bg-background font-sans antialiased overflow-x-hidden",
         )}
       >
+        <ConsoleBlocker />
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
             {children}
