@@ -1,8 +1,6 @@
 export async function logInUser(formData : {email: string, password: string}) {
+    const url = process.env.NEXT_PUBLIC_API_URL
     try {
-        console.log('Logging in user with data:', formData);
-        const url = process.env.NEXT_PUBLIC_API_URL
-
         const response = await fetch(`${url}/api/login`, {
             method: 'POST',
             headers: {
@@ -41,6 +39,27 @@ export async function authGoogleService(googleData: { idToken?: string | null, e
     }
     catch (err) {
         console.error('Error in authGoogleService:', err);
+        throw err;
+    }
+}
+
+export async function registerUser(formData: {name: string, lastName: string, email: string, password: string}) {
+    const url = process.env.NEXT_PUBLIC_API_URL;
+    try {
+        const response = await fetch(`${url}/api/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || 'Error en el registro de usuario');
+        }
+
+        return response.json();
+    } catch(err) {
+        console.error('Error registering user:', err);
         throw err;
     }
 }
