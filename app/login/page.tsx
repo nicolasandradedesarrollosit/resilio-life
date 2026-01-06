@@ -1,7 +1,12 @@
+"use client"
 import GoBack from "@/common/GoBack"
 import FormLogIn from "./_components/FormLogIn"
+import { useSelector } from "react-redux"
+import { selectUserData } from "@/redux/user/userSlice"
 
 export default function LogInPage() {
+    const userData = useSelector(selectUserData)
+    console.log('LogInPage - userData:', userData)
     return (
         <section className="flex flex-col min-h-screen w-full bg-magenta-fuchsia-50">
             <GoBack url="/" />

@@ -63,3 +63,21 @@ export async function registerUser(formData: {name: string, lastName: string, em
         throw err;
     }
 }
+
+export async function checkSession() {
+    const url = process.env.NEXT_PUBLIC_API_URL;
+    try {
+        const response = await fetch(`${url}/api/check-session`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+        });
+        if (!response.ok) return new Error(`Error: ${response.status} - ${response.statusText}`);
+
+        const data = await response.json();
+        return data;
+    } catch (err) {
+        console.error('Error checking session:', err);
+        throw err;
+    }
+}

@@ -8,6 +8,7 @@ import { addToast } from "@heroui/toast"
 import { logInUser } from "@/services/userService"
 import { signInWithGoogle } from "@/firebase/oauth-google"
 import { authGoogleService } from "@/services/userService"
+import { useRouter } from "next/navigation"
 
 interface LogInFormData {
     email: string;
@@ -19,6 +20,7 @@ export default function FormLogIn() {
     const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingGoogle, setLoadingGoogle] = useState(false);
+    const router = useRouter();
 
     const [stateValidations, setStateValidations] = useState<{
         email: boolean | null;
@@ -32,8 +34,8 @@ export default function FormLogIn() {
     const prevValidationsRef = useRef<{ email: boolean | null; password: boolean | null }>({ email: null, password: null });
 
     const validationRegex = [
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        /^.{6,}$/
     ]
 
     const fields = ['email', 'password'] as const;
@@ -98,6 +100,7 @@ export default function FormLogIn() {
         finally {
             setFormIsInvalid(null);
             setIsSubmitting(false);
+            router.refresh();
         }
     };
 

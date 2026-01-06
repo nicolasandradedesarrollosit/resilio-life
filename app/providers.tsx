@@ -7,6 +7,9 @@ import { HeroUIProvider } from "@heroui/system";
 import { ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
+import SessionChecker from "@/common/SessionChecker";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -25,9 +28,13 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <HeroUIProvider navigate={router.push}>
-      <ToastProvider />
-      <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-    </HeroUIProvider>
+    <Provider store={store}>
+      <SessionChecker>
+        <HeroUIProvider navigate={router.push}>
+          <ToastProvider />
+          <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        </HeroUIProvider>
+      </SessionChecker>
+    </Provider>
   );
 }
