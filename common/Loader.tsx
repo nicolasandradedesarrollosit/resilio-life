@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Loader({ fallback }: { fallback: string }) {
     return (
-        <div className="h-screen w-full flex flex-col gap-12 items-center justify-center bg-black">
+        <div className="fixed inset-0 flex flex-col gap-12 items-center justify-center bg-background z-50">
             <Image
             width={40}
             height={40} 
@@ -12,7 +12,7 @@ export default function Loader({ fallback }: { fallback: string }) {
             alt="Logo" 
             />
             <Spinner color="secondary" label="Cargando" labelColor="secondary" size="lg"/>
-            <p className="text-white/80">{fallback}</p>
+            <p className="text-foreground/80">{fallback}</p>
         </div>
     )
 }

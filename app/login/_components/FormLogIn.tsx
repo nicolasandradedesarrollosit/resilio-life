@@ -100,7 +100,7 @@ export default function FormLogIn() {
         finally {
             setFormIsInvalid(null);
             setIsSubmitting(false);
-            router.refresh();
+            window.location.reload();
         }
     };
 
@@ -114,7 +114,10 @@ export default function FormLogIn() {
         } catch (err) {
             console.error('Error during Google login:', err);
             alert((err as any)?.message || 'Error durante login con Google');
-        } finally { setLoadingGoogle(false); }
+        } finally { 
+            setLoadingGoogle(false);
+            window.location.reload();
+         }
     }
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
