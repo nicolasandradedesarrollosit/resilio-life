@@ -1,18 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setUserData, clearUserData, setLoading } from "@/redux/user/userSlice";
 import { selectUserData } from "@/redux/user/userSlice"; 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { checkSession } from "@/services/userService";
 import type { UserData } from "@/types/userData";
 
-// Tiempo mínimo que se muestra el loader (1 segundo)
 const MIN_LOADING_TIME = 1500;
 
 export const useUserData = () => {
     const dispatch = useDispatch();
     const userDataState = useSelector(selectUserData);
+    const hasRun = useRef(false);
 
     useEffect(() => {
+        if (hasRun.current) return;
+        hasRun.current = true;
+
         const verifySession = async () => {
             console.log('useAuth - Verificando sesión...');
             const startTime = Date.now();
@@ -48,7 +51,7 @@ export const useUserData = () => {
             }
         };
         verifySession();
-    }, [dispatch]);
+    }, []);
 
     const handleLogout = () => {
         dispatch(clearUserData());

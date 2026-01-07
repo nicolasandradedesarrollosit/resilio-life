@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-import SessionChecker from "@/common/SessionChecker";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -29,12 +28,10 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 
   return (
     <Provider store={store}>
-      <SessionChecker>
-        <HeroUIProvider navigate={router.push}>
-          <ToastProvider />
-          <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-        </HeroUIProvider>
-      </SessionChecker>
+      <HeroUIProvider navigate={router.push}>
+        <ToastProvider />
+        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+      </HeroUIProvider>
     </Provider>
   );
 }

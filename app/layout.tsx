@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { ConsoleBlocker } from "@/helpers/ConsoleBlock";
 
 import { Providers } from "./providers";
+import SessionChecker from "@/common/SessionChecker";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
@@ -43,9 +44,11 @@ export default function RootLayout({
       >
         <ConsoleBlocker />
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            {children}
-          </div>
+          <SessionChecker>
+            <div className="relative flex flex-col h-screen">
+              {children}
+            </div>
+          </SessionChecker>
         </Providers>
       </body>
     </html>

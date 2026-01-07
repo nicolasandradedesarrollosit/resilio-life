@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 const PUBLIC_ROUTES = [
   '/',
   '/contact',
+  '/login',
+  '/register',
 ];
 
 const isPublicRoute = (pathname: string) => {
@@ -40,7 +42,7 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
     }
   }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
 
-  if (userDataState.loading) {
+  if (userDataState.loading && !userDataState.loaded) {
     return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
   }
   
