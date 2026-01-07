@@ -18,15 +18,16 @@ export async function middleware(request: NextRequest) {
                     credentials: 'include'
                 }
             );
-
+            // <-- if session is invalid, redirect to login -->
             if (!sessionCheck.ok) {
                 return NextResponse.redirect(new URL('/login', request.url));
             }
 
             const sessionData = await sessionCheck.json();
 
+            // <-- if user is not admin, redirect to user dashboard -->
             if (!sessionData.user?.isAdmin) {
-                return NextResponse.redirect(new URL('/home/user', request.url));
+                return NextResponse.redirect(new URL('/user', request.url));
             }
 
             return NextResponse.next();

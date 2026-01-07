@@ -4,8 +4,14 @@ import {useRouter} from "next/navigation"
 
 import {Button} from "@heroui/button"
 
+import { useSelector } from "react-redux";
+
+import { selectUserDataOnly, selectUserLoaded } from "@/redux/user/userSlice";
+
 export default function Hero() {
     const router = useRouter();
+    const userData = useSelector(selectUserDataOnly);
+    const userLoaded = useSelector(selectUserLoaded);
 
     return (
         <section className="flex flex-col items-center bg-gradient-to-br from-gray-900 via-magenta-fuchsia-900 to-gray-800 min-h-[60vh] w-full gap-8 sm:gap-10 md:gap-12 relative overflow-hidden px-4 sm:px-8 lg:px-16">
@@ -43,10 +49,10 @@ export default function Hero() {
                     size="lg" 
                     className="bg-magenta-fuchsia-600 text-white font-light hover:bg-magenta-fuchsia-700 transition-all duration-300 w-full sm:w-auto min-w-[180px]"
                     onPress={() => {
-                        router.push('/login');
+                        router.push(`${userLoaded && userData?.id ? '/user' : '/login'}`);
                     }}
                 >
-                    Iniciar sesión
+                    {userLoaded && userData?.id ? "Perfil" : "Iniciar sesión"}
                 </Button>
             </div>
         </section>

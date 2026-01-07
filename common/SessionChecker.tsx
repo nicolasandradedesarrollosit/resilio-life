@@ -2,7 +2,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useUserData } from '@/hooks/userHook'
 import Loader from '@/common/Loader';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const PUBLIC_ROUTES = [
   '/',
@@ -28,21 +28,24 @@ export default function SessionChecker({ children }: { children: React.ReactNode
 function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   const { userDataState } = useUserData();
   const router = useRouter();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    // Si terminó de cargar
+    // <-- state loaded -->
     if (!userDataState.loading && userDataState.loaded) {
+      isFirstRender.current = false;
+      // <-- redirections -->
       if (!userDataState.data) {
         router.push('/login');
       } else if (userDataState.data.isAdmin) {
-        router.push('/admin/home');
+        router.push('/admin');
       } else {
-        router.push('/user/home');
+        router.push('/user');
       }
     }
   }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
 
-  if (userDataState.loading && !userDataState.loaded) {
+  if (userDataState.loading && !userDataState.loaded && isFirstRender.current) {
     return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
   }
   

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import { useUserData } from "@/hooks/userHook";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -23,6 +24,11 @@ declare module "@react-types/shared" {
   }
 }
 
+function InitialDataLoader({ children }: { children: React.ReactNode }) {
+  useUserData();
+  return <>{children}</>;
+}
+
 export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
@@ -30,7 +36,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
     <Provider store={store}>
       <HeroUIProvider navigate={router.push}>
         <ToastProvider />
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        <NextThemesProvider {...themeProps}>
+          <InitialDataLoader>
+            {children}
+          </InitialDataLoader>
+        </NextThemesProvider>
       </HeroUIProvider>
     </Provider>
   );

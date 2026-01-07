@@ -4,32 +4,32 @@ import { useUserData } from "@/hooks/userHook";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ProtectedRouteAdmin({ children }: { children: React.ReactNode }) {
+export default function ProtectedRouteUser({ children }: { children: React.ReactNode }) {
     const { userDataState } = useUserData();
-    const [isRedirecting, setIsRedirecting] = useState(false);
     const router = useRouter();
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
         if (userDataState.loading || !userDataState.loaded) return;
-
+        
+        // <-- redirections -->
         if (!userDataState.data) {
             setIsRedirecting(true);
             router.replace('/login');
-        } else if (!userDataState.data.isAdmin) {
+        } else if (userDataState.data.isAdmin) {
             setIsRedirecting(true);
-            router.replace('/user');
+            router.replace('/admin');
         }
     }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
 
-    // <-- show loader while checking authentication -->
     if (userDataState.loading || !userDataState.loaded) {
-        return <Loader fallback={"Verificando permisos de administrador..."} />;
+        return <Loader fallback={"Verificando sesión..."} />;
     }
 
-    // <-- redirecting -->
-    if (isRedirecting || !userDataState.data || !userDataState.data.isAdmin) {
+    if (isRedirecting || !userDataState.data || userDataState.data.isAdmin) {
         return <Loader fallback={"Redirigiendo..."} />;
     }
-
+    
+    // <-- authorized user -->
     return <>{children}</>;
 }

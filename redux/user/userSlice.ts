@@ -18,7 +18,7 @@ const userSlice = createSlice({
         },
         clearUserData(state) {
             state.data = null;
-            state.loaded = true; // Marcar que ya se verificó la sesión, aunque sin datos
+            state.loaded = false; 
             state.loading = false;
         },
         setLoading(state, action: PayloadAction<boolean>) {

@@ -9,6 +9,7 @@ import { logInUser } from "@/services/userService"
 import { signInWithGoogle } from "@/firebase/oauth-google"
 import { authGoogleService } from "@/services/userService"
 import { useRouter } from "next/navigation"
+import { useUserData } from "@/hooks/userHook"
 
 interface LogInFormData {
     email: string;
@@ -21,6 +22,7 @@ export default function FormLogIn() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingGoogle, setLoadingGoogle] = useState(false);
     const router = useRouter();
+    const { setUserDataState } = useUserData();
 
     const [stateValidations, setStateValidations] = useState<{
         email: boolean | null;
@@ -82,6 +84,14 @@ export default function FormLogIn() {
                 email: null,
                 password: null
             });
+            if (result?.user) {
+                setUserDataState(result.user);
+                if (result.user.isAdmin) {
+                    router.push('/admin/home');
+                } else {
+                    router.push('/user/home');
+                }
+            }
         }
         catch (error) {
             console.error("Error al enviar el formulario:", error);
@@ -100,7 +110,6 @@ export default function FormLogIn() {
         finally {
             setFormIsInvalid(null);
             setIsSubmitting(false);
-            window.location.reload();
         }
     };
 
@@ -109,15 +118,28 @@ export default function FormLogIn() {
             setLoadingGoogle(true);
             const googleUser = await signInWithGoogle();
             console.log('Google sign-in success:', googleUser);
-            await authGoogleService({ idToken: googleUser.idToken, email: googleUser.email, name: googleUser.name });
-            window.location.reload();
+            const result = await authGoogleService({ idToken: googleUser.idToken, email: googleUser.email, name: googleUser.name });
+            
+            if (result?.user) {
+                setUserDataState(result.user);
+                if (result.user.isAdmin) {
+                    router.push('/admin/home');
+                } else {
+                    router.push('/user/home');
+                }
+            }
         } catch (err) {
             console.error('Error during Google login:', err);
-            alert((err as any)?.message || 'Error durante login con Google');
+            addToast({
+                title: 'Error en login con Google',
+                description: (err as any)?.message || 'Hubo un problema al iniciar sesión con Google.',
+                color: 'danger',
+                variant: 'flat',
+                timeout: 5000
+            });
         } finally { 
             setLoadingGoogle(false);
-            window.location.reload();
-         }
+        }
     }
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
