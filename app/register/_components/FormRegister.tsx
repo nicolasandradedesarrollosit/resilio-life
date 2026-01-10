@@ -6,6 +6,9 @@ import Link from "next/link"
 import { addToast } from "@heroui/toast"
 import { registerUser } from "@/services/userService"
 import { useRouter } from "next/router"
+import { setUserData } from "@/redux/user/userSlice"
+import { useDispatch } from "react-redux"
+import { UserData } from "@/types/userData"
 
 interface RegisterFormData {
     name: string;
@@ -16,8 +19,8 @@ interface RegisterFormData {
 
 export default function FormRegister() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
-    const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const dispatch = useDispatch();
 
     const [stateValidations, setStateValidations] = useState<{
         name: boolean | null;
@@ -79,7 +82,7 @@ export default function FormRegister() {
                 timeout: 5000
             });
 
-            await registerUser(data);
+            const responseData = await registerUser(data);
 
             formRef.current?.reset();
             setStateValidations({
@@ -88,6 +91,7 @@ export default function FormRegister() {
                 email: null,
                 password: null
             });
+            dispatch(setUserData({ data: responseData.user as UserData, loading: false, loaded: false }));
         }
         catch (error) {
             console.error("Error al enviar el formulario:", error);
@@ -104,7 +108,6 @@ export default function FormRegister() {
             return;
         }
         finally {
-            setFormIsInvalid(null);
             setIsSubmitting(false);
             useRouter().push('/login');
         }
