@@ -1,32 +1,34 @@
 'use client';
 import Loader from "@/common/Loader";
 import { useUserData } from "@/hooks/userHook";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function ProtectedRouteUser({ children }: { children: React.ReactNode }) {
-    const { userDataState } = useUserData();
-    const router = useRouter();
-    const [isRedirecting, setIsRedirecting] = useState(false);
+    const { userDataState, isLoading, isLoaded } = useUserData();
+    const hasRedirected = useRef(false);
 
     useEffect(() => {
-        if (userDataState.loading || !userDataState.loaded) return;
+        // Si sigue cargando o no ha terminado, esperar
+        if (isLoading || !isLoaded) return;
         
+        // Evitar loops de redirección
+        if (hasRedirected.current) return;
+
         // <-- redirections -->
         if (!userDataState.data) {
-            setIsRedirecting(true);
-            router.replace('/login');
+            hasRedirected.current = true;
+            window.location.href = '/login';
         } else if (userDataState.data.isAdmin) {
-            setIsRedirecting(true);
-            router.replace('/admin');
+            hasRedirected.current = true;
+            window.location.href = '/admin';
         }
-    }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
+    }, [isLoading, isLoaded, userDataState.data]);
 
-    if (userDataState.loading || !userDataState.loaded) {
+    if (isLoading || !isLoaded) {
         return <Loader fallback={"Verificando sesión..."} />;
     }
 
-    if (isRedirecting || !userDataState.data || userDataState.data.isAdmin) {
+    if (!userDataState.data || userDataState.data.isAdmin) {
         return <Loader fallback={"Redirigiendo..."} />;
     }
     

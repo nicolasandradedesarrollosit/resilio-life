@@ -1,38 +1,39 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setUserData, clearUserData, setLoading } from "@/redux/user/userSlice";
-import { selectUserData } from "@/redux/user/userSlice"; 
-import { useEffect, useState } from "react";
+import { setUserData, clearUserData, setLoading } from "@/redux/userSlice";
+import { selectUserData } from "@/redux/userSlice"; 
+import { useEffect, useRef } from "react";
 import { checkSession } from "@/services/userService";
 import type { UserData } from "@/types/userData";
 
-let isVerifyingSession = false;
-let hasSessionBeenChecked = false;
+let isGlobalVerifying = false;
 
 export const useUserData = () => {
     const dispatch = useDispatch();
     const userDataState = useSelector(selectUserData);
-    const [hasCheckedSession, setHasCheckedSession] = useState(hasSessionBeenChecked);
+    const hasAttemptedVerification = useRef(false);
 
     useEffect(() => {
-        if (hasSessionBeenChecked) {
-            return;
-        }
+        if (userDataState.loaded) return;
+        
+        if (isGlobalVerifying) return;
 
-        if (isVerifyingSession) {
-            return;
-        }
+        if (hasAttemptedVerification.current) return;
 
-        const verifySession = async () => {
-            isVerifyingSession = true;
+        const verifySession = async () => {            
+            isGlobalVerifying = true;
+            hasAttemptedVerification.current = true;
             
             try {
-                dispatch(setLoading(true));
+                // Solo disparamos loading si realmente vamos a fetchear
+                if (!userDataState.loading) {
+                    dispatch(setLoading(true));
+                }
+                
                 const result = await checkSession();
                 
                 if (result?.loggedIn && result.user) {
-                    const userData = result.user as UserData;
                     dispatch(setUserData({
-                        data: userData,
+                        data: result.user as UserData,
                         loading: false,
                         loaded: true,
                     }));
@@ -44,30 +45,34 @@ export const useUserData = () => {
                     }));
                 }
             } catch (error) {
+                console.error("Session check failed", error);
                 dispatch(setUserData({
                     data: null,
                     loading: false,
                     loaded: true,
                 }));
             } finally {
-                isVerifyingSession = false;
-                hasSessionBeenChecked = true;
-                setHasCheckedSession(true);
+                isGlobalVerifying = false;
+                // Nos aseguramos de quitar el loading
+                dispatch(setLoading(false));
             }
         };
         
         verifySession();
-    }, [dispatch]);
+    }, [dispatch, userDataState.loaded, userDataState.loading]);
 
     const handleLogout = () => {
+        isGlobalVerifying = false;
         dispatch(clearUserData());
     }
     
     return { 
         userDataState,
         userData: userDataState.data,
+        isLoggedIn: !!userDataState.data,
+        isLoading: userDataState.loading,
+        isLoaded: userDataState.loaded,
         logOut: handleLogout, 
-        hasCheckedSession,
         setUserDataState: (userData: UserData | null) => dispatch(setUserData({ data: userData, loading: false, loaded: true })), 
         setLoadingState: (loading: boolean) => dispatch(setLoading(loading)) 
     };

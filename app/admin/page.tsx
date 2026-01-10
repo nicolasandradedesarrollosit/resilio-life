@@ -1,12 +1,20 @@
-import ProtectedRouteAdmin from "@/hooks/ProtectedRouteAdmin"
+"use client"
+import NavbarAdmin from "@/common/NavbarAdmin"
+import TableUsers from "./_components/TableUsers"
+import { useSelector } from "react-redux"
+import { selectIsNavOpen } from "@/redux/navbarSlice"
 
 export default function HomeAdminPage() {
+    const isNavOpen = useSelector(selectIsNavOpen);
+
     return (
-        <ProtectedRouteAdmin>
-            <section className="min-h-screen w-full flex flex-col justify-center items-center">
-                <h1>Admin Home Page</h1>
-                <span>Esta es la página de administración</span>
-            </section>
-        </ProtectedRouteAdmin>
+        <section className="min-h-screen w-full flex flex-row bg-gray-50">
+            <NavbarAdmin currentPageName="Usuarios" />
+            <main className={`flex-1 min-h-screen transition-all duration-300 ${
+                isNavOpen ? "md:ml-72" : "md:ml-0"
+            }`}>
+                <TableUsers />
+            </main>
+        </section>
     )
 }

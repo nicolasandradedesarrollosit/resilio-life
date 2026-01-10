@@ -1,34 +1,35 @@
 'use client'
-import { useRouter } from 'next/navigation'
-import { useUserData } from '@/hooks/userHook'
 import Loader from '@/common/Loader'
-import { useEffect, useState } from 'react'
+import { useUserData } from '@/hooks/userHook'
+import { useEffect } from 'react'
 
-export default function ProtectedRouteLogin({ children }: { children: React.ReactNode }) {
-  const { userDataState, hasCheckedSession } = useUserData()
-  const router = useRouter()
-  const [isRedirecting, setIsRedirecting] = useState(false)
+export default function ProtectedRouteLogin({ children, hasAuthCookie = false }: { children: React.ReactNode, hasAuthCookie?: boolean }) {
+  const { userDataState } = useUserData()
+  
+  // Use prop if available, otherwise just false to be safe (or rely on effect)
+  // We prefer prop to avoid hydration mismatch
+  const isOptimisticAuth = hasAuthCookie;
 
   useEffect(() => {
-    if (userDataState.loading || !hasCheckedSession) return;
+    if (userDataState.loading || !userDataState.loaded) return;
     
     if (userDataState.data) {
-      setIsRedirecting(true)
       if (userDataState.data.isAdmin) {
-        router.replace('/admin')
+        window.location.href = '/admin';
       } else {
-        router.replace('/user')
+        window.location.href = '/user';
       }
     }
-  }, [userDataState.loading, hasCheckedSession, userDataState.data, router])
+  }, [userDataState.loading, userDataState.loaded, userDataState.data])
 
-  if (userDataState.loading || !hasCheckedSession) {
-    return <Loader fallback={"Cargando autenticación en el sistema..."} />
+  if (userDataState.loading || !userDataState.loaded || userDataState.data) {
+    return <Loader fallback={"Verificando estado de la sesión..."} />
   }
 
-  if (isRedirecting || userDataState.data) {
-    return <Loader fallback={"Redirigiendo..."} />
+  // If cookie says we are logged in, don't show login form, show loader waiting for redirect
+  if (isOptimisticAuth) {
+      return <Loader fallback={"Redirigiendo..."} />
   }
-
+  
   return <>{children}</>
 }

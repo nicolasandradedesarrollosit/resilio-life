@@ -1,9 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./user/userSlice";
+import userReducer from "./userSlice";
+import AllUserReducer from "./allUserSlice";
+import ModalReducer from "./modalSlice";
+import NavbarReducer from "./navbarSlice";
 
 export const store = configureStore({
     reducer: {
         user: userReducer,
+        allUser: AllUserReducer,
+        modal: ModalReducer,
+        navbar: NavbarReducer,
     },
 });
 

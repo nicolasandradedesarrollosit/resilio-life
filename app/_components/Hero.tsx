@@ -6,7 +6,7 @@ import {Button} from "@heroui/button"
 
 import { useSelector } from "react-redux";
 
-import { selectUserDataOnly, selectUserLoaded } from "@/redux/user/userSlice";
+import { selectUserDataOnly, selectUserLoaded } from "@/redux/userSlice";
 
 export default function Hero() {
     const router = useRouter();

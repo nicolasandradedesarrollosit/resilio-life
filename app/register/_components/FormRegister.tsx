@@ -5,8 +5,8 @@ import { Input } from "@heroui/input"
 import Link from "next/link"
 import { addToast } from "@heroui/toast"
 import { registerUser } from "@/services/userService"
-import { useRouter } from "next/router"
-import { setUserData } from "@/redux/user/userSlice"
+import { useRouter } from "next/navigation"
+import { setUserData } from "@/redux/userSlice"
 import { useDispatch } from "react-redux"
 import { UserData } from "@/types/userData"
 
@@ -21,6 +21,7 @@ export default function FormRegister() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
+    const router = useRouter();
 
     const [stateValidations, setStateValidations] = useState<{
         name: boolean | null;
@@ -109,7 +110,7 @@ export default function FormRegister() {
         }
         finally {
             setIsSubmitting(false);
-            useRouter().push('/login');
+            router.push('/login');
         }
     };
 

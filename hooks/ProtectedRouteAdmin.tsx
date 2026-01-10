@@ -1,33 +1,26 @@
 'use client';
 import Loader from "@/common/Loader";
 import { useUserData } from "@/hooks/userHook";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function ProtectedRouteAdmin({ children }: { children: React.ReactNode }) {
     const { userDataState } = useUserData();
-    const [isRedirecting, setIsRedirecting] = useState(false);
-    const router = useRouter();
-
+    
     useEffect(() => {
         if (userDataState.loading || !userDataState.loaded) return;
 
         if (!userDataState.data) {
-            setIsRedirecting(true);
-            router.replace('/login');
+            window.location.href = '/login';
         } else if (!userDataState.data.isAdmin) {
-            setIsRedirecting(true);
-            router.replace('/user');
+            window.location.href = '/user';
         }
-    }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
+    }, [userDataState.loading, userDataState.loaded, userDataState.data]);
 
-    // <-- show loader while checking authentication -->
     if (userDataState.loading || !userDataState.loaded) {
         return <Loader fallback={"Verificando permisos de administrador..."} />;
     }
 
-    // <-- redirecting -->
-    if (isRedirecting || !userDataState.data || !userDataState.data.isAdmin) {
+    if (!userDataState.data || !userDataState.data.isAdmin) {
         return <Loader fallback={"Redirigiendo..."} />;
     }
 

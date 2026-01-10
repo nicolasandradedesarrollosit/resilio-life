@@ -3,14 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    if (pathname.startsWith('/admin')) {
+    // <-- protect both /admin and /user routes -->
+    if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
         try {
-            const protocol = request.headers.get('x-forwarded-proto') || 'http';
-            const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || 'localhost:3000';
-            const origin = `${protocol}://${host}`;
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
             const sessionCheck = await fetch(
-                `${origin}/api/check-session`,
+                `${apiUrl}/api/check-session`,
                 { 
                     headers: { 
                         cookie: request.headers.get('cookie') || '' 
@@ -18,6 +17,7 @@ export async function middleware(request: NextRequest) {
                     credentials: 'include'
                 }
             );
+            
             // <-- if session is invalid, redirect to login -->
             if (!sessionCheck.ok) {
                 return NextResponse.redirect(new URL('/login', request.url));
@@ -25,9 +25,23 @@ export async function middleware(request: NextRequest) {
 
             const sessionData = await sessionCheck.json();
 
-            // <-- if user is not admin, redirect to user dashboard -->
-            if (!sessionData.user?.isAdmin) {
-                return NextResponse.redirect(new URL('/user', request.url));
+            // <-- validate user exists -->
+            if (!sessionData.user) {
+                return NextResponse.redirect(new URL('/login', request.url));
+            }
+
+            // <-- admin route validation -->
+            if (pathname.startsWith('/admin')) {
+                if (!sessionData.user.isAdmin) {
+                    return NextResponse.redirect(new URL('/user', request.url));
+                }
+            }
+
+            // <-- user route validation -->
+            if (pathname.startsWith('/user')) {
+                if (sessionData.user.isAdmin) {
+                    return NextResponse.redirect(new URL('/admin', request.url));
+                }
             }
 
             return NextResponse.next();
@@ -41,5 +55,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*']
+    matcher: ['/admin/:path*', '/user/:path*']
 };

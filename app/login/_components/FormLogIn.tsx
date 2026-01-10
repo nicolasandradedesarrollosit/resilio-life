@@ -87,9 +87,9 @@ export default function FormLogIn() {
             if (result?.user) {
                 setUserDataState(result.user);
                 if (result.user.isAdmin) {
-                    router.push('/admin/home');
+                    router.push('/admin');
                 } else {
-                    router.push('/user/home');
+                    router.push('/user');
                 }
             }
         }
@@ -123,9 +123,9 @@ export default function FormLogIn() {
             if (result?.user) {
                 setUserDataState(result.user);
                 if (result.user.isAdmin) {
-                    router.push('/admin/home');
+                    router.push('/admin');
                 } else {
-                    router.push('/user/home');
+                    router.push('/user');
                 }
             }
         } catch (err) {
