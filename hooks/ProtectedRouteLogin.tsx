@@ -5,12 +5,12 @@ import Loader from '@/common/Loader'
 import { useEffect, useState } from 'react'
 
 export default function ProtectedRouteLogin({ children }: { children: React.ReactNode }) {
-  const { userDataState } = useUserData()
+  const { userDataState, hasCheckedSession } = useUserData()
   const router = useRouter()
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
-    if (userDataState.loading || !userDataState.loaded) return;
+    if (userDataState.loading || !hasCheckedSession) return;
     
     if (userDataState.data) {
       setIsRedirecting(true)
@@ -20,9 +20,9 @@ export default function ProtectedRouteLogin({ children }: { children: React.Reac
         router.replace('/user')
       }
     }
-  }, [userDataState.loading, userDataState.loaded, userDataState.data, router])
+  }, [userDataState.loading, hasCheckedSession, userDataState.data, router])
 
-  if (userDataState.loading || !userDataState.loaded) {
+  if (userDataState.loading || !hasCheckedSession) {
     return <Loader fallback={"Cargando autenticación en el sistema..."} />
   }
 
