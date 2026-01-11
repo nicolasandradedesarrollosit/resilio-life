@@ -28,6 +28,7 @@ export default function SessionChecker({ children }: { children: React.ReactNode
 function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   const { userDataState } = useUserData();
   const router = useRouter();
+  const pathname = usePathname();
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -36,14 +37,14 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
       isFirstRender.current = false;
       // <-- redirections -->
       if (!userDataState.data) {
-        router.push('/login');
+        if (pathname !== '/login') router.push('/login');
       } else if (userDataState.data.isAdmin) {
-        router.push('/admin');
+        if (!pathname.startsWith('/admin')) router.push('/admin');
       } else {
-        router.push('/user');
+        if (!pathname.startsWith('/user')) router.push('/user');
       }
     }
-  }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
+  }, [userDataState.loading, userDataState.loaded, userDataState.data, router, pathname]);
 
   if (userDataState.loading && !userDataState.loaded && isFirstRender.current) {
     return <Loader fallback={"Cargando autenticación en el sistema..."}/>;

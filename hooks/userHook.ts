@@ -52,8 +52,6 @@ export const useUserData = () => {
                 }));
             } finally {
                 isGlobalVerifying = false;
-                // Nos aseguramos de quitar el loading
-                dispatch(setLoading(false));
             }
         };
         
