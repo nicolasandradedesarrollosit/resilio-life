@@ -13,13 +13,23 @@ export const useUserData = () => {
     const hasAttemptedVerification = useRef(false);
 
     useEffect(() => {
-        if (userDataState.loaded) return;
+        if (userDataState.loaded) {
+            console.log('[useUserData] Already loaded, skipping verification');
+            return;
+        }
         
-        if (isGlobalVerifying) return;
+        if (isGlobalVerifying) {
+            console.log('[useUserData] Global verification in progress, skipping');
+            return;
+        }
 
-        if (hasAttemptedVerification.current) return;
+        if (hasAttemptedVerification.current) {
+            console.log('[useUserData] Already attempted verification, skipping');
+            return;
+        }
 
         const verifySession = async () => {            
+            console.log('[useUserData] Starting session verification...');
             isGlobalVerifying = true;
             hasAttemptedVerification.current = true;
             
@@ -29,14 +39,17 @@ export const useUserData = () => {
                 }
                 
                 const result = await checkSession();
+                console.log('[useUserData] checkSession result:', { loggedIn: result?.loggedIn, hasUser: !!result?.user, error: result?.error });
                 
                 if (result?.loggedIn && result.user) {
+                    console.log('[useUserData] User authenticated, setting user data');
                     dispatch(setUserData({
                         data: result.user as UserData,
                         loading: false,
                         loaded: true,
                     }));
                 } else {
+                    console.log('[useUserData] User not authenticated, clearing data');
                     dispatch(setUserData({
                         data: null,
                         loading: false,
@@ -44,7 +57,7 @@ export const useUserData = () => {
                     }));
                 }
             } catch (error) {
-                console.error("Session check failed", error);
+                console.error("[useUserData] Session check failed:", error);
                 dispatch(setUserData({
                     data: null,
                     loading: false,
@@ -52,6 +65,7 @@ export const useUserData = () => {
                 }));
             } finally {
                 isGlobalVerifying = false;
+                console.log('[useUserData] Verification complete');
             }
         };
         
