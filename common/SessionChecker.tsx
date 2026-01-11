@@ -29,25 +29,47 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   const { userDataState } = useUserData();
   const router = useRouter();
   const pathname = usePathname();
-  const isFirstRender = useRef(true);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
     // <-- state loaded -->
     if (!userDataState.loading && userDataState.loaded) {
-      isFirstRender.current = false;
+      // Evitar redirecciones repetidas
+      if (hasRedirected.current) return;
+      
       // <-- redirections -->
       if (!userDataState.data) {
-        if (pathname !== '/login') router.push('/login');
+        if (pathname !== '/login') {
+          hasRedirected.current = true;
+          router.push('/login');
+        }
       } else if (userDataState.data.isAdmin) {
-        if (!pathname.startsWith('/admin')) router.push('/admin');
+        if (!pathname.startsWith('/admin')) {
+          hasRedirected.current = true;
+          router.push('/admin');
+        }
       } else {
-        if (!pathname.startsWith('/user')) router.push('/user');
+        if (!pathname.startsWith('/user')) {
+          hasRedirected.current = true;
+          router.push('/user');
+        }
       }
     }
   }, [userDataState.loading, userDataState.loaded, userDataState.data, router, pathname]);
 
-  if (userDataState.loading && !userDataState.loaded && isFirstRender.current) {
+  // Mostrar loader solo durante la carga inicial
+  if (userDataState.loading || !userDataState.loaded) {
     return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
+  }
+
+  // Mostrar loader durante la redirección
+  const shouldRedirect = 
+    (!userDataState.data && pathname !== '/login') ||
+    (userDataState.data?.isAdmin && !pathname.startsWith('/admin')) ||
+    (userDataState.data && !userDataState.data.isAdmin && !pathname.startsWith('/user'));
+
+  if (shouldRedirect) {
+    return <Loader fallback={"Redirigiendo..."}/>;
   }
   
   return <>{children}</>;
