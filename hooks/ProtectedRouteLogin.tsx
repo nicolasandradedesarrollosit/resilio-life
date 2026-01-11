@@ -2,9 +2,11 @@
 import Loader from '@/common/Loader'
 import { useUserData } from '@/hooks/userHook'
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function ProtectedRouteLogin({ children, hasAuthCookie = false }: { children: React.ReactNode, hasAuthCookie?: boolean }) {
   const { userDataState } = useUserData()
+  const router = useRouter()
   
   // Use prop if available, otherwise just false to be safe (or rely on effect)
   // We prefer prop to avoid hydration mismatch
@@ -15,18 +17,17 @@ export default function ProtectedRouteLogin({ children, hasAuthCookie = false }:
     
     if (userDataState.data) {
       if (userDataState.data.isAdmin) {
-        window.location.href = '/admin';
+        router.push('/admin');
       } else {
-        window.location.href = '/user';
+        router.push('/user');
       }
     }
-  }, [userDataState.loading, userDataState.loaded, userDataState.data])
+  }, [userDataState.loading, userDataState.loaded, userDataState.data, router])
 
   if (userDataState.loading || !userDataState.loaded || userDataState.data) {
     return <Loader fallback={"Verificando estado de la sesión..."} />
   }
 
-  // If cookie says we are logged in, don't show login form, show loader waiting for redirect
   if (isOptimisticAuth) {
       return <Loader fallback={"Redirigiendo..."} />
   }

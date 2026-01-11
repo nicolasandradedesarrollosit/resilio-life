@@ -24,7 +24,6 @@ export const useUserData = () => {
             hasAttemptedVerification.current = true;
             
             try {
-                // Solo disparamos loading si realmente vamos a fetchear
                 if (!userDataState.loading) {
                     dispatch(setLoading(true));
                 }

@@ -2,9 +2,11 @@
 import Loader from "@/common/Loader";
 import { useUserData } from "@/hooks/userHook";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ProtectedRouteUser({ children }: { children: React.ReactNode }) {
     const { userDataState, isLoading, isLoaded } = useUserData();
+    const router = useRouter();
     const hasRedirected = useRef(false);
 
     useEffect(() => {
@@ -17,12 +19,12 @@ export default function ProtectedRouteUser({ children }: { children: React.React
         // <-- redirections -->
         if (!userDataState.data) {
             hasRedirected.current = true;
-            window.location.href = '/login';
+            router.push('/login');
         } else if (userDataState.data.isAdmin) {
             hasRedirected.current = true;
-            window.location.href = '/admin';
+            router.push('/admin');
         }
-    }, [isLoading, isLoaded, userDataState.data]);
+    }, [isLoading, isLoaded, userDataState.data, router]);
 
     if (isLoading || !isLoaded) {
         return <Loader fallback={"Verificando sesión..."} />;
