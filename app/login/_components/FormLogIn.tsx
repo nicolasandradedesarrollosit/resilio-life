@@ -9,7 +9,7 @@ import { logInUser } from "@/services/userService"
 import { signInWithGoogle } from "@/firebase/oauth-google"
 import { authGoogleService } from "@/services/userService"
 import { useRouter } from "next/navigation"
-import { useUserData } from "@/hooks/userHook"
+import { useUserData } from "@/hooks/useAuthHook"
 
 interface LogInFormData {
     email: string;
@@ -66,18 +66,20 @@ export default function FormLogIn() {
 
             const result = await logInUser(data);
 
+            if (!result.user) {
+                addToast({
+                    title: 'Error de autenticación',
+                    description: 'No se encontró una cuenta con ese email o la contraseña es incorrecta.',
+                    color: 'danger',
+                    variant: 'flat',
+                    timeout: 5000
+                });
+            }
+
             const okStatus = (res: any) => (typeof res === 'object' && res !== null && ('status' in res ? [200, 201].includes(res.status) : true));
             if (!okStatus(result)) {
                 throw new Error(`Respuesta inesperada del servidor: ${JSON.stringify(result)}`);
             }
-
-            addToast({
-                title: 'Enviado con éxito',
-                description: 'Estamos procesando tu solicitud.',
-                color: 'success',
-                variant: 'flat',
-                timeout: 5000
-            });
 
             formRef.current?.reset();
             setStateValidations({
@@ -85,6 +87,13 @@ export default function FormLogIn() {
                 password: null
             });
             if (result?.user) {
+                addToast({
+                    title: 'Procesando la solicitud',
+                    description: 'Iniciando sesión...',
+                    color: 'success',
+                    variant: 'flat',
+                    timeout: 5000
+                });
                 setUserDataState(result.user);
                 if (result.user.isAdmin) {
                     router.push('/admin');

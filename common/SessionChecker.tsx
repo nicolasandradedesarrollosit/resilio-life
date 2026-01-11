@@ -1,6 +1,6 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import { useUserData } from '@/hooks/userHook'
+import { useUserData } from '@/hooks/useAuthHook'
 import Loader from '@/common/Loader';
 import { useEffect, useRef } from 'react';
 
@@ -16,6 +16,7 @@ const isPublicRoute = (pathname: string) => {
 };
 
 export default function SessionChecker({ children }: { children: React.ReactNode }) {
+  useUserData(); // Cargar datos del usuario globalmente para evitar loaders en navegación
   const pathname = usePathname();
   
   if (isPublicRoute(pathname)) {
@@ -30,14 +31,11 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const isRedirecting = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
-  console.log('[SessionChecker] State:', { 
-    loading: userDataState.loading, 
-    loaded: userDataState.loaded, 
-    hasData: !!userDataState.data,
-    isAdmin: userDataState.data?.isAdmin,
-    pathname 
-  });
+  if (userDataState.loaded) {
+    hasLoadedOnce.current = true;
+  }
 
   useEffect(() => {
     // <-- state loaded -->
@@ -45,19 +43,16 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
       // <-- redirections -->
       if (!userDataState.data) {
         if (pathname !== '/login') {
-          console.log('[SessionChecker] No user data, redirecting to /login');
           isRedirecting.current = true;
           router.push('/login');
         }
       } else if (userDataState.data.isAdmin) {
         if (!pathname.startsWith('/admin')) {
-          console.log('[SessionChecker] Admin user not on /admin, redirecting to /admin');
           isRedirecting.current = true;
           router.push('/admin');
         }
       } else {
         if (!pathname.startsWith('/user')) {
-          console.log('[SessionChecker] Regular user not on /user, redirecting to /user');
           isRedirecting.current = true;
           router.push('/user');
         }
@@ -70,10 +65,15 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
     isRedirecting.current = false;
   }, [pathname]);
 
-  // Mostrar loader solo durante la carga inicial
-  if (userDataState.loading || !userDataState.loaded) {
-    console.log('[SessionChecker] Still loading, showing auth loader');
-    return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
+  // Mostrar loader solo durante la carga inicial del estado (SI NUNCA HA CARGADO)
+  if (!hasLoadedOnce.current) {
+    if (userDataState.loading && !userDataState.loaded) {
+      return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
+    }
+
+    if (!userDataState.loaded) {
+      return <Loader fallback={"Verificando sesión..."}/>;
+    }
   }
 
   // Verificar si el usuario está en la ruta correcta
@@ -82,14 +82,12 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
     (userDataState.data?.isAdmin && pathname.startsWith('/admin')) ||
     (userDataState.data && !userDataState.data.isAdmin && pathname.startsWith('/user'));
 
-  console.log('[SessionChecker] isInCorrectRoute:', isInCorrectRoute);
-
-  // Mostrar loader solo si necesita redirigir
+  // Si no está en la ruta correcta, retornamos null para evitar renderizar contenido protegido
+  // mientras ocurre la redirección del useEffect.
+  // Evitamos mostrar un Loader aquí para no generar "flicker" en transiciones rápidas.
   if (!isInCorrectRoute) {
-    console.log('[SessionChecker] Not in correct route, showing redirect loader');
-    return <Loader fallback={"Redirigiendo..."}/>;
+    return null;
   }
   
-  console.log('[SessionChecker] All good, rendering children');
   return <>{children}</>;
 }

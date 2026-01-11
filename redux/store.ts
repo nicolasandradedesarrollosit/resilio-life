@@ -3,6 +3,7 @@ import userReducer from "./userSlice";
 import AllUserReducer from "./allUserSlice";
 import ModalReducer from "./modalSlice";
 import NavbarReducer from "./navbarSlice";
+import EventsReducer from "./eventsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
         allUser: AllUserReducer,
         modal: ModalReducer,
         navbar: NavbarReducer,
+        events: EventsReducer,
     },
 });
 

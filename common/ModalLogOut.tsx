@@ -5,7 +5,7 @@ import {Modal,
     ModalHeader
 } from "@heroui/modal"
 import { logOut as logOutService } from "@/services/userService"
-import { useUserData } from "@/hooks/userHook";
+import { useUserData } from "@/hooks/useAuthHook";
 import { Avatar } from "@heroui/avatar";
 import {useModal} from "@/hooks/useModal";
 import {useState, useEffect} from "react";

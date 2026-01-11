@@ -1,6 +1,6 @@
 'use client'
 import Loader from '@/common/Loader'
-import { useUserData } from '@/hooks/userHook'
+import { useUserData } from '@/hooks/useAuthHook'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 

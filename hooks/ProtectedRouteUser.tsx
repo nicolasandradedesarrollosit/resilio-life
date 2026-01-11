@@ -1,6 +1,6 @@
 'use client';
 import Loader from "@/common/Loader";
-import { useUserData } from "@/hooks/userHook";
+import { useUserData } from "@/hooks/useAuthHook";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
@@ -31,7 +31,7 @@ export default function ProtectedRouteUser({ children }: { children: React.React
     }
 
     if (!userDataState.data || userDataState.data.isAdmin) {
-        return <Loader fallback={"Redirigiendo..."} />;
+        return null;
     }
     
     // <-- authorized user -->

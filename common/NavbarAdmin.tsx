@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@heroui/button"
-import { Link } from "@heroui/link"
+import NextLink from "next/link"
 import { Avatar } from "@heroui/avatar"
 import { useDispatch, useSelector } from "react-redux"
 import { selectUserDataOnly } from "@/redux/userSlice"
@@ -9,6 +9,7 @@ import Image from "next/image"
 import { selectIsNavOpen, toggleNav } from "@/redux/navbarSlice"
 import ModalLogOut from "./ModalLogOut"
 import { useModal } from "@/hooks/useModal"
+import { useRouter } from "next/navigation"
 
 export interface NavbarAdminProps {
     currentPageName: string;
@@ -19,6 +20,7 @@ export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
     const isNavOpen = useSelector(selectIsNavOpen);
     const userData = useSelector(selectUserDataOnly);
     const { onOpen: onOpenLogOut } = useModal('logOutModal');
+    const router = useRouter();
 
     const buttons = [
         {
@@ -43,7 +45,7 @@ export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
             <Button
                 isIconOnly
                 className="hidden md:flex fixed top-8 left-4 z-50 bg-magenta-fuchsia-600 text-white hover:bg-magenta-fuchsia-700 transition-all duration-300 shadow-lg"
-                onClick={() => dispatch(toggleNav())}
+                onPress={() => dispatch(toggleNav())}
                 size="sm"
             >
                 {isNavOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -75,8 +77,9 @@ export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
                             key={index}
                             variant="solid"
                             size="lg"
-                            as={Link}
-                            href={item.link}
+                            onPress={() => {
+                                router.push(item.link);
+                            }}
                         >
                             <span className="font-semibold text-base">{item.name}</span>
                         </Button>
@@ -124,7 +127,7 @@ export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
                                 key={index}
                                 size="md"
                                 variant="light"
-                                as={Link}
+                                as={NextLink}
                                 href={item.link}
                                 aria-label={item.name}
                             >

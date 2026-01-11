@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import { selectAllUsers } from "@/redux/allUserSlice";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { setAllUserData, setLoading } from "@/redux/allUserSlice";  
+import { setAllUserData, setLoading } from "@/redux/allUserSlice";
+import { UserData } from "@/types/userData";  
 
 
 export const useUsers = () => {
@@ -17,7 +18,7 @@ export const useUsers = () => {
             const fetchUsers = async () => {
                 try {
                     const users = await getUsers();
-                    dispatch(setAllUserData({ users, loaded: true, loading: false }));
+                    dispatch(setAllUserData({ users: users as UserData[], loaded: true, loading: false }));
                 } catch (error) {
                     console.error("Error fetching users:", error);
                     dispatch(setAllUserData({ users: [], loaded: true, loading: false }));

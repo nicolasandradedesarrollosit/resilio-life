@@ -49,7 +49,7 @@ export default function Hero() {
                     size="lg" 
                     className="bg-magenta-fuchsia-600 text-white font-light hover:bg-magenta-fuchsia-700 transition-all duration-300 w-full sm:w-auto min-w-[180px]"
                     onPress={() => {
-                        router.push(`${userLoaded && userData?.id ? '/user' : '/login'}`);
+                        router.push(`${userLoaded && userData?.id ? (userData.isAdmin ? '/admin' : '/user') : '/login'}`);
                     }}
                 >
                     {userLoaded && userData?.id ? "Perfil" : "Iniciar sesión"}
