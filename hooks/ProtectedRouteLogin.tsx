@@ -8,8 +8,6 @@ export default function ProtectedRouteLogin({ children, hasAuthCookie = false }:
   const { userDataState } = useUserData()
   const router = useRouter()
   
-  // Use prop if available, otherwise just false to be safe (or rely on effect)
-  // We prefer prop to avoid hydration mismatch
   const isOptimisticAuth = hasAuthCookie;
 
   useEffect(() => {
@@ -25,11 +23,11 @@ export default function ProtectedRouteLogin({ children, hasAuthCookie = false }:
   }, [userDataState.loading, userDataState.loaded, userDataState.data, router])
 
   if (userDataState.loading || !userDataState.loaded || userDataState.data) {
-    return <Loader fallback={"Verificando estado de la sesión..."} />
+      return null;
   }
 
   if (isOptimisticAuth) {
-      return <Loader fallback={"Redirigiendo..."} />
+      return null;
   }
   
   return <>{children}</>

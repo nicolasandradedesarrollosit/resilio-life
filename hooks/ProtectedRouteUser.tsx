@@ -10,13 +10,10 @@ export default function ProtectedRouteUser({ children }: { children: React.React
     const hasRedirected = useRef(false);
 
     useEffect(() => {
-        // Si sigue cargando o no ha terminado, esperar
         if (isLoading || !isLoaded) return;
         
-        // Evitar loops de redirección
         if (hasRedirected.current) return;
 
-        // <-- redirections -->
         if (!userDataState.data) {
             hasRedirected.current = true;
             router.push('/login');
@@ -27,13 +24,12 @@ export default function ProtectedRouteUser({ children }: { children: React.React
     }, [isLoading, isLoaded, userDataState.data, router]);
 
     if (isLoading || !isLoaded) {
-        return <Loader fallback={"Verificando sesión..."} />;
+        return null;
     }
 
     if (!userDataState.data || userDataState.data.isAdmin) {
         return null;
     }
     
-    // <-- authorized user -->
     return <>{children}</>;
 }

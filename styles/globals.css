@@ -1,3 +1,9 @@
 @import "tailwindcss";
 
+input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
 @config "../tailwind.config.js"

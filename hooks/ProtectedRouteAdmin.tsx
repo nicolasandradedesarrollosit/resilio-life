@@ -1,5 +1,4 @@
 'use client';
-import Loader from "@/common/Loader";
 import { useUserData } from "@/hooks/useAuthHook";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -19,7 +18,7 @@ export default function ProtectedRouteAdmin({ children }: { children: React.Reac
     }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
 
     if (userDataState.loading || !userDataState.loaded) {
-        return <Loader fallback={"Verificando permisos de administrador..."} />;
+        return null;
     }
 
     if (!userDataState.data || !userDataState.data.isAdmin) {

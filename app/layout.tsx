@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { ConsoleBlocker } from "@/helpers/ConsoleBlock";
 
 import { Providers } from "./providers";
-import SessionChecker from "@/common/SessionChecker";
+import SessionChecker from "@/hooks/SessionChecker";
 
 import { siteConfig } from "@/config/site";
 
@@ -20,6 +20,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
