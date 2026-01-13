@@ -1,8 +1,10 @@
 "use client"
 
 import {Accordion, AccordionItem} from "@heroui/accordion"
+import { useRouter } from "next/navigation";
 
 export default function ThirdSection() {
+    const router = useRouter();
     const faqs = [
         {
             pregunta: "¿Qué es este SaaS de beneficios y descuentos?",
@@ -85,7 +87,12 @@ export default function ThirdSection() {
                     <p className="text-gray-600 font-light mb-6 text-sm sm:text-base md:text-lg">
                         ¿Tenés otra pregunta?
                     </p>
-                    <button className="px-8 cursor-pointer sm:px-10 py-3 sm:py-4 bg-white text-gray-900 font-light text-base sm:text-lg text-magenta-fuchsia-600 border-magenta-fuchsia-500 rounded-full border-2 border-gray-200">
+                    <button 
+                        className="px-8 sm:px-10 py-3 sm:py-4 bg-purple-600 text-white font-light text-base sm:text-lg rounded-full border-2 border-purple-600 hover:bg-white hover:text-purple-600 transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                            router.push('/contact');
+                        }}
+                    >
                         Contactanos
                     </button>
                 </div>

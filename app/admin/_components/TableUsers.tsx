@@ -1,7 +1,7 @@
 import {Table, TableHeader, TableRow, TableColumn, TableBody, TableCell} from "@heroui/table"
 import { Input } from "@heroui/input"
 import { Pagination } from "@heroui/pagination"
-import { UserData } from "@/types/userData"
+import { UserData } from "@/types/userData.type"
 import { useMemo, useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { useSelector } from "react-redux"

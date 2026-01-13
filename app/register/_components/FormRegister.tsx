@@ -8,7 +8,7 @@ import { registerUser } from "@/services/userService"
 import { useRouter } from "next/navigation"
 import { setUserData } from "@/redux/userSlice"
 import { useDispatch } from "react-redux"
-import { UserData } from "@/types/userData"
+import { UserData } from "@/types/userData.type"
 import { EyeOff, Eye } from "lucide-react"
 
 interface RegisterFormData {

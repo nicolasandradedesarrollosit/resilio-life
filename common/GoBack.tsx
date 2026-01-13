@@ -1,5 +1,5 @@
 "use client";
-
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function GoBack({ url }: { url: string }) {
@@ -11,12 +11,10 @@ export default function GoBack({ url }: { url: string }) {
             router.push(url);
         }}
         >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-5 sm:w-5 text-gray-700 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-        <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-black transition-colors">
-            Volver
-        </span>
+            <ArrowLeft size={16} className="text-gray-700 group-hover:text-black transition-colors" />
+            <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-black transition-colors">
+                Volver
+            </span>
         </button>
     );
 }

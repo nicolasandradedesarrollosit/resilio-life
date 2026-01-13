@@ -3,7 +3,7 @@ import { setUserData, clearUserData, setLoading } from "@/redux/userSlice";
 import { selectUserData } from "@/redux/userSlice"; 
 import { useEffect, useRef } from "react";
 import { checkSession } from "@/services/userService";
-import type { UserData } from "@/types/userData";
+import type { UserData } from "@/types/userData.type";
 
 let isGlobalVerifying = false;
 

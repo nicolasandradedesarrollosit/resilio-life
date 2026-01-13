@@ -8,8 +8,9 @@ import { logOut as logOutService } from "@/services/userService"
 import { useUserData } from "@/hooks/useAuthHook";
 import { Avatar } from "@heroui/avatar";
 import {useModal} from "@/hooks/useModal";
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import { Button } from "@heroui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSelector } from "react-redux";
 import { selectUserDataOnly } from "@/redux/userSlice";
 
@@ -18,19 +19,8 @@ export default function ModalLogOut() {
     const userData = useSelector(selectUserDataOnly)
     const {isOpen, onOpenChange} = useModal('logOutModal');
     
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = useIsMobile();
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 640);
-        };
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        }
-    }, []);
 
     const handleLogOut = async () => {
         try {

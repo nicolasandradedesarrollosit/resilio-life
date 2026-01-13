@@ -1,32 +1,47 @@
 "use client"
-import { getUsers } from "@/services/userService";
-import { useSelector } from "react-redux";
-import { selectAllUsers } from "@/redux/allUserSlice";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { setAllUserData, setLoading } from "@/redux/allUserSlice";
-import { UserData } from "@/types/userData";  
 
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { selectAllUsers, setAllUserData, setLoading } from "@/redux/allUserSlice";
+import { useApi } from "./useApi";
+import { UserData } from "@/types/userData.type";
 
 export const useUsers = () => {
-    const AllUsers = useSelector(selectAllUsers);
+    const allUsers = useSelector(selectAllUsers);
     const dispatch = useDispatch();
+    
+    const { data, loading, error } = useApi<UserData[]>({
+        endpoint: '/users',
+        method: 'GET',
+        includeCredentials: true,
+        enabled: allUsers.length === 0, 
+    });
 
     useEffect(() => {
-        if (AllUsers.length === 0) {
-            dispatch(setLoading(true));
-            const fetchUsers = async () => {
-                try {
-                    const users = await getUsers();
-                    dispatch(setAllUserData({ users: users as UserData[], loaded: true, loading: false }));
-                } catch (error) {
-                    console.error("Error fetching users:", error);
-                    dispatch(setAllUserData({ users: [], loaded: true, loading: false }));
-                }
-            };
-            fetchUsers();
+        if (data && data.length > 0) {
+            dispatch(setAllUserData({
+                users: data,
+                loading: false,
+                loaded: true
+            }));
         }
-    }, [dispatch]);
+    }, [data, dispatch]);
 
-    return AllUsers;
-}
+    useEffect(() => {
+        dispatch(setLoading(loading));
+    }, [loading, dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            console.error("Error fetching users:", error);
+            dispatch(setLoading(false));
+        }
+    }, [error, dispatch]);
+
+    return { 
+        users: allUsers, 
+        loading, 
+        error,
+        hasUsers: allUsers.length > 0 
+    };
+};

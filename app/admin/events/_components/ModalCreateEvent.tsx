@@ -5,8 +5,9 @@ import {Modal,
     ModalHeader
 } from "@heroui/modal";
 import {useModal} from "@/hooks/useModal";
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import { Button } from "@heroui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
@@ -17,20 +18,9 @@ import { ImageIcon } from "lucide-react";
 export default function ModalCreateEvent() {
     const {isOpen, onOpenChange} = useModal('createEventModal');
     
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = useIsMobile();
     const [isLoading, setIsLoading] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 640);
-        };
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        }
-    }, []);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

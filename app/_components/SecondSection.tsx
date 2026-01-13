@@ -1,5 +1,8 @@
+"use client"
 import { Card, CardBody, CardHeader } from "@heroui/card"
 import { ClipboardList, Users, Gift } from "lucide-react"
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useRouter } from "next/navigation";
 
 export default function SecondSection() {
     const IconWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -8,12 +11,15 @@ export default function SecondSection() {
         </div>
     );
 
-    const svg1 = <IconWrapper><ClipboardList size={80} className="text-current" /></IconWrapper>;
+    const router = useRouter();
 
-    const svg2 = <IconWrapper><Users size={80} className="text-current" /></IconWrapper>;
+    const isMobile = useIsMobile();
 
-    const svg3 = <IconWrapper><Gift size={80} className="text-current" /></IconWrapper>
+    const svg1 = <IconWrapper><ClipboardList size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>;
 
+    const svg2 = <IconWrapper><Users size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>;
+
+    const svg3 = <IconWrapper><Gift size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>
     const steps = [
         {
             title: "Registrate",
@@ -79,7 +85,9 @@ export default function SecondSection() {
                     ))}
                 </div>
 
-                <div className="flex justify-center mt-12 sm:mt-16 md:mt-20 lg:mt-24">
+                <div className="flex justify-center mt-12 sm:mt-16 md:mt-20 lg:mt-24" onClick={() => {
+                    router.push('/register')
+                }}>
                     <button className="px-8 cursor-pointer sm:px-10 py-3 sm:py-4 bg-magenta-fuchsia-600 text-white font-light text-base sm:text-lg rounded-full shadow-lg hover:shadow-xl hover:bg-magenta-fuchsia-700 transition-all duration-300 border border-magenta-fuchsia-600">
                         Comenzar ahora
                     </button>

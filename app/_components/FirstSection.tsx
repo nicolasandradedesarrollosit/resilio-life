@@ -1,5 +1,7 @@
+"use client"
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { CreditCard, Star, Zap, Smartphone } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function FirstSection () {
 
@@ -9,10 +11,12 @@ export default function FirstSection () {
         </div>
     );
 
-    const svg1 = <IconWrapper><CreditCard size={80} className="text-current" /></IconWrapper>
-    const svg2 = <IconWrapper><Star size={80} className="text-current" /></IconWrapper>
-    const svg3 = <IconWrapper><Zap size={80} className="text-current" /></IconWrapper>
-    const svg4 = <IconWrapper><Smartphone size={80} className="text-current" /></IconWrapper>
+    const isMobile = useIsMobile();
+
+    const svg1 = <IconWrapper><CreditCard size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>
+    const svg2 = <IconWrapper><Star size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>
+    const svg3 = <IconWrapper><Zap size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>
+    const svg4 = <IconWrapper><Smartphone size={isMobile ? 25 : 40} className="text-current" /></IconWrapper>
 
     const features = [
         {

@@ -1,14 +1,11 @@
 "use client"
 import GoBack from "@/common/GoBack"
 import FormLogIn from "./_components/FormLogIn"
-import { useSelector } from "react-redux"
-import { selectUserData } from "@/redux/userSlice"
 import ProtectedRouteLogin from "@/hooks/ProtectedRouteLogin"
 
-export default function LoginClient({ hasAuthCookie }: { hasAuthCookie: boolean }) {
-    const userData = useSelector(selectUserData)
+export default function LoginClient() {
     return (
-        <ProtectedRouteLogin hasAuthCookie={hasAuthCookie}>
+        <ProtectedRouteLogin>
             <section className="flex flex-col min-h-screen w-full bg-magenta-fuchsia-50">
                 <GoBack url="/" />
                 <div className="flex h-16 md:h-20 lg:h-24 justify-center items-center bg-magenta-fuchsia-500 w-full py-18">

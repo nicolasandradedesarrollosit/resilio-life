@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { getEvents } from "@/services/eventService";
 import { useDispatch, useSelector } from "react-redux";
 import { selectEventsData } from "@/redux/eventsSlice";
-import { EventData } from "@/types/EventData";
+import { EventData } from "@/types/EventData.type";
 
 export function useEvents() {
     const dispatch = useDispatch();
