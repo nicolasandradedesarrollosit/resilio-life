@@ -13,6 +13,7 @@ import { Button } from "@heroui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSelector } from "react-redux";
 import { selectUserDataOnly } from "@/redux/userSlice";
+import { redirect } from "next/navigation";
 
 export default function ModalLogOut() {
     const { logOut } = useUserData();
@@ -26,6 +27,7 @@ export default function ModalLogOut() {
         endpoint: '/logout',
         method: 'GET',
         enabled: shouldLogOut,
+        includeCredentials: true,
     });
 
     useEffect(() => {
@@ -35,7 +37,7 @@ export default function ModalLogOut() {
         }
     }, [shouldLogOut, isLoading, logOut]);
 
-    const handleLogOut = () => {
+    const handleLogOut = async () => {
         setShouldLogOut(true);
     };
     return (
@@ -89,7 +91,10 @@ export default function ModalLogOut() {
                                     variant="solid"
                                     onPress={async () => {
                                         await handleLogOut();
+                                        setTimeout(() => {
                                         onClose();
+                                        redirect('/login');
+                                        }, 500);
                                     }}
                                     isLoading={isLoading}
                                     className="w-full sm:w-auto text-sm sm:text-base"
