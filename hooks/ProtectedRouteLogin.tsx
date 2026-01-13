@@ -1,6 +1,6 @@
 'use client'
 import Loader from '@/common/Loader'
-import { useUserData } from '@/hooks/useAuthHook'
+import { useUserData } from '@/hooks/useUserHook'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -17,7 +17,7 @@ export default function ProtectedRouteLogin({ children }: { children: React.Reac
   }, [userDataState.loading, userDataState.loaded, userDataState.data, router])
 
   if (userDataState.loading || !userDataState.loaded || userDataState.data) {
-    return null;
+    return <Loader fallback="Autenticando..."/>;
   }
   
   return <>{children}</>

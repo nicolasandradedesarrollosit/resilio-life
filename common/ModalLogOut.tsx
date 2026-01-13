@@ -4,7 +4,7 @@ import {Modal,
     ModalFooter,
     ModalHeader
 } from "@heroui/modal"
-import { useUserData } from "@/hooks/useAuthHook";
+import { useUserData } from "@/hooks/useUserHook";
 import { useApi } from "@/hooks/useApi";
 import { Avatar } from "@heroui/avatar";
 import {useModal} from "@/hooks/useModal";
@@ -18,8 +18,7 @@ import { redirect } from "next/navigation";
 export default function ModalLogOut() {
     const { logOut } = useUserData();
     const userData = useSelector(selectUserDataOnly)
-    const {isOpen, onOpenChange} = useModal('logOutModal');
-    
+    const {isOpen, onOpenChange} = useModal('logOutModal');    
     const isMobile = useIsMobile();
     const [shouldLogOut, setShouldLogOut] = useState(false);
 
@@ -39,6 +38,7 @@ export default function ModalLogOut() {
 
     const handleLogOut = async () => {
         setShouldLogOut(true);
+        globalThis.location.reload();
     };
     return (
         <Modal
@@ -90,11 +90,8 @@ export default function ModalLogOut() {
                                     color="danger"
                                     variant="solid"
                                     onPress={async () => {
-                                        await handleLogOut();
-                                        setTimeout(() => {
                                         onClose();
-                                        redirect('/login');
-                                        }, 500);
+                                        await handleLogOut();
                                     }}
                                     isLoading={isLoading}
                                     className="w-full sm:w-auto text-sm sm:text-base"

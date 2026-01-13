@@ -7,18 +7,16 @@ import { useEffect, useRef } from "react";
 import { useApi } from "./useApi";
 import type { UserData } from "@/types/userData.type";
 
-let isGlobalVerifying = false;
-
 export const useUserData = () => {
     const dispatch = useDispatch();
     const userDataState = useSelector(selectUserData);
-    const hasAttemptedVerification = useRef(false);
+    const verificationAttempted = useRef(false);
 
     const { data: sessionData, loading, error } = useApi({
         endpoint: '/check-session',
         method: 'GET',
         includeCredentials: true,
-        enabled: !userDataState.loaded && !isGlobalVerifying && !hasAttemptedVerification.current,
+        enabled: !userDataState.loaded && !verificationAttempted.current,
     });
 
     useEffect(() => {
@@ -26,21 +24,15 @@ export const useUserData = () => {
             console.log('[useUserData] Already loaded, skipping verification');
             return;
         }
-        
-        if (isGlobalVerifying) {
-            console.log('[useUserData] Global verification in progress, skipping');
-            return;
-        }
 
-        if (hasAttemptedVerification.current) {
+        if (verificationAttempted.current) {
             console.log('[useUserData] Already attempted verification, skipping');
             return;
         }
 
         if (sessionData) {
             console.log('[useUserData] Session data received:', { loggedIn: sessionData?.loggedIn, hasUser: !!sessionData?.user });
-            hasAttemptedVerification.current = true;
-            isGlobalVerifying = true;
+            verificationAttempted.current = true;
             
             if (sessionData?.loggedIn && sessionData.user) {
                 console.log('[useUserData] User authenticated, setting user data');
@@ -57,27 +49,23 @@ export const useUserData = () => {
                     loaded: true,
                 }));
             }
-            
-            isGlobalVerifying = false;
         }
     }, [sessionData, userDataState.loaded, dispatch]);
 
     useEffect(() => {
         if (error) {
             console.error("[useUserData] Session check failed:", error);
-            hasAttemptedVerification.current = true;
+            verificationAttempted.current = true;
             dispatch(setUserData({
                 data: null,
                 loading: false,
                 loaded: true,
             }));
-            isGlobalVerifying = false;
         }
     }, [error, dispatch]);
 
     const handleLogout = () => {
-        isGlobalVerifying = false;
-        hasAttemptedVerification.current = false;
+        verificationAttempted.current = false;
         dispatch(clearUserData());
     }
     

@@ -7,7 +7,7 @@ import Link from "next/link"
 import { addToast } from "@heroui/toast"
 import { signInWithGoogle } from "@/firebase/oauth-google"
 import { useRouter } from "next/navigation"
-import { useUserData } from "@/hooks/useAuthHook"
+import { useUserData } from "@/hooks/useUserHook"
 import { useApi } from "@/hooks/useApi"
 import { Eye, EyeOff } from "lucide-react"
 

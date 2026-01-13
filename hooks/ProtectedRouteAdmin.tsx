@@ -1,7 +1,8 @@
 'use client';
-import { useUserData } from "@/hooks/useAuthHook";
+import { useUserData } from "@/hooks/useUserHook";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Loader from "@/common/Loader";
 
 export default function ProtectedRouteAdmin({ children }: { children: React.ReactNode }) {
     const { userDataState } = useUserData();
@@ -18,7 +19,7 @@ export default function ProtectedRouteAdmin({ children }: { children: React.Reac
     }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
 
     if (userDataState.loading || !userDataState.loaded) {
-        return null;
+        return <Loader fallback="Autenticando..."/>;
     }
 
     if (!userDataState.data || !userDataState.data.isAdmin) {

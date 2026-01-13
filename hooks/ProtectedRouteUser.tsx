@@ -1,6 +1,6 @@
 'use client';
 import Loader from "@/common/Loader";
-import { useUserData } from "@/hooks/useAuthHook";
+import { useUserData } from "@/hooks/useUserHook";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
@@ -24,7 +24,7 @@ export default function ProtectedRouteUser({ children }: { children: React.React
     }, [isLoading, isLoaded, userDataState.data, router]);
 
     if (isLoading || !isLoaded) {
-        return null;
+        return <Loader fallback="Autenticando..."/>;
     }
 
     if (!userDataState.data || userDataState.data.isAdmin) {
