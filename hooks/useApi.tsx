@@ -19,7 +19,7 @@ interface UseApiReturn<T = any> {
 }
 
 export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4001/api';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001/api';
     const { 
         endpoint, 
         method = 'GET', 
@@ -40,7 +40,7 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
         setError(null);
 
         try {
-            let url = `${API_BASE_URL}${endpoint}`;
+            let url = `${API_BASE_URL}/api${endpoint}`;
             
             if (method === 'GET' && body && Object.keys(body).length === 1) {
                 const value = Object.values(body)[0];
