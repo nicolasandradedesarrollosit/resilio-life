@@ -40,7 +40,7 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
         setError(null);
 
         try {
-            let url = `${API_BASE_URL}${endpoint}`;
+            let url = `${API_BASE_URL}/api/${endpoint}`;
             
             if (method === 'GET' && body && Object.keys(body).length === 1) {
                 const value = Object.values(body)[0];
