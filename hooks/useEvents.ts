@@ -1,29 +1,34 @@
 import { setEventsData, clearEventsData, setLoading } from "@/redux/eventsSlice";
-import { useEffect, useRef } from "react";
-import { getEvents } from "@/services/eventService";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectEventsData } from "@/redux/eventsSlice";
+import { useApi } from "./useApi";
 import { EventData } from "@/types/EventData.type";
 
 export function useEvents() {
     const dispatch = useDispatch();
     const eventsState = useSelector(selectEventsData);
-    const hasFetched = useRef(false);
+
+    const { data, loading, error } = useApi<EventData[]>({
+        endpoint: '/events',
+        method: 'GET',
+        enabled: eventsState.loaded === false,
+    });
 
     useEffect(() => {
-        async function fetchEvents() {
-            if (eventsState.loaded || eventsState.loading || hasFetched.current) {
-                return;
-            }
-            hasFetched.current = true;
-            dispatch(setLoading(true));
-            try {
-                const events = await getEvents();
-                dispatch(setEventsData({ events: events as EventData[], loading: false, loaded: true }));
-            } catch (error) {
-                dispatch(clearEventsData());
-            }
+        if (data && data.length > 0) {
+            dispatch(setEventsData({ events: data, loading: false, loaded: true }));
         }
-        fetchEvents();
-    }, [dispatch]);
+    }, [data, dispatch]);
+
+    useEffect(() => {
+        dispatch(setLoading(loading));
+    }, [loading, dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            console.error("Error fetching events:", error);
+            dispatch(clearEventsData());
+        }
+    }, [error, dispatch]);
 }

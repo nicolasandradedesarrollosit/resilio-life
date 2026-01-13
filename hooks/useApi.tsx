@@ -26,7 +26,7 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
         body, 
         headers = {}, 
         includeCredentials = true,
-        enabled = true 
+        enabled = true
     } = props;
 
     const [data, setData] = useState<T | null>(null);
@@ -40,26 +40,28 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
         setError(null);
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            let url = `${API_BASE_URL}${endpoint}`;
+            
+            if (method === 'GET' && body && Object.keys(body).length === 1) {
+                const value = Object.values(body)[0];
+                url += `/${value}`;
+            }
+
+            const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
                     ...headers,
                 },
-                body: body ? JSON.stringify(body) : undefined,
+                body: method !== 'GET' && body ? JSON.stringify(body) : undefined,
                 credentials: includeCredentials ? 'include' : 'omit',
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
 
             const result = await response.json();
             setData(result);
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
             setError(errorMsg);
-            console.error("Error fetching data:", errorMsg);
         } finally {
             setLoading(false);
         }

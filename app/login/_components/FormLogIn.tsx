@@ -1,15 +1,14 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@heroui/button"
 import { Input } from "@heroui/input"
 import { Form } from "@heroui/form"
 import Link from "next/link"
 import { addToast } from "@heroui/toast"
-import { logInUser } from "@/services/userService"
 import { signInWithGoogle } from "@/firebase/oauth-google"
-import { authGoogleService } from "@/services/userService"
 import { useRouter } from "next/navigation"
 import { useUserData } from "@/hooks/useAuthHook"
+import { useApi } from "@/hooks/useApi"
 import { Eye, EyeOff } from "lucide-react"
 
 interface LogInFormData {
@@ -20,10 +19,26 @@ interface LogInFormData {
 export default function FormLogIn() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingGoogle, setLoadingGoogle] = useState(false);
     const router = useRouter();
     const { setUserDataState } = useUserData();
+
+    const [loginFormData, setLoginFormData] = useState<LogInFormData | null>(null);
+    const [googleFormData, setGoogleFormData] = useState<{ idToken?: string | null; email?: string | null; name?: string | null } | null>(null);
+
+    const { data: loginResult, loading: isSubmitting, error: loginError } = useApi({
+        endpoint: '/login',
+        method: 'POST',
+        body: loginFormData,
+        enabled: !!loginFormData,
+    });
+
+    const { data: googleResult, loading: googleLoading, error: googleError } = useApi({
+        endpoint: '/login-google',
+        method: 'POST',
+        body: googleFormData,
+        enabled: !!googleFormData,
+    });
 
     const [stateValidations, setStateValidations] = useState<{
         email: boolean | null;
@@ -58,50 +73,13 @@ export default function FormLogIn() {
             e.preventDefault();
             if (!Object.values(stateValidations).every(Boolean)) return setFormIsInvalid(true);
             setFormIsInvalid(false);
-            setIsSubmitting(true);
 
             const formData = new FormData(e.currentTarget);
             const data: LogInFormData = Object.fromEntries(
                 Array.from(formData.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
             ) as unknown as LogInFormData;
 
-            const result = await logInUser(data);
-
-            if (!result.user) {
-                addToast({
-                    title: 'Error de autenticación',
-                    description: 'No se encontró una cuenta con ese email o la contraseña es incorrecta.',
-                    color: 'danger',
-                    variant: 'flat',
-                    timeout: 5000
-                });
-            }
-
-            const okStatus = (res: any) => (typeof res === 'object' && res !== null && ('status' in res ? [200, 201].includes(res.status) : true));
-            if (!okStatus(result)) {
-                throw new Error(`Respuesta inesperada del servidor: ${JSON.stringify(result)}`);
-            }
-
-            formRef.current?.reset();
-            setStateValidations({
-                email: null,
-                password: null
-            });
-            if (result?.user) {
-                addToast({
-                    title: 'Procesando la solicitud',
-                    description: 'Iniciando sesión...',
-                    color: 'success',
-                    variant: 'flat',
-                    timeout: 5000
-                });
-                setUserDataState(result.user);
-                if (result.user.isAdmin) {
-                    router.push('/admin');
-                } else {
-                    router.push('/user');
-                }
-            }
+            setLoginFormData(data);
         }
         catch (error) {
             console.error("Error al enviar el formulario:", error);
@@ -114,43 +92,74 @@ export default function FormLogIn() {
                 timeout: 5000
             });
             
-            setIsSubmitting(false);
             return;
         }
         finally {
             setFormIsInvalid(null);
-            setIsSubmitting(false);
         }
     };
 
-    const logInGoogle = async () => {
-        try {
-            setLoadingGoogle(true);
-            const googleUser = await signInWithGoogle();
-            console.log('Google sign-in success:', googleUser);
-            const result = await authGoogleService({ idToken: googleUser.idToken, email: googleUser.email, name: googleUser.name });
-            
-            if (result?.user) {
-                setUserDataState(result.user);
-                if (result.user.isAdmin) {
-                    router.push('/admin');
-                } else {
-                    router.push('/user');
-                }
-            }
-        } catch (err) {
-            console.error('Error during Google login:', err);
+    useEffect(() => {
+        if (loginResult?.user) {
             addToast({
-                title: 'Error en login con Google',
-                description: (err as any)?.message || 'Hubo un problema al iniciar sesión con Google.',
+                title: 'Procesando la solicitud',
+                description: 'Iniciando sesión...',
+                color: 'success',
+                variant: 'flat',
+                timeout: 5000
+            });
+            setUserDataState(loginResult.user);
+            formRef.current?.reset();
+            setStateValidations({
+                email: null,
+                password: null
+            });
+            setLoginFormData(null);
+            if (loginResult.user.isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/user');
+            }
+        }
+    }, [loginResult, setUserDataState, router]);
+
+    useEffect(() => {
+        if (loginError) {
+            addToast({
+                title: 'Error de autenticación',
+                description: 'No se encontró una cuenta con ese email o la contraseña es incorrecta.',
                 color: 'danger',
                 variant: 'flat',
                 timeout: 5000
             });
-        } finally { 
-            setLoadingGoogle(false);
+            setLoginFormData(null);
         }
-    }
+    }, [loginError]);
+
+    useEffect(() => {
+        if (googleResult?.user) {
+            setUserDataState(googleResult.user);
+            setGoogleFormData(null);
+            if (googleResult.user.isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/user');
+            }
+        }
+    }, [googleResult, setUserDataState, router]);
+
+    useEffect(() => {
+        if (googleError) {
+            addToast({
+                title: 'Error en login con Google',
+                description: googleError || 'Hubo un problema al iniciar sesión con Google.',
+                color: 'danger',
+                variant: 'flat',
+                timeout: 5000
+            });
+            setGoogleFormData(null);
+        }
+    }, [googleError]);
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
 
@@ -183,8 +192,15 @@ export default function FormLogIn() {
                     size="lg"
                     startContent={svgGoogle}
                     className="w-full bg-white text-black/70 font-semibold"
-                    onPress={logInGoogle}
-                    isLoading={loadingGoogle}
+                    onPress={async () => {
+                        try {
+                            const googleUser = await signInWithGoogle();
+                            setGoogleFormData({ idToken: googleUser.idToken, email: googleUser.email, name: googleUser.name });
+                        } catch (err) {
+                            console.error('Error during Google login:', err);
+                        }
+                    }}
+                    isLoading={googleLoading}
                 >
                     Continuar con Google
                 </Button>

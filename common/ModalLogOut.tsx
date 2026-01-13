@@ -4,11 +4,11 @@ import {Modal,
     ModalFooter,
     ModalHeader
 } from "@heroui/modal"
-import { logOut as logOutService } from "@/services/userService"
 import { useUserData } from "@/hooks/useAuthHook";
+import { useApi } from "@/hooks/useApi";
 import { Avatar } from "@heroui/avatar";
 import {useModal} from "@/hooks/useModal";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import { Button } from "@heroui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSelector } from "react-redux";
@@ -20,19 +20,23 @@ export default function ModalLogOut() {
     const {isOpen, onOpenChange} = useModal('logOutModal');
     
     const isMobile = useIsMobile();
-    const [isLoading, setIsLoading] = useState(false);
+    const [shouldLogOut, setShouldLogOut] = useState(false);
 
-    const handleLogOut = async () => {
-        try {
-            setIsLoading(true);
-            await logOutService(); 
-            logOut(); 
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
+    const { loading: isLoading } = useApi({
+        endpoint: '/logout',
+        method: 'GET',
+        enabled: shouldLogOut,
+    });
+
+    useEffect(() => {
+        if (shouldLogOut && !isLoading) {
             logOut();
-        } finally {
-            setIsLoading(false);
+            setShouldLogOut(false);
         }
+    }, [shouldLogOut, isLoading, logOut]);
+
+    const handleLogOut = () => {
+        setShouldLogOut(true);
     };
     return (
         <Modal

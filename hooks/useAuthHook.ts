@@ -1,8 +1,10 @@
+"use client"
+
 import { useDispatch, useSelector } from "react-redux";
 import { setUserData, clearUserData, setLoading } from "@/redux/userSlice";
 import { selectUserData } from "@/redux/userSlice"; 
 import { useEffect, useRef } from "react";
-import { checkSession } from "@/services/userService";
+import { useApi } from "./useApi";
 import type { UserData } from "@/types/userData.type";
 
 let isGlobalVerifying = false;
@@ -11,6 +13,13 @@ export const useUserData = () => {
     const dispatch = useDispatch();
     const userDataState = useSelector(selectUserData);
     const hasAttemptedVerification = useRef(false);
+
+    const { data: sessionData, loading, error } = useApi({
+        endpoint: '/check-session',
+        method: 'GET',
+        includeCredentials: true,
+        enabled: !userDataState.loaded && !isGlobalVerifying && !hasAttemptedVerification.current,
+    });
 
     useEffect(() => {
         if (userDataState.loaded) {
@@ -28,52 +37,47 @@ export const useUserData = () => {
             return;
         }
 
-        const verifySession = async () => {            
-            console.log('[useUserData] Starting session verification...');
-            isGlobalVerifying = true;
+        if (sessionData) {
+            console.log('[useUserData] Session data received:', { loggedIn: sessionData?.loggedIn, hasUser: !!sessionData?.user });
             hasAttemptedVerification.current = true;
+            isGlobalVerifying = true;
             
-            try {
-                if (!userDataState.loading) {
-                    dispatch(setLoading(true));
-                }
-                
-                const result = await checkSession();
-                console.log('[useUserData] checkSession result:', { loggedIn: result?.loggedIn, hasUser: !!result?.user, error: result?.error });
-                
-                if (result?.loggedIn && result.user) {
-                    console.log('[useUserData] User authenticated, setting user data');
-                    dispatch(setUserData({
-                        data: result.user as UserData,
-                        loading: false,
-                        loaded: true,
-                    }));
-                } else {
-                    console.log('[useUserData] User not authenticated, clearing data');
-                    dispatch(setUserData({
-                        data: null,
-                        loading: false,
-                        loaded: true,
-                    }));
-                }
-            } catch (error) {
-                console.error("[useUserData] Session check failed:", error);
+            if (sessionData?.loggedIn && sessionData.user) {
+                console.log('[useUserData] User authenticated, setting user data');
+                dispatch(setUserData({
+                    data: sessionData.user as UserData,
+                    loading: false,
+                    loaded: true,
+                }));
+            } else {
+                console.log('[useUserData] User not authenticated, clearing data');
                 dispatch(setUserData({
                     data: null,
                     loading: false,
                     loaded: true,
                 }));
-            } finally {
-                isGlobalVerifying = false;
-                console.log('[useUserData] Verification complete');
             }
-        };
-        
-        verifySession();
-    }, [dispatch, userDataState.loaded, userDataState.loading]);
+            
+            isGlobalVerifying = false;
+        }
+    }, [sessionData, userDataState.loaded, dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            console.error("[useUserData] Session check failed:", error);
+            hasAttemptedVerification.current = true;
+            dispatch(setUserData({
+                data: null,
+                loading: false,
+                loaded: true,
+            }));
+            isGlobalVerifying = false;
+        }
+    }, [error, dispatch]);
 
     const handleLogout = () => {
         isGlobalVerifying = false;
+        hasAttemptedVerification.current = false;
         dispatch(clearUserData());
     }
     

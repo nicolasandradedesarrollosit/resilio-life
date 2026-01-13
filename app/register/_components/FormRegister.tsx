@@ -1,15 +1,15 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@heroui/button"
 import { Input } from "@heroui/input"
 import Link from "next/link"
 import { addToast } from "@heroui/toast"
-import { registerUser } from "@/services/userService"
 import { useRouter } from "next/navigation"
 import { setUserData } from "@/redux/userSlice"
 import { useDispatch } from "react-redux"
 import { UserData } from "@/types/userData.type"
 import { EyeOff, Eye } from "lucide-react"
+import { useApi } from "@/hooks/useApi"
 
 interface RegisterFormData {
     name: string;
@@ -23,6 +23,15 @@ export default function FormRegister() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
     const router = useRouter();
+
+    const [registerData, setRegisterData] = useState<RegisterFormData | null>(null);
+
+    const { data , error, loading } = useApi<{ user: UserData }>({
+        endpoint: '/users',
+        method: 'POST',
+        body: registerData,
+        enabled: registerData !== null,
+    });
 
     const [stateValidations, setStateValidations] = useState<{
         name: boolean | null;
@@ -54,7 +63,6 @@ export default function FormRegister() {
     const fields = ['name', 'lastName', 'email', 'password'] as const;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
-        console.log("handleChange llamado:", e.target.name, e.target.value);
         const value = e.target.value;
         const isValid = validationRegex[index].test(value);
         const key = fields[index] as keyof typeof stateValidations;
@@ -64,40 +72,13 @@ export default function FormRegister() {
         setStateValidations(prev => ({ ...prev, [key]: isValid }));
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log("handleSubmit llamado!");
-        console.log("stateValidations:", stateValidations);
-        try {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const data: RegisterFormData = Object.fromEntries(
-                Array.from(formData.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
-            ) as unknown as RegisterFormData;
-            
-            console.log("Datos del formulario:", data);
-
-            addToast({
-                title: 'Registro en proceso',
-                description: 'Estamos procesando tu solicitud.',
-                color: 'success',
-                variant: 'flat',
-                timeout: 5000
-            });
-
-            const responseData = await registerUser(data);
-
-            formRef.current?.reset();
-            setStateValidations({
-                name: null,
-                lastName: null,
-                email: null,
-                password: null
-            });
-            dispatch(setUserData({ data: responseData.user as UserData, loading: false, loaded: false }));
+    useEffect(() => {
+        if (loading) {
+            setIsSubmitting(true);
+            return;
         }
-        catch (error) {
-            console.error("Error al enviar el formulario:", error);
-            
+
+        if (error) {
             addToast({
                 title: 'Error al enviar',
                 description: 'Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.',
@@ -105,21 +86,75 @@ export default function FormRegister() {
                 variant: 'flat',
                 timeout: 5000
             });
-            
             setIsSubmitting(false);
+            setRegisterData(null); 
             return;
         }
-        finally {
+
+        if (data?.user) {
+            formRef.current?.reset();
+            setStateValidations({
+                name: null,
+                lastName: null,
+                email: null,
+                password: null
+            });
+            dispatch(setUserData({ 
+                data: data.user, 
+                loading: false, 
+                loaded: true 
+            }));
+            
+            addToast({
+                title: 'Registro exitoso',
+                description: '¡Tu cuenta ha sido creada correctamente!',
+                color: 'success',
+                variant: 'flat',
+                timeout: 3000
+            });
+
             setIsSubmitting(false);
+            setRegisterData(null); 
             router.push('/login');
         }
+    }, [data, error, loading, dispatch, router]);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        const data: RegisterFormData = Object.fromEntries(
+            Array.from(formData.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
+        ) as unknown as RegisterFormData;
+
+        const allValid = Object.values(stateValidations).every(val => val === true);
+        
+        if (!allValid) {
+            addToast({
+                title: 'Validación fallida',
+                description: 'Por favor, completá correctamente todos los campos.',
+                color: 'warning',
+                variant: 'flat',
+                timeout: 5000
+            });
+            return;
+        }
+
+        addToast({
+            title: 'Registro en proceso',
+            description: 'Estamos procesando tu solicitud.',
+            color: 'success',
+            variant: 'flat',
+            timeout: 3000
+        });
+
+        setRegisterData(data);
     };
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
 
     const IconEyeOff = () => <EyeOff size={20} className="text-current" />;
     const IconEye = () => <Eye size={20} className="text-current" />;
-
 
     return (
         <div className="flex flex-col items-center w-full max-w-xl mx-auto py-8 sm:px-6 px-0">

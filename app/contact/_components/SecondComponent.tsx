@@ -1,9 +1,9 @@
 "use client";
 
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import { addToast } from '@heroui/toast';
 import { Button } from '@heroui/button';
-import { sendContactForm } from '@/services/formContactService';
+import { useApi } from '@/hooks/useApi';
 
 interface ContactFormData {
     name: string;
@@ -15,7 +15,15 @@ interface ContactFormData {
 
 export default function SecondComponent() {
     const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState<ContactFormData | null>(null);
+
+    const { data: submitResult, loading: isSubmitting, error: submitError } = useApi({
+        endpoint: '/messages',
+        method: 'POST',
+        body: formData,
+        includeCredentials: false,
+        enabled: !!formData,
+    });
 
     const [stateValidations, setStateValidations] = useState<{
         name: boolean | null;
@@ -56,23 +64,34 @@ export default function SecondComponent() {
             e.preventDefault();
             if (!Object.values(stateValidations).every(Boolean)) return setFormIsInvalid(true);
             setFormIsInvalid(false);
-            setIsSubmitting(true);
 
-            const formData = new FormData(e.currentTarget);
+            const formDataObj = new FormData(e.currentTarget);
             const data: ContactFormData = Object.fromEntries(
-                Array.from(formData.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
+                Array.from(formDataObj.entries()).map(([k, v]) => [k, typeof v === "string" ? v : ""])
             ) as unknown as ContactFormData;
 
-            const dataAppended = { ...data, origin: 'Resilio B2C SAAS APP' };
+            setFormData({ ...data, origin: 'Resilio B2C SAAS APP' });
+        }
+        catch (error) {
+            console.error("Error al enviar el formulario:", error);
+            
+            addToast({
+                title: 'Error al enviar',
+                description: 'Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.',
+                color: 'danger',
+                variant: 'flat',
+                timeout: 5000
+            });
+            
+            return;
+        }
+        finally {
+            setFormIsInvalid(null);
+        }
+    };
 
-
-            const result = await sendContactForm(dataAppended as any);
-
-            const okStatus = (res: any) => (typeof res === 'object' && res !== null && ('status' in res ? [200, 201].includes(res.status) : true));
-            if (!okStatus(result)) {
-                throw new Error(`Respuesta inesperada del servidor: ${JSON.stringify(result)}`);
-            }
-
+    useEffect(() => {
+        if (submitResult) {
             addToast({
                 title: '¡Transacción completada!',
                 description: 'Los datos se guardaron correctamente.',
@@ -88,10 +107,12 @@ export default function SecondComponent() {
                 subject: null,
                 message: null
             });
+            setFormData(null);
         }
-        catch (error) {
-            console.error("Error al enviar el formulario:", error);
-            
+    }, [submitResult]);
+
+    useEffect(() => {
+        if (submitError) {
             addToast({
                 title: 'Error al enviar',
                 description: 'Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.',
@@ -99,15 +120,9 @@ export default function SecondComponent() {
                 variant: 'flat',
                 timeout: 5000
             });
-            
-            setIsSubmitting(false);
-            return;
+            setFormData(null);
         }
-        finally {
-            setFormIsInvalid(null);
-            setIsSubmitting(false);
-        }
-    };
+    }, [submitError]);
 
     return (
         <div className="flex justify-center items-center w-full px-4 sm:px-8 lg:px-12 xl:px-16 py-8 md:py-12 lg:py-16 bg-transparent lg:w-1/2">

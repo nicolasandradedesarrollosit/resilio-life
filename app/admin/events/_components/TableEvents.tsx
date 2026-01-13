@@ -8,7 +8,7 @@ import { useSelector } from "react-redux"
 import { selectAllEvents } from "@/redux/eventsSlice"
 import { useEvents } from "@/hooks/useEvents"
 import { Button } from "@heroui/button"
-import { Plus } from "lucide-react"
+import { Plus, Pencil, Trash2 } from "lucide-react"
 import { useModal } from "@/hooks/useModal";
 import ModalCreateEvent from "./ModalCreateEvent";
 
@@ -54,7 +54,7 @@ export default function TableEvents() {
                             startContent={<Plus className="h-4 w-4" />}
                             variant="solid"
                             color="secondary"
-                            size="lg"
+                            size="md"
                             className="bg-magenta-fuchsia-900"
                             onPress={onOpenEvent}
                         >
@@ -119,6 +119,7 @@ export default function TableEvents() {
                             <TableColumn>UBICACIÓN</TableColumn>
                             <TableColumn>PROVEEDOR</TableColumn>
                             <TableColumn>IMAGEN</TableColumn>
+                            <TableColumn>ACCIONES</TableColumn>
                         </TableHeader>
                         <TableBody 
                             emptyContent={
@@ -173,6 +174,29 @@ export default function TableEvents() {
                                                 className="w-10 h-10 rounded object-cover"
                                             />
                                         )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-row gap-4">
+                                            <Button
+                                                isIconOnly
+                                                variant="ghost"
+                                                color="warning"
+                                                size="sm"
+                                                aria-label="Modificar"
+                                            >
+                                                <Pencil />
+                                            </Button>
+                                            <Button
+                                                isIconOnly
+                                                variant="ghost"
+                                                color="danger"
+                                                size="sm"
+                                                aria-label="Eliminar"
+                                            >
+                                                <Trash2 />
+                                            </Button>
+
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
