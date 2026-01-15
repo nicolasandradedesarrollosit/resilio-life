@@ -14,13 +14,14 @@ import { Button } from "@heroui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSelector } from "react-redux";
 import { selectUserDataOnly } from "@/redux/userSlice";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ModalLogOut() {
     const { logOut } = useUserData();
     const userData = useSelector(selectUserDataOnly)
     const { isOpen, onOpenChange } = useModal('logOutModal');
     const isMobile = useIsMobile();
+    const router = useRouter();
     const [shouldLogOut, setShouldLogOut] = useState(false);
     const [hasLoggedOut, setHasLoggedOut] = useState(false);
 
@@ -35,9 +36,9 @@ export default function ModalLogOut() {
         if (shouldLogOut && !isLoading && !hasLoggedOut) {
             setHasLoggedOut(true);
             logOut();
-            window.location.href = '/';
+            router.push('/');
         }
-    }, [shouldLogOut, isLoading, logOut, hasLoggedOut]);
+    }, [shouldLogOut, isLoading, logOut, hasLoggedOut, router]);
 
     const handleLogOut = async () => {
         setShouldLogOut(true);

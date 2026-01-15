@@ -56,8 +56,9 @@ export default function ModalCreateEvent() {
         if (data && data.data) {
             dispatch(addEvent(data.data));
             setFormData(null);
+            onOpenChange();
         }
-    }, [data, dispatch]);
+    }, [data, dispatch, onOpenChange]);
 
     const validationRegex = {
         title: /^.{3,100}$/,
@@ -163,18 +164,12 @@ export default function ModalCreateEvent() {
 
             const formDataObj = new FormData(e.currentTarget);
 
-            // Agregar fecha manualmente
             const dateStr = selectedDate.toString().split('T')[0];
             formDataObj.append('date', dateStr);
 
-            // Agregar archivo de imagen manualmente
             formDataObj.append('image', imageFile);
 
             setFormData(formDataObj);
-            console.log("data submitted:", formDataObj);
-            if (error) return console.error("Error submitting form:", error);
-            if (!data) return console.error("No data returned from API");
-            onOpenChange();
         } catch (error) {
             console.error("Error submitting form:", error);
         }
