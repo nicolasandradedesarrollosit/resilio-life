@@ -4,7 +4,7 @@ import { UserData, UserDataState } from '@/types/userData.type';
 const initialState: UserDataState = {
     data: null,
     loading: false,
-    loaded: false,
+    loaded: true,
 };
 
 const userSlice = createSlice({
@@ -16,10 +16,8 @@ const userSlice = createSlice({
             if (action.payload.loading !== undefined) state.loading = action.payload.loading;
             if (action.payload.loaded !== undefined) state.loaded = action.payload.loaded;
         },
-        clearUserData(state) {
-            state.data = null;
-            state.loaded = true;
-            state.loading = false;
+        clearUserData() {
+            return initialState;
         },
         setLoading(state, action: PayloadAction<boolean>) {
             state.loading = action.payload;

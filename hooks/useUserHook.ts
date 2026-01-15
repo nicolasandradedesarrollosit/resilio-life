@@ -16,7 +16,7 @@ export const useUserData = () => {
         endpoint: '/check-session',
         method: 'GET',
         includeCredentials: true,
-        enabled: !userDataState.loaded && !verificationAttempted.current,
+        enabled: !userDataState.loaded,
     });
 
     useEffect(() => {
