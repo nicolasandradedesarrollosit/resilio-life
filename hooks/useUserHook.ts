@@ -12,13 +12,11 @@ export const useUserData = () => {
     const userDataState = useSelector(selectUserData);
     const verificationAttempted = useRef(false);
 
-    const shouldSkipVerification = typeof window !== 'undefined' && sessionStorage.getItem('skipSessionCheck') === 'true';
-
     const { data: sessionData, loading, error } = useApi({
         endpoint: '/check-session',
         method: 'GET',
         includeCredentials: true,
-        enabled: !userDataState.loaded && !shouldSkipVerification,
+        enabled: !userDataState.loaded,
     });
 
     useEffect(() => {
@@ -38,9 +36,6 @@ export const useUserData = () => {
 
             if (sessionData?.loggedIn && sessionData.user) {
                 console.log('[useUserData] User authenticated, setting user data');
-                if (typeof window !== 'undefined') {
-                    sessionStorage.removeItem('skipSessionCheck');
-                }
                 dispatch(setUserData({
                     data: sessionData.user as UserData,
                     loading: false,
@@ -70,10 +65,6 @@ export const useUserData = () => {
     }, [error, dispatch]);
 
     const handleLogout = () => {
-        if (typeof window !== 'undefined') {
-            sessionStorage.setItem('skipSessionCheck', 'true');
-        }
-        verificationAttempted.current = true;
         dispatch(clearUserData());
     }
 

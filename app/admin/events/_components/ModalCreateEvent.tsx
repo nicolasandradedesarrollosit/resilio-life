@@ -56,9 +56,12 @@ export default function ModalCreateEvent() {
         if (data && data.data) {
             dispatch(addEvent(data.data));
             setFormData(null);
+            setImageFile(null);
+            setImagePreview(null);
+            setSelectedDate(null);
             onOpenChange();
         }
-    }, [data, dispatch, onOpenChange]);
+    }, [data, dispatch]);
 
     const validationRegex = {
         title: /^.{3,100}$/,
