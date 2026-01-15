@@ -9,15 +9,15 @@ export function useEvents() {
     const dispatch = useDispatch();
     const eventsState = useSelector(selectEventsData);
 
-    const { data, loading, error } = useApi<EventData[]>({
+    const { data, loading, error } = useApi<{ message?: string, data: EventData[] }>({
         endpoint: '/events',
         method: 'GET',
         enabled: eventsState.loaded === false,
     });
 
     useEffect(() => {
-        if (data && data.length > 0) {
-            dispatch(setEventsData({ events: data, loading: false, loaded: true }));
+        if (data && data.data && Array.isArray(data.data)) {
+            dispatch(setEventsData({ events: data.data, loading: false, loaded: true }));
         }
     }, [data, dispatch]);
 

@@ -1,11 +1,12 @@
-import {Modal, 
+import {
+    Modal,
     ModalContent,
     ModalBody,
     ModalFooter,
     ModalHeader
 } from "@heroui/modal";
-import {useModal} from "@/hooks/useModal";
-import {useState} from "react";
+import { useModal } from "@/hooks/useModal";
+import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import Image from "next/image";
@@ -15,6 +16,8 @@ import { Textarea } from "@heroui/input";
 import { DatePicker } from "@heroui/date-picker";
 import { ImageIcon } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
+import { useDispatch } from "react-redux";
+import { addEvent } from "@/redux/eventsSlice";
 
 interface StateValidations {
     title: string | null;
@@ -26,7 +29,8 @@ interface StateValidations {
 }
 
 export default function ModalCreateEvent() {
-    const {isOpen, onOpenChange} = useModal('createEventModal');
+    const { isOpen, onOpenChange } = useModal('createEventModal');
+    const dispatch = useDispatch();
     const [stateValidations, setStateValidations] = useState<StateValidations>({
         title: null,
         description: null,
@@ -48,19 +52,26 @@ export default function ModalCreateEvent() {
         enabled: formData !== null,
     });
 
+    useEffect(() => {
+        if (data && data.data) {
+            dispatch(addEvent(data.data));
+            setFormData(null);
+        }
+    }, [data, dispatch]);
+
     const validationRegex = {
         title: /^.{3,100}$/,
         description: /^.{10,500}$/,
         location: /^.{3,100}$/,
         url_provider: /^https?:\/\/.+/,
     };
-    
+
     const isMobile = useIsMobile();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        
+
         if (!value || value.trim() === '') {
             setStateValidations(prev => ({ ...prev, [name]: 'Este campo es requerido' }));
             return;
@@ -100,7 +111,7 @@ export default function ModalCreateEvent() {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        
+
         if (!file) {
             setStateValidations(prev => ({ ...prev, image: 'La imagen es requerida' }));
             setImagePreview(null);
@@ -126,7 +137,7 @@ export default function ModalCreateEvent() {
 
         setImageFile(file);
         setStateValidations(prev => ({ ...prev, image: null }));
-        
+
         const reader = new FileReader();
         reader.onloadend = () => {
             setImagePreview(reader.result as string);
@@ -137,7 +148,7 @@ export default function ModalCreateEvent() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         try {
             e.preventDefault();
-            
+
             const hasErrors = Object.values(stateValidations).some(error => error !== null);
             if (hasErrors) return;
 
@@ -151,14 +162,14 @@ export default function ModalCreateEvent() {
             }
 
             const formDataObj = new FormData(e.currentTarget);
-            
+
             // Agregar fecha manualmente
             const dateStr = selectedDate.toString().split('T')[0];
             formDataObj.append('date', dateStr);
-            
+
             // Agregar archivo de imagen manualmente
             formDataObj.append('image', imageFile);
-            
+
             setFormData(formDataObj);
             console.log("data submitted:", formDataObj);
             if (error) return console.error("Error submitting form:", error);
@@ -171,19 +182,19 @@ export default function ModalCreateEvent() {
 
     return (
         <Modal
-        isOpen={isOpen as boolean}
-        onOpenChange={onOpenChange}
-        size={isMobile ? "3xl" : "2xl"}
-        backdrop="blur"
-        scrollBehavior="inside"
-        isDismissable={false}
-                classNames={{
-                    body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col justify-start gap-0 w-screen max-w-[calc(100vw-3rem)] sm:max-w-full",
-                    base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50 w-full",
-                    header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
-                    footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
-                    closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
-                }} 
+            isOpen={isOpen as boolean}
+            onOpenChange={onOpenChange}
+            size={isMobile ? "3xl" : "2xl"}
+            backdrop="blur"
+            scrollBehavior="inside"
+            isDismissable={false}
+            classNames={{
+                body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col justify-start gap-0 w-screen max-w-[calc(100vw-3rem)] sm:max-w-full",
+                base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50 w-full",
+                header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
+                footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
+                closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
+            }}
         >
             <ModalContent>
                 {(onClose) => (
@@ -215,9 +226,9 @@ export default function ModalCreateEvent() {
                                             input: "text-white placeholder:text-slate-500"
                                         }}
                                     />
-                                    <span 
-                                        role="alert" 
-                                        aria-live="polite" 
+                                    <span
+                                        role="alert"
+                                        aria-live="polite"
                                         className={`text-xs absolute left-0 ${stateValidations.title ? "visible text-red-400" : "invisible"}`}
                                     >
                                         {stateValidations.title}
@@ -238,9 +249,9 @@ export default function ModalCreateEvent() {
                                             input: "text-white placeholder:text-slate-500"
                                         }}
                                     />
-                                    <span 
-                                        role="alert" 
-                                        aria-live="polite" 
+                                    <span
+                                        role="alert"
+                                        aria-live="polite"
                                         className={`text-xs absolute left-0 ${stateValidations.description ? "visible text-red-400" : "invisible"}`}
                                     >
                                         {stateValidations.description}
@@ -259,9 +270,9 @@ export default function ModalCreateEvent() {
                                                 input: "text-white"
                                             }}
                                         />
-                                        <span 
-                                            role="alert" 
-                                            aria-live="polite" 
+                                        <span
+                                            role="alert"
+                                            aria-live="polite"
                                             className={`text-xs absolute left-0 ${stateValidations.date ? "visible text-red-400" : "invisible"}`}
                                         >
                                             {stateValidations.date}
@@ -280,9 +291,9 @@ export default function ModalCreateEvent() {
                                                 input: "text-white placeholder:text-slate-500"
                                             }}
                                         />
-                                        <span 
-                                            role="alert" 
-                                            aria-live="polite" 
+                                        <span
+                                            role="alert"
+                                            aria-live="polite"
                                             className={`text-xs absolute left-0 ${stateValidations.location ? "visible text-red-400" : "invisible"}`}
                                         >
                                             {stateValidations.location}
@@ -305,20 +316,20 @@ export default function ModalCreateEvent() {
                                             }}
                                         />
                                     </div>
-                                    
-                                    <span 
-                                        role="alert" 
-                                        aria-live="polite" 
+
+                                    <span
+                                        role="alert"
+                                        aria-live="polite"
                                         className={`text-xs block ${stateValidations.image ? "visible text-red-400" : "invisible"}`}
                                     >
                                         {stateValidations.image}
                                     </span>
-                                    
+
                                     {imagePreview ? (
                                         <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-600 bg-slate-800">
-                                            <img 
-                                                src={imagePreview} 
-                                                alt="Vista previa" 
+                                            <img
+                                                src={imagePreview}
+                                                alt="Vista previa"
                                                 className="w-full h-full object-cover"
                                             />
                                             <button
@@ -341,7 +352,7 @@ export default function ModalCreateEvent() {
                                 </div>
 
                                 <div className="w-4/5 space-y-2 relative">
-                                    <Input 
+                                    <Input
                                         name="url_provider"
                                         label="Enlace de compra"
                                         placeholder="Ej: https://passline.com/evento"
@@ -353,9 +364,9 @@ export default function ModalCreateEvent() {
                                             input: "text-white placeholder:text-slate-500"
                                         }}
                                     />
-                                    <span 
-                                        role="alert" 
-                                        aria-live="polite" 
+                                    <span
+                                        role="alert"
+                                        aria-live="polite"
                                         className={`text-xs absolute left-0 ${stateValidations.url_provider ? "visible text-red-400" : "invisible"}`}
                                     >
                                         {stateValidations.url_provider}
@@ -365,15 +376,15 @@ export default function ModalCreateEvent() {
                         </ModalBody>
                         <ModalFooter>
                             <div className="flex flex-col sm:flex-row justify-end gap-3 w-full">
-                                <Button 
-                                    variant="bordered" 
+                                <Button
+                                    variant="bordered"
                                     onPress={onClose}
                                     className="w-full sm:w-auto border-slate-600 text-slate-200 hover:border-slate-500 hover:bg-slate-700/50 transition-all duration-200 text-sm sm:text-base font-medium"
                                     size={isMobile ? "md" : "lg"}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button 
+                                <Button
                                     type="submit"
                                     className="w-full sm:w-auto bg-gradient-to-r from-magenta-fuchsia-600 to-magenta-fuchsia-500 hover:from-magenta-fuchsia-700 hover:to-magenta-fuchsia-600 text-white text-sm sm:text-base font-semibold shadow-lg transition-all duration-200"
                                     size={isMobile ? "md" : "lg"}
