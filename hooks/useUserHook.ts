@@ -2,7 +2,7 @@
 
 import { useDispatch, useSelector } from "react-redux";
 import { setUserData, clearUserData, setLoading } from "@/redux/userSlice";
-import { selectUserData } from "@/redux/userSlice"; 
+import { selectUserData } from "@/redux/userSlice";
 import { useEffect, useRef } from "react";
 import { useApi } from "./useApi";
 import type { UserData } from "@/types/userData.type";
@@ -33,7 +33,7 @@ export const useUserData = () => {
         if (sessionData) {
             console.log('[useUserData] Session data received:', { loggedIn: sessionData?.loggedIn, hasUser: !!sessionData?.user });
             verificationAttempted.current = true;
-            
+
             if (sessionData?.loggedIn && sessionData.user) {
                 console.log('[useUserData] User authenticated, setting user data');
                 dispatch(setUserData({
@@ -65,18 +65,18 @@ export const useUserData = () => {
     }, [error, dispatch]);
 
     const handleLogout = () => {
-        verificationAttempted.current = false;
+        verificationAttempted.current = true;
         dispatch(clearUserData());
     }
-    
-    return { 
+
+    return {
         userDataState,
         userData: userDataState.data,
         isLoggedIn: !!userDataState.data,
         isLoading: userDataState.loading,
         isLoaded: userDataState.loaded,
-        logOut: handleLogout, 
-        setUserDataState: (userData: UserData | null) => dispatch(setUserData({ data: userData, loading: false, loaded: true })), 
-        setLoadingState: (loading: boolean) => dispatch(setLoading(loading)) 
+        logOut: handleLogout,
+        setUserDataState: (userData: UserData | null) => dispatch(setUserData({ data: userData, loading: false, loaded: true })),
+        setLoadingState: (loading: boolean) => dispatch(setLoading(loading))
     };
 }

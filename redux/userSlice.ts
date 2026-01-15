@@ -18,7 +18,7 @@ const userSlice = createSlice({
         },
         clearUserData(state) {
             state.data = null;
-            state.loaded = false; 
+            state.loaded = true;
             state.loading = false;
         },
         setLoading(state, action: PayloadAction<boolean>) {
