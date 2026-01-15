@@ -16,9 +16,8 @@ const isPublicRoute = (pathname: string) => {
 };
 
 export default function SessionChecker({ children }: { children: React.ReactNode }) {
-  useUserData();
   const pathname = usePathname();
-  
+
   if (isPublicRoute(pathname)) {
     return <>{children}</>;
   }
@@ -64,15 +63,15 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
 
   if (!hasLoadedOnce.current) {
     if (userDataState.loading && !userDataState.loaded) {
-      return <Loader fallback={"Cargando autenticación en el sistema..."}/>;
+      return <Loader fallback={"Cargando autenticación en el sistema..."} />;
     }
 
     if (!userDataState.loaded) {
-      return <Loader fallback={"Verificando sesión..."}/>;
+      return <Loader fallback={"Verificando sesión..."} />;
     }
   }
 
-  const isInCorrectRoute = 
+  const isInCorrectRoute =
     (!userDataState.data && pathname === '/login') ||
     (userDataState.data?.isAdmin && pathname.startsWith('/admin')) ||
     (userDataState.data && !userDataState.data.isAdmin && pathname.startsWith('/user'));
@@ -80,6 +79,6 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   if (!isInCorrectRoute) {
     return null;
   }
-  
+
   return <>{children}</>;
 }

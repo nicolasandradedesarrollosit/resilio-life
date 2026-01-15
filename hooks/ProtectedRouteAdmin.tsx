@@ -1,25 +1,30 @@
 'use client';
 import { useUserData } from "@/hooks/useUserHook";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Loader from "@/common/Loader";
 
 export default function ProtectedRouteAdmin({ children }: { children: React.ReactNode }) {
-    const { userDataState } = useUserData();
+    const { userDataState, isLoading, isLoaded } = useUserData();
     const router = useRouter();
-    
+    const hasRedirected = useRef(false);
+
     useEffect(() => {
-        if (userDataState.loading || !userDataState.loaded) return;
+        if (isLoading || !isLoaded) return;
+
+        if (hasRedirected.current) return;
 
         if (!userDataState.data) {
+            hasRedirected.current = true;
             router.push('/login');
         } else if (!userDataState.data.isAdmin) {
+            hasRedirected.current = true;
             router.push('/user');
         }
-    }, [userDataState.loading, userDataState.loaded, userDataState.data, router]);
+    }, [isLoading, isLoaded, userDataState.data, router]);
 
-    if (userDataState.loading || !userDataState.loaded) {
-        return <Loader fallback="Autenticando..."/>;
+    if (isLoading || !isLoaded) {
+        return <Loader fallback="Autenticando..." />;
     }
 
     if (!userDataState.data || !userDataState.data.isAdmin) {

@@ -47,13 +47,17 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
                 url += `/${value}`;
             }
 
+            const isFormData = body instanceof FormData;
+            
             const response = await fetch(url, {
                 method,
-                headers: {
+                headers: isFormData ? headers : {
                     'Content-Type': 'application/json',
                     ...headers,
                 },
-                body: method !== 'GET' && body ? JSON.stringify(body) : undefined,
+                body: method !== 'GET' && body 
+                    ? (isFormData ? body : JSON.stringify(body)) 
+                    : undefined,
                 credentials: includeCredentials ? 'include' : 'omit',
             });
 
@@ -69,7 +73,7 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
 
     useEffect(() => {
         fetchData();
-    }, [endpoint, method, JSON.stringify(body), JSON.stringify(headers), includeCredentials, enabled]);
+    }, [endpoint, method, includeCredentials, enabled]);
 
     return { data, error, loading, refetch: fetchData };
 };
