@@ -1,4 +1,5 @@
-import {Modal, 
+import {
+    Modal,
     ModalContent,
     ModalBody,
     ModalFooter,
@@ -7,8 +8,8 @@ import {Modal,
 import { useUserData } from "@/hooks/useUserHook";
 import { useApi } from "@/hooks/useApi";
 import { Avatar } from "@heroui/avatar";
-import {useModal} from "@/hooks/useModal";
-import {useState, useEffect} from "react";
+import { useModal } from "@/hooks/useModal";
+import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSelector } from "react-redux";
@@ -18,9 +19,10 @@ import { redirect } from "next/navigation";
 export default function ModalLogOut() {
     const { logOut } = useUserData();
     const userData = useSelector(selectUserDataOnly)
-    const {isOpen, onOpenChange} = useModal('logOutModal');    
+    const { isOpen, onOpenChange } = useModal('logOutModal');
     const isMobile = useIsMobile();
     const [shouldLogOut, setShouldLogOut] = useState(false);
+    const [hasLoggedOut, setHasLoggedOut] = useState(false);
 
     const { loading: isLoading } = useApi({
         endpoint: '/logout',
@@ -30,30 +32,30 @@ export default function ModalLogOut() {
     });
 
     useEffect(() => {
-        if (shouldLogOut && !isLoading) {
+        if (shouldLogOut && !isLoading && !hasLoggedOut) {
+            setHasLoggedOut(true);
             logOut();
-            setShouldLogOut(false);
+            window.location.href = '/';
         }
-    }, [shouldLogOut, isLoading, logOut]);
+    }, [shouldLogOut, isLoading, logOut, hasLoggedOut]);
 
     const handleLogOut = async () => {
         setShouldLogOut(true);
-        globalThis.location.reload();
     };
     return (
         <Modal
-        isOpen={isOpen as any}
-        onOpenChange={onOpenChange}
-        size={isMobile ? "3xl" : "xl"}
-        backdrop="blur"
-        scrollBehavior="inside"
-                classNames={{
-                    body: "py-6 sm:py-8 px-4 sm:px-6 flex flex-col items-center justify-start",
-                    base: "bg-black text-white max-h-[95vh] rounded-lg shadow-xl",
-                    header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-4 sm:px-6",
-                    footer: "border-t-[1px] border-[#292f46] py-4 sm:py-5 px-4 sm:px-6",
-                    closeButton: "hover:bg-white/5 active:bg-white/10 top-2 right-2 sm:top-3 sm:right-3",
-                }} 
+            isOpen={isOpen as any}
+            onOpenChange={onOpenChange}
+            size={isMobile ? "3xl" : "xl"}
+            backdrop="blur"
+            scrollBehavior="inside"
+            classNames={{
+                body: "py-6 sm:py-8 px-4 sm:px-6 flex flex-col items-center justify-start",
+                base: "bg-black text-white max-h-[95vh] rounded-lg shadow-xl",
+                header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-4 sm:px-6",
+                footer: "border-t-[1px] border-[#292f46] py-4 sm:py-5 px-4 sm:px-6",
+                closeButton: "hover:bg-white/5 active:bg-white/10 top-2 right-2 sm:top-3 sm:right-3",
+            }}
         >
             <ModalContent>
                 {(onClose) => (
@@ -78,15 +80,15 @@ export default function ModalLogOut() {
                         </ModalBody>
                         <ModalFooter>
                             <div className="flex flex-col sm:flex-row justify-end gap-3 w-full">
-                                <Button 
-                                    variant="solid" 
+                                <Button
+                                    variant="solid"
                                     onPress={onClose}
                                     className="w-full sm:w-auto bg-white text-black data-[hover=true]:bg-gray-200 transition-all duration-200 text-sm sm:text-base"
                                     size={isMobile ? "md" : "lg"}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button 
+                                <Button
                                     color="danger"
                                     variant="solid"
                                     onPress={async () => {
