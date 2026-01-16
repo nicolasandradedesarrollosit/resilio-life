@@ -1,4 +1,4 @@
-import {Table, TableHeader, TableRow, TableColumn, TableBody, TableCell} from "@heroui/table"
+import { Table, TableHeader, TableRow, TableColumn, TableBody, TableCell } from "@heroui/table"
 import { Input } from "@heroui/input"
 import { Pagination } from "@heroui/pagination"
 import { EventData } from "@/types/EventData.type"
@@ -8,15 +8,18 @@ import { useSelector } from "react-redux"
 import { selectAllEvents } from "@/redux/eventsSlice"
 import { useEvents } from "@/hooks/useEvents"
 import { Button } from "@heroui/button"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react"
 import { useModal } from "@/hooks/useModal";
 import ModalCreateEvent from "./ModalCreateEvent";
+import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/modal";
 
 export default function TableEvents() {
     useEvents();
     const events = (useSelector(selectAllEvents) as EventData[]) || [];
     const { onOpen: onOpenEvent } = useModal('createEventModal');
-    
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [selectedImage, setSelectedImage] = useState<string>("");
+
     const [page, setPage] = useState(1);
     const [filterTitle, setFilterTitle] = useState("");
     const rowsPerPage = 10;
@@ -121,7 +124,7 @@ export default function TableEvents() {
                             <TableColumn>IMAGEN</TableColumn>
                             <TableColumn>ACCIONES</TableColumn>
                         </TableHeader>
-                        <TableBody 
+                        <TableBody
                             emptyContent={
                                 <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                                     <div className="bg-gray-50 rounded-full p-4 mb-3">
@@ -129,7 +132,7 @@ export default function TableEvents() {
                                     </div>
                                     <p className="text-gray-500 font-medium">No se encontraron resultados</p>
                                 </div>
-                            } 
+                            }
                             items={items}
                         >
                             {(item: EventData) => (
@@ -157,45 +160,58 @@ export default function TableEvents() {
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        <a 
-                                            href={item.url_provider} 
-                                            target="_blank" 
+                                        <a
+                                            href={item.url_provider}
+                                            target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap underline"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 text-xs font-semibold border border-slate-200/60 shadow-sm"
                                         >
-                                            Ver
+                                            Ver sitio
+                                            <ExternalLink size={12} className="text-slate-400" />
                                         </a>
                                     </TableCell>
                                     <TableCell>
                                         {item.url_image && (
-                                            <img 
-                                                src={item.url_image} 
-                                                alt={item.title}
-                                                className="w-10 h-10 rounded object-cover"
-                                            />
+                                            <div
+                                                className="relative w-12 h-12 rounded-lg overflow-hidden group cursor-zoom-in border border-gray-100 shadow-sm"
+                                                onClick={() => {
+                                                    setSelectedImage(item.url_image!);
+                                                    onOpen();
+                                                }}
+                                            >
+                                                <img
+                                                    src={item.url_image}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                                    <Search size={16} className="text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100" />
+                                                </div>
+                                            </div>
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex flex-row gap-4">
-                                            <Button
-                                                isIconOnly
-                                                variant="ghost"
-                                                color="warning"
-                                                size="sm"
+                                        <div className="flex flex-row gap-1 sm:gap-2">
+                                            <button
+                                                className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
                                                 aria-label="Modificar"
                                             >
-                                                <Pencil />
-                                            </Button>
-                                            <Button
-                                                isIconOnly
-                                                variant="ghost"
-                                                color="danger"
-                                                size="sm"
+                                                <Pencil
+                                                    width={15}
+                                                    height={15}
+                                                    className="text-yellow-300"
+                                                />
+                                            </button>
+                                            <button
+                                                className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
                                                 aria-label="Eliminar"
                                             >
-                                                <Trash2 />
-                                            </Button>
-
+                                                <Trash2
+                                                    width={15}
+                                                    height={15}
+                                                    className="text-red-300"
+                                                />
+                                            </button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -205,7 +221,44 @@ export default function TableEvents() {
                 </div>
             </div>
             <ModalCreateEvent />
-            
+
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                size="2xl"
+                backdrop="blur"
+                motionProps={{
+                    variants: {
+                        enter: {
+                            y: 0,
+                            opacity: 1,
+                            transition: {
+                                duration: 0.3,
+                                ease: "easeOut",
+                            },
+                        },
+                        exit: {
+                            y: -20,
+                            opacity: 0,
+                            transition: {
+                                duration: 0.2,
+                                ease: "easeIn",
+                            },
+                        },
+                    }
+                }}
+            >
+                <ModalContent className="bg-transparent shadow-none border-none">
+                    <ModalBody className="p-0">
+                        <img
+                            src={selectedImage}
+                            alt="Preview"
+                            className="w-full h-auto rounded-xl shadow-2xl"
+                        />
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+
             <style jsx global>{`
                 /* Optional: cleaner scrollbar for the table container */
                 div[class*="overflow-x-auto"]::-webkit-scrollbar {
