@@ -9,12 +9,12 @@ import { UserData } from "@/types/userData.type";
 export const useUsers = () => {
     const allUsers = useSelector(selectAllUsers);
     const dispatch = useDispatch();
-    
+
     const { data, loading, error } = useApi<UserData[]>({
         endpoint: '/users',
         method: 'GET',
         includeCredentials: true,
-        enabled: allUsers.length === 0, 
+        enabled: allUsers.length === 0,
     });
 
     useEffect(() => {
@@ -38,10 +38,10 @@ export const useUsers = () => {
         }
     }, [error, dispatch]);
 
-    return { 
-        users: allUsers, 
-        loading, 
+    return {
+        users: allUsers,
+        loading,
         error,
-        hasUsers: allUsers.length > 0 
+        hasUsers: allUsers.length > 0
     };
 };

@@ -15,13 +15,19 @@ export default function TableMessages() {
     const rowsPerPage = 10;
 
     const rows = useMemo(() => {
-        if (!filter) return messages;
-        const term = filter.toLowerCase();
-        return messages.filter(m =>
-            (m.name || "").toLowerCase().includes(term) ||
-            (m.email || "").toLowerCase().includes(term) ||
-            (m.subject || "").toLowerCase().includes(term)
-        );
+        let filtered = messages;
+        if (filter) {
+            const term = filter.toLowerCase();
+            filtered = messages.filter(m =>
+                (m.name || "").toLowerCase().includes(term) ||
+                (m.email || "").toLowerCase().includes(term) ||
+                (m.subject || "").toLowerCase().includes(term)
+            );
+        }
+        return filtered.map((m, idx) => ({
+            ...m,
+            key: m.id || (m as any)._id || `msg-${idx}`
+        }));
     }, [messages, filter]);
 
     const pages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
@@ -116,8 +122,8 @@ export default function TableMessages() {
                             }
                             items={items}
                         >
-                            {(item: MessageData) => (
-                                <TableRow key={item.id}>
+                            {(item: any) => (
+                                <TableRow key={(item as any).key}>
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">
