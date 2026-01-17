@@ -26,7 +26,7 @@ export default function FormRegister() {
 
     const [registerData, setRegisterData] = useState<RegisterFormData | null>(null);
 
-    const { data , error, loading } = useApi<{ user: UserData }>({
+    const { data, error, loading } = useApi<{ user: UserData }>({
         endpoint: '/users',
         method: 'POST',
         body: registerData,
@@ -87,7 +87,7 @@ export default function FormRegister() {
                 timeout: 5000
             });
             setIsSubmitting(false);
-            setRegisterData(null); 
+            setRegisterData(null);
             return;
         }
 
@@ -99,12 +99,12 @@ export default function FormRegister() {
                 email: null,
                 password: null
             });
-            dispatch(setUserData({ 
-                data: data.user, 
-                loading: false, 
-                loaded: true 
+            dispatch(setUserData({
+                data: data.user,
+                loading: false,
+                loaded: true
             }));
-            
+
             addToast({
                 title: 'Registro exitoso',
                 description: '¡Tu cuenta ha sido creada correctamente!',
@@ -114,7 +114,7 @@ export default function FormRegister() {
             });
 
             setIsSubmitting(false);
-            setRegisterData(null); 
+            setRegisterData(null);
             router.push('/login');
         }
     }, [data, error, loading, dispatch, router]);
@@ -128,7 +128,7 @@ export default function FormRegister() {
         ) as unknown as RegisterFormData;
 
         const allValid = Object.values(stateValidations).every(val => val === true);
-        
+
         if (!allValid) {
             addToast({
                 title: 'Validación fallida',
@@ -181,7 +181,7 @@ export default function FormRegister() {
                             label="Nombre"
                             placeholder="Tu nombre"
                             variant="bordered"
-                            onChange={(e) => {handleChange(e, 0)}}
+                            onChange={(e) => { handleChange(e, 0) }}
                             isRequired
                             classNames={{
                                 inputWrapper: "border-2 hover:border-magenta-fuchsia-600 group-data-[focus=true]:border-magenta-fuchsia-500 text-black",
@@ -202,7 +202,7 @@ export default function FormRegister() {
                             label="Apellido"
                             placeholder="Tu apellido"
                             variant="bordered"
-                            onChange={(e) => {handleChange(e, 1)}}
+                            onChange={(e) => { handleChange(e, 1) }}
                             isRequired
                             classNames={{
                                 inputWrapper: "border-2 hover:border-magenta-fuchsia-600 group-data-[focus=true]:border-magenta-fuchsia-500 text-black",
@@ -215,7 +215,7 @@ export default function FormRegister() {
                     </div>
 
                     <div className="flex flex-col relative">
-                        <Input                        
+                        <Input
                             name="email"
                             isInvalid={stateValidations.email === false}
                             color="secondary"
@@ -223,7 +223,7 @@ export default function FormRegister() {
                             label="Email"
                             placeholder="tu@email.com"
                             variant="bordered"
-                            onChange={(e) => {handleChange(e, 2)}}
+                            onChange={(e) => { handleChange(e, 2) }}
                             isRequired
                             classNames={{
                                 inputWrapper: "border-2 hover:border-magenta-fuchsia-600 group-data-[focus=true]:border-magenta-fuchsia-500 text-black",
@@ -243,7 +243,7 @@ export default function FormRegister() {
                             placeholder="••••••••"
                             name="password"
                             variant="bordered"
-                            onChange={(e) => {handleChange(e, 3)}}
+                            onChange={(e) => { handleChange(e, 3) }}
                             isRequired
                             type={isVisiblePassword ? 'text' : 'password'}
                             endContent={

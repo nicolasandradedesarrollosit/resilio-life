@@ -4,6 +4,7 @@ import AllUserReducer from "./allUserSlice";
 import ModalReducer from "./modalSlice";
 import NavbarReducer from "./navbarSlice";
 import EventsReducer from "./eventsSlice";
+import MessagesReducer from "./messageSlice";
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         modal: ModalReducer,
         navbar: NavbarReducer,
         events: EventsReducer,
+        messages: MessagesReducer,
     },
 });
 

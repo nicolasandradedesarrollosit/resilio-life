@@ -6,7 +6,6 @@ import { useMemo, useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { useSelector } from "react-redux"
 import { selectAllEvents } from "@/redux/eventsSlice"
-import { useEvents } from "@/hooks/useEvents"
 import { Button } from "@heroui/button"
 import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react"
 import { useModal } from "@/hooks/useModal";
@@ -14,7 +13,6 @@ import ModalCreateEvent from "./ModalCreateEvent";
 import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/modal";
 
 export default function TableEvents() {
-    useEvents();
     const events = (useSelector(selectAllEvents) as EventData[]) || [];
     const { onOpen: onOpenEvent } = useModal('createEventModal');
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -68,8 +66,8 @@ export default function TableEvents() {
                         <Input
                             classNames={{
                                 base: "w-full md:w-72",
-                                inputWrapper: "bg-white border border-gray-200 shadow-sm h-10 data-[hover=true]:bg-white group-data-[focus=true]:bg-white group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:ring-1 group-data-[focus=true]:ring-magenta-fuchsia-500",
-                                input: "text-gray-900 placeholder:text-gray-400",
+                                inputWrapper: "bg-white text-black border border-gray-200 shadow-sm h-10 data-[hover=true]:bg-white group-data-[focus=true]:bg-white group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:ring-1 group-data-[focus=true]:ring-magenta-fuchsia-500",
+                                input: "text-black placeholder:text-black/50",
                             }}
                             placeholder="Buscar por título..."
                             startContent={<Search className="h-4 w-4 text-gray-400" />}
@@ -78,7 +76,9 @@ export default function TableEvents() {
                             radius="lg"
                             isClearable
                             onClear={() => setFilterTitle("")}
-                            size="sm"
+                            size="md"
+                            variant="bordered"
+                            color="secondary"
                         />
                     </div>
                 </div>
