@@ -11,13 +11,17 @@ import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react"
 import { useModal } from "@/hooks/useModal";
 import ModalCreateEvent from "./ModalCreateEvent";
 import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/modal";
+import ModalDeleteEvent from "./ModalDeleteEvent";
+import ModalUpdateEvent from "./ModalUpdateEvent";
 
 export default function TableEvents() {
     const events = (useSelector(selectAllEvents) as EventData[]) || [];
     const { onOpen: onOpenEvent } = useModal('createEventModal');
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedImage, setSelectedImage] = useState<string>("");
-
+    const { onOpen: onOpenDeleteModal } = useModal('deleteEventModal');
+    const { onOpen: onOpenUpdateModal } = useModal('updateEventModal');
+    const [selectedEventId, setSelectedEventId] = useState<string>("");
     const [page, setPage] = useState(1);
     const [filterTitle, setFilterTitle] = useState("");
     const rowsPerPage = 10;
@@ -195,6 +199,10 @@ export default function TableEvents() {
                                             <button
                                                 className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
                                                 aria-label="Modificar"
+                                                onClick={() => {
+                                                    onOpenUpdateModal();
+                                                    setSelectedEventId(item._id);
+                                                }}
                                             >
                                                 <Pencil
                                                     width={15}
@@ -205,6 +213,10 @@ export default function TableEvents() {
                                             <button
                                                 className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
                                                 aria-label="Eliminar"
+                                                onClick={() => {
+                                                    onOpenDeleteModal();
+                                                    setSelectedEventId(item._id);
+                                                }}
                                             >
                                                 <Trash2
                                                     width={15}
@@ -221,6 +233,8 @@ export default function TableEvents() {
                 </div>
             </div>
             <ModalCreateEvent />
+            <ModalDeleteEvent id={selectedEventId} />
+            <ModalUpdateEvent id={selectedEventId} />
 
             <Modal
                 isOpen={isOpen}

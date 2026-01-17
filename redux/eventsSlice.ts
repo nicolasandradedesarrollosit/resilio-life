@@ -25,6 +25,12 @@ const eventsSlice = createSlice({
         addEvent(state, action: PayloadAction<EventData>) {
             state.events.push(action.payload);
         },
+        updateEvent(state, action: PayloadAction<EventData>) {
+            const index = state.events.findIndex(e => e._id === action.payload._id);
+            if (index !== -1) {
+                state.events[index] = action.payload;
+            }
+        },
         clearEventsData(state) {
             state.events = [];
             state.loaded = false;
@@ -36,7 +42,7 @@ const eventsSlice = createSlice({
     },
 });
 
-export const { setEventsData, addEvent, clearEventsData, setLoading } = eventsSlice.actions;
+export const { setEventsData, addEvent, updateEvent, clearEventsData, setLoading } = eventsSlice.actions;
 export default eventsSlice.reducer;
 
 export const selectEventsData = (state: { events: EventsState }) => state.events;
