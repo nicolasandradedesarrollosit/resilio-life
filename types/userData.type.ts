@@ -9,6 +9,7 @@ export interface UserData {
     points: number;
     email_verified: boolean;
     is_banned: boolean;
+    is_business: boolean;
     createdAt: string;
     updatedAt: string;
 }

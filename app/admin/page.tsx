@@ -3,15 +3,9 @@ import NavbarAdmin from "@/common/NavbarAdmin"
 import TableUsers from "./_components/TableUsers"
 import { useSelector } from "react-redux"
 import { selectIsNavOpen } from "@/redux/navbarSlice"
-import { useUsers } from "@/hooks/useUsers";
-import { useEvents } from "@/hooks/useEvents";
-import { useMessages } from "@/hooks/useMessages";
 
 export default function HomeAdminPage() {
     const isNavOpen = useSelector(selectIsNavOpen);
-    useUsers();
-    useEvents();
-    useMessages();
 
     return (
         <section className="min-h-[110vh] sm:min-h-screen w-full flex flex-row bg-gray-50">
