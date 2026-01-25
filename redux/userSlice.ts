@@ -5,22 +5,25 @@ const initialState: UserDataState = {
     data: null,
     loading: false,
     loaded: false,
+    loggedIn: false,
 };
 
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUserData(state, action: PayloadAction<{ data: UserData | null; loading?: boolean; loaded?: boolean }>) {
+        setUserData(state, action: PayloadAction<{ data: UserData | null; loading?: boolean; loaded?: boolean; loggedIn?: boolean }>) {
             state.data = action.payload.data;
             if (action.payload.loading !== undefined) state.loading = action.payload.loading;
             if (action.payload.loaded !== undefined) state.loaded = action.payload.loaded;
+            if (action.payload.loggedIn !== undefined) state.loggedIn = action.payload.loggedIn;
         },
         clearUserData() {
             return {
                 data: null,
                 loading: false,
                 loaded: true,
+                loggedIn: false,
             };
         },
         setLoading(state, action: PayloadAction<boolean>) {

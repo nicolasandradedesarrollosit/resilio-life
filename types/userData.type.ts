@@ -18,4 +18,5 @@ export interface UserDataState {
     data: UserData | null;
     loading: boolean;
     loaded: boolean;
+    loggedIn: boolean;
 }

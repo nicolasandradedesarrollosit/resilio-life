@@ -9,10 +9,15 @@ const PUBLIC_ROUTES = [
   '/contact',
   '/login',
   '/register',
+  '/register-business/:token'
 ];
 
 const isPublicRoute = (pathname: string) => {
-  return PUBLIC_ROUTES.some(route => pathname === route);
+  return PUBLIC_ROUTES.some(route => {
+    const pattern = route.replace(/:[^/]+/g, '[^/]+');
+    const regex = new RegExp(`^${pattern}$`);
+    return regex.test(pathname);
+  });
 };
 
 export default function SessionChecker({ children }: { children: React.ReactNode }) {

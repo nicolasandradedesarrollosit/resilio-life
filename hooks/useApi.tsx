@@ -33,8 +33,8 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const fetchData = async () => {
-        if (!enabled) return;
+    const fetchData = async (force: boolean = false) => {
+        if (!enabled && !force) return;
 
         setLoading(true);
         setError(null);
@@ -75,5 +75,5 @@ export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
         fetchData();
     }, [endpoint, method, includeCredentials, enabled]);
 
-    return { data, error, loading, refetch: fetchData };
+    return { data, error, loading, refetch: () => fetchData(true) };
 };

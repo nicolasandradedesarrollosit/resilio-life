@@ -1,3 +1,4 @@
+"use client"
 import { Table, TableHeader, TableRow, TableColumn, TableBody, TableCell } from "@heroui/table"
 import { Input } from "@heroui/input"
 import { Pagination } from "@heroui/pagination"
@@ -6,9 +7,14 @@ import { useMemo, useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { useSelector } from "react-redux"
 import { selectAllUsers } from "@/redux/allUserSlice"
+import { Button } from "@heroui/button"
+import { Paperclip } from "lucide-react"
+import { useApi } from "@/hooks/useApi"
+import { addToast } from "@heroui/toast"
 
 export default function TableUsers() {
     const users = useSelector(selectAllUsers);
+    const [isLoadingUnilink, setIsLoadingUnilink] = useState(false);
 
     const [page, setPage] = useState(1);
     const [filterEmail, setFilterEmail] = useState("");
@@ -32,6 +38,31 @@ export default function TableUsers() {
         setPage(1);
     }, [filterEmail]);
 
+    const { data: unilinkBusiness, refetch: refetchUnilinkBusiness } = useApi({
+        endpoint: '/create-unilink',
+        method: 'GET',
+        enabled: false,
+    });
+
+    useEffect(() => {
+        if (unilinkBusiness?.data?.token) {
+            console.log(unilinkBusiness.data.token);
+            const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-business/${unilinkBusiness.data.token}`;
+            navigator.clipboard.writeText(url);
+            addToast({
+                title: "Unilink creado",
+                description: "El enlace ha sido copiado al portapapeles",
+                color: "success",
+            });
+        }
+        setIsLoadingUnilink(false);
+    }, [unilinkBusiness]);
+
+    const handleUnilinkBusiness = async () => {
+        setIsLoadingUnilink(true);
+        await refetchUnilinkBusiness();
+    };
+
     return (
         <div className="w-full px-4 md:px-6 lg:px-8 mt-6 max-w-[100vw]">
             <div className="flex flex-col gap-6 w-full mx-auto">
@@ -41,6 +72,18 @@ export default function TableUsers() {
                             Gestión de Usuarios
                         </h1>
                     </div>
+                    <Button
+                        color="primary"
+                        variant="solid"
+                        className="bg-magenta-fuchsia-900 text-white"
+                        startContent={<Paperclip className="h-4 w-4" />}
+                        onPress={() => {
+                            handleUnilinkBusiness();
+                        }}
+                        isLoading={isLoadingUnilink}
+                    >
+                        Unilink de negocio
+                    </Button>
                     <div className="w-full md:w-auto">
                         <Input
                             classNames={{
