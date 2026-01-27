@@ -466,10 +466,11 @@ export default function RegisterBusinessForm() {
             </div>
 
             <div className="flex flex-col">
-              <label className="font-semibold text-sm text-gray-700 mb-2">
+              <label htmlFor="businessImage" className="font-semibold text-sm text-gray-700 mb-2">
                 Imagen del Negocio *
               </label>
               <input
+                id="businessImage"
                 ref={fileInputRef}
                 accept="image/jpeg,image/png,image/gif,image/webp"
                 className="hidden"

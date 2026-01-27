@@ -302,8 +302,7 @@ export default function LocationPicker({
       )}
 
       <p className="text-xs text-gray-400">
-        Usá el botón "Mi ubicación" o buscá una dirección para encontrar tu
-        negocio
+        Usá el botón &quot;Mi ubicación&quot; o buscá una dirección para encontrar tu negocio
       </p>
     </div>
   );

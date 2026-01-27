@@ -193,8 +193,10 @@ export default function TableEvents() {
                   </TableCell>
                   <TableCell>
                     {item.url_image && (
-                      <div
-                        className="relative w-12 h-12 rounded-lg overflow-hidden group cursor-zoom-in border border-gray-100 shadow-sm"
+                      <button
+                        type="button"
+                        aria-label={`Ver imagen de ${item.title}`}
+                        className="relative w-12 h-12 rounded-lg overflow-hidden group cursor-zoom-in border border-gray-100 shadow-sm p-0"
                         onClick={() => {
                           setSelectedImage(item.url_image!);
                           onOpen();
@@ -211,7 +213,7 @@ export default function TableEvents() {
                             size={16}
                           />
                         </div>
-                      </div>
+                      </button>
                     )}
                   </TableCell>
                   <TableCell>

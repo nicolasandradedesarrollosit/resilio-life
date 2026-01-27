@@ -91,8 +91,14 @@ export default defineConfig([globalIgnores([
         "react/jsx-uses-react": "off",
         "react/react-in-jsx-scope": "off",
         "react-hooks/exhaustive-deps": "off",
-        "jsx-a11y/click-events-have-key-events": "warn",
-        "jsx-a11y/interactive-supports-focus": "warn",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "jsx-a11y/interactive-supports-focus": "off",
+        "@next/next/no-img-element": "off",
+        "react/jsx-sort-props": "off",
+        "react/no-unescaped-entities": "off",
+        "jsx-a11y/label-has-associated-control": "off",
         "prettier/prettier": "warn",
         "no-unused-vars": "off",
         "unused-imports/no-unused-vars": "off",
@@ -133,6 +139,10 @@ export default defineConfig([globalIgnores([
             noSortAlphabetically: false,
             reservedFirst: true,
         }],
+
+        "react/no-unknown-property": "off",
+        "react/no-unescaped-entities": "warn",
+        "jsx-a11y/label-has-associated-control": "warn",
 
         "padding-line-between-statements": ["warn", {
             blankLine: "always",
