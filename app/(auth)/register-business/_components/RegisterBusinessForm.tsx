@@ -5,7 +5,7 @@ import { Input } from "@heroui/input"
 import { Select, SelectItem } from "@heroui/select"
 import Link from "next/link"
 import { addToast } from "@heroui/toast"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { EyeOff, Eye, MapPin, ImagePlus, X } from "lucide-react"
 import { useApi } from "@/hooks/useApi"
 import LocationPickerWrapper from "./LocationPickerWrapper"
@@ -45,8 +45,10 @@ export default function RegisterBusinessForm() {
     const [imagePreview, setImagePreview] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const router = useRouter()
+    const pathname = usePathname()
+    const token = pathname.split('/').pop() || ''
 
-    const [registerData, setRegisterData] = useState<BusinessFormData | null>(null)
+    const [registerData, setRegisterData] = useState<FormData | null>(null)
 
     const { data, error, loading } = useApi<{ user: any }>({
         endpoint: '/businesses',
@@ -144,24 +146,6 @@ export default function RegisterBusinessForm() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        const formData = new FormData(e.currentTarget)
-
-        const formValues: BusinessFormData = {
-            name: formData.get('name') as string,
-            lastName: formData.get('lastName') as string,
-            email: formData.get('email') as string,
-            password: formData.get('password') as string,
-            businessName: formData.get('businessName') as string,
-            businessDescription: formData.get('businessDescription') as string,
-            businessCategory: formData.get('businessCategory') as string,
-            businessImageURL: imagePreview || '', // Se convertirá a URL al subir
-            location: {
-                address: formData.get('address') as string,
-                coordinates: coordinates
-            }
-        }
-
-        // Validar campos requeridos
         const requiredFields = ['name', 'lastName', 'email', 'password', 'businessName', 'businessDescription', 'businessCategory', 'businessImage'] as const
         const allValid = requiredFields.every(field => stateValidations[field] === true)
 
@@ -176,6 +160,35 @@ export default function RegisterBusinessForm() {
             return
         }
 
+        if (!imageFile) {
+            addToast({
+                title: 'Imagen requerida',
+                description: 'Por favor, seleccioná una imagen para tu negocio.',
+                color: 'warning',
+                variant: 'flat',
+                timeout: 5000
+            })
+            return
+        }
+
+        const formDataToSend = new FormData()
+        formDataToSend.append('token', token)
+        formDataToSend.append('name', e.currentTarget.querySelector<HTMLInputElement>('[name="name"]')?.value || '')
+        formDataToSend.append('lastName', e.currentTarget.querySelector<HTMLInputElement>('[name="lastName"]')?.value || '')
+        formDataToSend.append('email', e.currentTarget.querySelector<HTMLInputElement>('[name="email"]')?.value || '')
+        formDataToSend.append('password', e.currentTarget.querySelector<HTMLInputElement>('[name="password"]')?.value || '')
+        formDataToSend.append('businessName', e.currentTarget.querySelector<HTMLInputElement>('[name="businessName"]')?.value || '')
+        formDataToSend.append('businessDescription', e.currentTarget.querySelector<HTMLInputElement>('[name="businessDescription"]')?.value || '')
+        formDataToSend.append('businessCategory', e.currentTarget.querySelector<HTMLInputElement>('[name="businessCategory"]')?.value || '')
+        formDataToSend.append('image', imageFile)
+
+        if (addressValue || coordinates) {
+            formDataToSend.append('location', JSON.stringify({
+                address: addressValue,
+                coordinates: coordinates
+            }))
+        }
+
         addToast({
             title: 'Registro en proceso',
             description: 'Estamos registrando tu negocio.',
@@ -184,7 +197,7 @@ export default function RegisterBusinessForm() {
             timeout: 3000
         })
 
-        setRegisterData(formValues)
+        setRegisterData(formDataToSend)
     }
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword)
