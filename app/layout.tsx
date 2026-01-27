@@ -1,11 +1,11 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
-import { ConsoleBlocker } from "@/helpers/ConsoleBlock";
 
 import { Providers } from "./providers";
-import SessionChecker from "@/hooks/SessionChecker";
 
+import { ConsoleBlocker } from "@/helpers/ConsoleBlock";
+import SessionChecker from "@/hooks/SessionChecker";
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
@@ -46,9 +46,7 @@ export default function RootLayout({
         <ConsoleBlocker />
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <SessionChecker>
-            <div className="relative flex flex-col h-screen">
-              {children}
-            </div>
+            <div className="relative flex flex-col h-screen">{children}</div>
           </SessionChecker>
         </Providers>
       </body>

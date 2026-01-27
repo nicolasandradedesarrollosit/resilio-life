@@ -1,26 +1,32 @@
-'use client'
-import { usePathname, useRouter } from 'next/navigation'
-import { useUserData } from '@/hooks/useUserHook'
-import Loader from '@/common/Loader';
-import { useEffect, useRef } from 'react';
+"use client";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+
+import { useUserData } from "@/hooks/useUserHook";
+import Loader from "@/common/Loader";
 
 const PUBLIC_ROUTES = [
-  '/',
-  '/contact',
-  '/login',
-  '/register',
-  '/register-business/:token'
+  "/",
+  "/contact",
+  "/login",
+  "/register",
+  "/register-business/:token",
 ];
 
 const isPublicRoute = (pathname: string) => {
-  return PUBLIC_ROUTES.some(route => {
-    const pattern = route.replace(/:[^/]+/g, '[^/]+');
+  return PUBLIC_ROUTES.some((route) => {
+    const pattern = route.replace(/:[^/]+/g, "[^/]+");
     const regex = new RegExp(`^${pattern}$`);
+
     return regex.test(pathname);
   });
 };
 
-export default function SessionChecker({ children }: { children: React.ReactNode }) {
+export default function SessionChecker({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
 
   if (isPublicRoute(pathname)) {
@@ -42,25 +48,35 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    if (!userDataState.loading && userDataState.loaded && !isRedirecting.current) {
+    if (
+      !userDataState.loading &&
+      userDataState.loaded &&
+      !isRedirecting.current
+    ) {
       if (!userDataState.data) {
-        if (pathname !== '/login') {
+        if (pathname !== "/login") {
           isRedirecting.current = true;
-          router.push('/login');
+          router.push("/login");
         }
       } else if (userDataState.data.isAdmin) {
-        if (!pathname.startsWith('/admin')) {
+        if (!pathname.startsWith("/admin")) {
           isRedirecting.current = true;
-          router.push('/admin');
+          router.push("/admin");
         }
       } else {
-        if (!pathname.startsWith('/user')) {
+        if (!pathname.startsWith("/user")) {
           isRedirecting.current = true;
-          router.push('/user');
+          router.push("/user");
         }
       }
     }
-  }, [userDataState.loading, userDataState.loaded, userDataState.data, router, pathname]);
+  }, [
+    userDataState.loading,
+    userDataState.loaded,
+    userDataState.data,
+    router,
+    pathname,
+  ]);
 
   useEffect(() => {
     isRedirecting.current = false;
@@ -77,9 +93,11 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   }
 
   const isInCorrectRoute =
-    (!userDataState.data && pathname === '/login') ||
-    (userDataState.data?.isAdmin && pathname.startsWith('/admin')) ||
-    (userDataState.data && !userDataState.data.isAdmin && pathname.startsWith('/user'));
+    (!userDataState.data && pathname === "/login") ||
+    (userDataState.data?.isAdmin && pathname.startsWith("/admin")) ||
+    (userDataState.data &&
+      !userDataState.data.isAdmin &&
+      pathname.startsWith("/user"));
 
   if (!isInCorrectRoute) {
     return null;

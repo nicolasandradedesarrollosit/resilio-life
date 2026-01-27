@@ -3,6 +3,7 @@ import Video from "./_components/Video";
 import FirstSection from "./_components/FirstSection";
 import SecondSection from "./_components/SecondSection";
 import ThirdSection from "./_components/ThirdSection";
+
 import Footer from "@/common/Footer";
 
 export default function Home() {

@@ -1,38 +1,44 @@
-"use client"
-import { useApi } from "./useApi"
-import Loader from "@/common/Loader"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect } from "react"
+"use client";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function ProtectedRouteUnilink({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const token = pathname.split('/').pop();
+import { useApi } from "./useApi";
 
-    const { loading, data, error } = useApi({
-        body: {
-            token: token
-        },
-        method: 'POST',
-        endpoint: '/check-unilink',
-        enabled: true,
-    });
+import Loader from "@/common/Loader";
 
-    const available = data?.available;
+export default function ProtectedRouteUnilink({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const token = pathname.split("/").pop();
 
-    useEffect(() => {
-        if (!loading && data && !available) {
-            router.push('/');
-        }
-    }, [loading, available, data, router]);
+  const { loading, data, error } = useApi({
+    body: {
+      token: token,
+    },
+    method: "POST",
+    endpoint: "/check-unilink",
+    enabled: true,
+  });
 
-    if (loading || !data) {
-        return <Loader fallback="Autenticando token..." />;
+  const available = data?.available;
+
+  useEffect(() => {
+    if (!loading && data && !available) {
+      router.push("/");
     }
+  }, [loading, available, data, router]);
 
-    if (error || !available) {
-        return null;
-    }
+  if (loading || !data) {
+    return <Loader fallback="Autenticando token..." />;
+  }
 
-    return children;
+  if (error || !available) {
+    return null;
+  }
+
+  return children;
 }

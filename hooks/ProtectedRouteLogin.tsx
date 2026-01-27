@@ -1,17 +1,23 @@
-'use client'
-import Loader from '@/common/Loader'
-import { useUserData } from '@/hooks/useUserHook'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function ProtectedRouteLogin({ children }: { children: React.ReactNode }) {
-  const { userDataState } = useUserData()
-  const router = useRouter()
-  const [showContent, setShowContent] = useState(false)
+import Loader from "@/common/Loader";
+import { useUserData } from "@/hooks/useUserHook";
+
+export default function ProtectedRouteLogin({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { userDataState } = useUserData();
+  const router = useRouter();
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     if (userDataState.loggedIn && userDataState.data) {
-      router.push(userDataState.data.isAdmin ? '/admin' : '/user');
+      router.push(userDataState.data.isAdmin ? "/admin" : "/user");
+
       return;
     }
 
@@ -26,7 +32,12 @@ export default function ProtectedRouteLogin({ children }: { children: React.Reac
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [userDataState.loggedIn, userDataState.loaded, userDataState.data, router])
+  }, [
+    userDataState.loggedIn,
+    userDataState.loaded,
+    userDataState.data,
+    router,
+  ]);
 
   if (userDataState.loggedIn && userDataState.data) {
     return <Loader fallback="Redirigiendo..." />;
@@ -36,5 +47,5 @@ export default function ProtectedRouteLogin({ children }: { children: React.Reac
     return <Loader fallback="Verificando sesión..." />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

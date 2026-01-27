@@ -8,6 +8,7 @@ import { ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
+
 import { store } from "@/redux/store";
 import { useUserData } from "@/hooks/useUserHook";
 
@@ -26,6 +27,7 @@ declare module "@react-types/shared" {
 
 function InitialDataLoader({ children }: { children: React.ReactNode }) {
   useUserData();
+
   return <>{children}</>;
 }
 
@@ -37,9 +39,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
       <HeroUIProvider navigate={router.push}>
         <ToastProvider />
         <NextThemesProvider {...themeProps}>
-          <InitialDataLoader>
-            {children}
-          </InitialDataLoader>
+          <InitialDataLoader>{children}</InitialDataLoader>
         </NextThemesProvider>
       </HeroUIProvider>
     </Provider>

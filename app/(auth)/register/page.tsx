@@ -1,5 +1,5 @@
-import FormRegister from "./_components/FormRegister"
+import FormRegister from "./_components/FormRegister";
 
 export default function Register() {
-    return <FormRegister />
+  return <FormRegister />;
 }
