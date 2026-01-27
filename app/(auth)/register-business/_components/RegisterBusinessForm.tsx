@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import { Select, SelectItem } from "@heroui/select";
 import Link from "next/link";
 import { addToast } from "@heroui/toast";
 import { useRouter, usePathname } from "next/navigation";
@@ -28,6 +27,7 @@ interface BusinessFormData {
 }
 
 const BUSINESS_CATEGORIES = [
+  { key: "", label: "Selecciona una categoría" },
   { key: "restaurante", label: "Restaurante" },
   { key: "cafeteria", label: "Cafetería" },
   { key: "tienda", label: "Tienda" },
@@ -207,7 +207,7 @@ export default function RegisterBusinessForm() {
     formDataToSend.append(
       "name",
       e.currentTarget.querySelector<HTMLInputElement>('[name="name"]')?.value ||
-        "",
+      "",
     );
     formDataToSend.append(
       "lastName",
@@ -439,25 +439,29 @@ export default function RegisterBusinessForm() {
             </div>
 
             <div className="flex flex-col">
-              <Select
-                isRequired
-                classNames={{
-                  trigger:
-                    "border-2 hover:border-magenta-fuchsia-600 data-[focus=true]:border-magenta-fuchsia-500",
-                  label: "font-semibold",
-                }}
-                label="Categoría"
-                name="businessCategory"
-                placeholder="Selecciona una categoría"
-                variant="bordered"
-                onChange={(e) =>
-                  handleChange("businessCategory", e.target.value)
-                }
-              >
-                {BUSINESS_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.key}>{cat.label}</SelectItem>
-                ))}
-              </Select>
+              <label className="font-semibold text-sm text-gray-700 mb-2 ml-1">
+                Categoría <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  className="w-full text-black cursor-pointer h-14 px-3 rounded-2xl border-2 border-default-200 bg-transparent outline-none transition-colors hover:border-magenta-fuchsia-600 focus:border-magenta-fuchsia-500 text-small shadow-none appearance-none"
+                  name="businessCategory"
+                  onChange={(e) =>
+                    handleChange("businessCategory", e.target.value)
+                  }
+                >
+                  {BUSINESS_CATEGORIES.map((cat) => (
+                    <option key={cat.key} value={cat.key} className="text-black bg-white hover:bg-gray-100 py-2">
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </div>
               <span
                 className={`text-xs text-red-500 mt-1 ${stateValidations.businessCategory === false ? "visible" : "invisible"}`}
               >
@@ -523,11 +527,10 @@ export default function RegisterBusinessForm() {
                 </div>
               ) : (
                 <button
-                  className={`w-full h-48 rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-3 ${
-                    stateValidations.businessImage === false
-                      ? "border-red-400 bg-red-50"
-                      : "border-gray-300 hover:border-magenta-fuchsia-500 hover:bg-fuchsia-50"
-                  }`}
+                  className={`w-full h-48 rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-3 ${stateValidations.businessImage === false
+                    ? "border-red-400 bg-red-50"
+                    : "border-gray-300 hover:border-magenta-fuchsia-500 hover:bg-fuchsia-50"
+                    }`}
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                 >
