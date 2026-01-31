@@ -22,9 +22,13 @@ export default function ProtectedRouteBusiness({
     if (!userDataState.data) {
       hasRedirected.current = true;
       router.push("/login");
-    } else if (!userDataState.data.is_business) {
+    } else if (userDataState.data.role !== "Business") {
       hasRedirected.current = true;
-      router.push("/user");
+      if (userDataState.data.isAdmin) {
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
     }
   }, [isLoading, isLoaded, userDataState.data, router]);
 
@@ -32,7 +36,7 @@ export default function ProtectedRouteBusiness({
     return <Loader fallback="Autenticando..." />;
   }
 
-  if (!userDataState.data || !userDataState.data.is_business) {
+  if (!userDataState.data || userDataState.data.role !== "Business") {
     return null;
   }
 

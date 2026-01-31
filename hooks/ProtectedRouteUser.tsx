@@ -22,6 +22,9 @@ export default function ProtectedRouteUser({
     if (!userDataState.data) {
       hasRedirected.current = true;
       router.push("/login");
+    } else if (userDataState.data.role === "Business") {
+      hasRedirected.current = true;
+      router.push("/business");
     } else if (userDataState.data.isAdmin) {
       hasRedirected.current = true;
       router.push("/admin");

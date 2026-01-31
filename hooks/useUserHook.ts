@@ -7,8 +7,7 @@ import { useEffect, useRef } from "react";
 
 import { useApi } from "./useApi";
 
-import { setUserData, clearUserData, setLoading } from "@/redux/userSlice";
-import { selectUserData } from "@/redux/userSlice";
+import { setUserData, clearUserData, setLoading, selectUserData, selectIsUserBusiness } from "@/redux/userSlice";
 
 export const useUserData = () => {
   const dispatch = useDispatch();
@@ -72,7 +71,6 @@ export const useUserData = () => {
 
   useEffect(() => {
     if (error) {
-      console.error("[useUserData] Session check failed:", error);
       verificationAttempted.current = true;
       dispatch(
         setUserData({
@@ -105,5 +103,6 @@ export const useUserData = () => {
         }),
       ),
     setLoadingState: (loading: boolean) => dispatch(setLoading(loading)),
+    isBusiness: useSelector(selectIsUserBusiness),
   };
 };

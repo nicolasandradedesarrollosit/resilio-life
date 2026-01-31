@@ -50,7 +50,7 @@ export default function Hero() {
           size="lg"
           onPress={() => {
             router.push(
-              `${userLoaded && userData?.id ? (userData.isAdmin ? "/admin" : "/user") : "/login"}`,
+              `${userLoaded && userData?.id ? (userData.role === "Business" ? "/business" : (userData.isAdmin ? "/admin" : "/user")) : "/login"}`,
             );
           }}
         >

@@ -16,7 +16,11 @@ export default function ProtectedRouteLogin({
 
   useEffect(() => {
     if (userDataState.loggedIn && userDataState.data) {
-      router.push(userDataState.data.isAdmin ? "/admin" : "/user");
+      if (userDataState.data.role === "Business") {
+        router.push("/business");
+      } else {
+        router.push(userDataState.data.isAdmin ? "/admin" : "/user");
+      }
 
       return;
     }

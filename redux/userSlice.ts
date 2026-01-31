@@ -54,3 +54,8 @@ export const selectUserLoading = (state: { user: UserDataState }) =>
   state.user.loading;
 export const selectUserLoaded = (state: { user: UserDataState }) =>
   state.user.loaded;
+
+export const selectUserRole = (state: { user: UserDataState }) =>
+  state.user.data?.role;
+export const selectIsUserBusiness = (state: { user: UserDataState }) =>
+  state.user.data?.role === "Business";

@@ -136,7 +136,9 @@ export default function FormLogIn() {
         password: null,
       });
       setLoginFormData(null);
-      if (loginResult.user.isAdmin) {
+      if (loginResult.user.role === "Business") {
+        router.push("/business");
+      } else if (loginResult.user.isAdmin) {
         router.push("/admin");
       } else {
         router.push("/user");
@@ -162,7 +164,9 @@ export default function FormLogIn() {
     if (googleResult?.user) {
       setUserDataState(googleResult.user);
       setGoogleFormData(null);
-      if (googleResult.user.isAdmin) {
+      if (googleResult.user.role === "Business") {
+        router.push("/business");
+      } else if (googleResult.user.isAdmin) {
         router.push("/admin");
       } else {
         router.push("/user");

@@ -3,13 +3,18 @@ export interface UserData {
   name: string;
   lastName: string;
   email: string;
+  role?: string;
+  businessName?: string;
+  businessImageURL?: string;
+  businessDescription?: string;
+  businessCategory?: string;
   isAdmin: boolean;
   isPremium: boolean;
   isInfluencer: boolean;
   points: number;
   email_verified: boolean;
   is_banned: boolean;
-  is_business: boolean;
+  is_business?: boolean;
   createdAt: string;
   updatedAt: string;
 }

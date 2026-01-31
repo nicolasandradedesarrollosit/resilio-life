@@ -58,6 +58,11 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
           isRedirecting.current = true;
           router.push("/login");
         }
+      } else if (userDataState.data.role === 'Business') {
+        if (!pathname.startsWith("/business")) {
+          isRedirecting.current = true;
+          router.push("/business");
+        }
       } else if (userDataState.data.isAdmin) {
         if (!pathname.startsWith("/admin")) {
           isRedirecting.current = true;
@@ -94,9 +99,11 @@ function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
 
   const isInCorrectRoute =
     (!userDataState.data && pathname === "/login") ||
+    (userDataState.data?.role === 'Business' && pathname.startsWith("/business")) ||
     (userDataState.data?.isAdmin && pathname.startsWith("/admin")) ||
     (userDataState.data &&
       !userDataState.data.isAdmin &&
+      userDataState.data.role !== 'Business' &&
       pathname.startsWith("/user"));
 
   if (!isInCorrectRoute) {
