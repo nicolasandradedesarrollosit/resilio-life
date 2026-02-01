@@ -11,21 +11,6 @@ import LocationPickerWrapper from "./LocationPickerWrapper";
 
 import { useApi } from "@/hooks/useApi";
 
-interface BusinessFormData {
-  name: string;
-  lastName: string;
-  email: string;
-  password: string;
-  businessName: string;
-  businessDescription: string;
-  businessCategory: string;
-  businessImageURL: string;
-  location: {
-    address: string;
-    coordinates: [number, number] | undefined;
-  };
-}
-
 const BUSINESS_CATEGORIES = [
   { key: "", label: "Selecciona una categoría" },
   { key: "restaurante", label: "Restaurante" },
@@ -243,14 +228,8 @@ export default function RegisterBusinessForm() {
     );
     formDataToSend.append("image", imageFile);
 
-    if (addressValue || coordinates) {
-      formDataToSend.append(
-        "location",
-        JSON.stringify({
-          address: addressValue,
-          coordinates: coordinates,
-        }),
-      );
+    if (coordinates) {
+      formDataToSend.append("coordinates", JSON.stringify(coordinates));
     }
 
     addToast({
