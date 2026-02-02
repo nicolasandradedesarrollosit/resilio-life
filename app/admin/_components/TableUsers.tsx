@@ -17,7 +17,7 @@ import { Paperclip } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
 import { useApi } from "@/hooks/useApi";
-import { selectAllUsers } from "@/redux/allUserSlice";
+import { selectAllUsers } from "@/features/allUsers/allUserSlice";
 import { UserData } from "@/types/userData.type";
 
 export default function TableUsers() {
@@ -55,11 +55,21 @@ export default function TableUsers() {
   });
 
   useEffect(() => {
+    const handleUnilinkResponse = async () => {
     if (unilinkBusiness?.data?.token) {
       console.log(unilinkBusiness.data.token);
       const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-business/${unilinkBusiness.data.token}`;
+      if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = url;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
 
-      navigator.clipboard.writeText(url);
       addToast({
         title: "Unilink creado",
         description: "El enlace ha sido copiado al portapapeles",
@@ -67,6 +77,9 @@ export default function TableUsers() {
       });
     }
     setIsLoadingUnilink(false);
+  };
+
+  handleUnilinkResponse();
   }, [unilinkBusiness]);
 
   const handleUnilinkBusiness = async () => {

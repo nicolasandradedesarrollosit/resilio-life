@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import TableEvents from "./_components/TableEvents";
 
 import NavbarAdmin from "@/common/NavbarAdmin";
-import { selectIsNavOpen } from "@/redux/navbarSlice";
+import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function EventsPage() {
   const isNavOpen = useSelector(selectIsNavOpen);

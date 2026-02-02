@@ -17,8 +17,8 @@ import { useRouter } from "next/navigation";
 
 import ModalLogOut from "./ModalLogOut";
 
-import { selectUserDataOnly } from "@/redux/userSlice";
-import { selectIsNavOpen, toggleNav } from "@/redux/navbarSlice";
+import { selectUserDataOnly } from "@/features/auth/authSlice";
+import { selectIsNavOpen, toggleNav } from "@/features/navbar/navbarSlice";
 import { useModal } from "@/hooks/useModal";
 
 export interface NavbarAdminProps {

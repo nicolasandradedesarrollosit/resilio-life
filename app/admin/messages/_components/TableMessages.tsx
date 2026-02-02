@@ -12,7 +12,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useSelector } from "react-redux";
 
-import { selectAllMessages } from "@/redux/messageSlice";
+import { selectAllMessages } from "@/features/messages/messageSlice";
 
 export default function TableMessages() {
   const messages = useSelector(selectAllMessages);

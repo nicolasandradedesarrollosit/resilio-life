@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
-import { selectUserDataOnly } from "@/redux/userSlice";
+import { selectUserDataOnly } from "@/features/auth/authSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useModal } from "@/hooks/useModal";
 import { useApi } from "@/hooks/useApi";

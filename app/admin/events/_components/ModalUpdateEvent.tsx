@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { parseDate } from "@internationalized/date";
 
 import { useApi } from "@/hooks/useApi";
-import { updateEvent, selectAllEvents } from "@/redux/eventsSlice";
+import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useModal } from "@/hooks/useModal";
 import { EventData } from "@/types/EventData.type";

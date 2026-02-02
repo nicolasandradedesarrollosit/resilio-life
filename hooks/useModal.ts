@@ -2,8 +2,8 @@ import type { AppDispatch } from "@/redux/store";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { openModal, closeModal, toggleModal } from "@/redux/modalSlice";
-import { selectModalOpen } from "@/redux/modalSlice";
+import { openModal, closeModal, toggleModal } from "@/features/modal/modalSlice";
+import { selectModalOpen } from "@/features/modal/modalSlice";
 
 export const useModal = (modalId: string) => {
   const dispatch = useDispatch<AppDispatch>();

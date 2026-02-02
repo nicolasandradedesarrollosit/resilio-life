@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { EyeOff, Eye } from "lucide-react";
 
-import { setUserData } from "@/redux/userSlice";
+import { setUserData } from "@/features/auth/authSlice";
 import { UserData } from "@/types/userData.type";
 import { useApi } from "@/hooks/useApi";
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { addToast } from "@heroui/toast";
 import { useRouter, usePathname } from "next/navigation";
 import { EyeOff, Eye, MapPin, ImagePlus, X } from "lucide-react";
+import { Router } from "next/router";
 
 import LocationPickerWrapper from "./LocationPickerWrapper";
 
@@ -108,12 +109,13 @@ export default function RegisterBusinessForm() {
   );
 
   useEffect(() => {
-    if (loading) {
+    const handleApiResponse = async () => { 
+      try {
+      if (loading) {
       setIsSubmitting(true);
 
       return;
     }
-
     if (error) {
       addToast({
         title: "Error al registrar",
@@ -128,7 +130,6 @@ export default function RegisterBusinessForm() {
 
       return;
     }
-
     if (data?.user) {
       formRef.current?.reset();
       addToast({
@@ -142,6 +143,25 @@ export default function RegisterBusinessForm() {
       setRegisterData(null);
       router.push("/login");
     }
+    } catch (err) {
+      console.error("Error handling API response:", err);
+      addToast({
+        title: "Error inesperado",
+        description:
+          "Ocurrió un error inesperado. Por favor, intentá nuevamente más tarde.",
+        color: "danger",
+        variant: "flat",
+        timeout: 5000,
+      });
+      setIsSubmitting(false);
+      setRegisterData(null);
+      router.push("/");
+    }
+    finally {
+      setIsSubmitting(false);
+    }
+    };
+    handleApiResponse();
   }, [data, error, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

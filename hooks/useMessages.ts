@@ -9,7 +9,7 @@ import {
   selectLoaded,
   setMessages,
   setLoading,
-} from "@/redux/messageSlice";
+} from "@/features/messages/messageSlice";
 import { MessageResponse } from "@/types/messageData.type";
 
 export const useMessages = () => {

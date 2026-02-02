@@ -9,7 +9,7 @@ import {
   selectAllUsers,
   setAllUserData,
   setLoading,
-} from "@/redux/allUserSlice";
+} from "@/features/allUsers/allUserSlice";
 import { UserData } from "@/types/userData.type";
 
 export const useUsers = () => {

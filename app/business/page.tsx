@@ -2,7 +2,7 @@
 import { useSelector } from "react-redux";
 
 import NavbarUser from "@/common/NavbarUser";
-import { selectIsNavOpen } from "@/redux/navbarSlice";
+import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function BusinessPage() {
   const isNavOpen = useSelector(selectIsNavOpen);

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import TableMessages from "./_components/TableMessages";
 
 import NavbarAdmin from "@/common/NavbarAdmin";
-import { selectIsNavOpen } from "@/redux/navbarSlice";
+import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function MessagesPage() {
   const isNavOpen = useSelector(selectIsNavOpen);

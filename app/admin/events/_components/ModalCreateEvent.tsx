@@ -18,7 +18,7 @@ import { useDispatch } from "react-redux";
 import { useApi } from "@/hooks/useApi";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useModal } from "@/hooks/useModal";
-import { addEvent } from "@/redux/eventsSlice";
+import { addEvent } from "@/features/events/eventsSlice";
 
 interface StateValidations {
   title: string | null;

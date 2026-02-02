@@ -20,7 +20,7 @@ import ModalDeleteEvent from "./ModalDeleteEvent";
 import ModalUpdateEvent from "./ModalUpdateEvent";
 
 import { useModal } from "@/hooks/useModal";
-import { selectAllEvents } from "@/redux/eventsSlice";
+import { selectAllEvents } from "@/features/events/eventsSlice";
 import { EventData } from "@/types/EventData.type";
 
 export default function TableEvents() {

@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import userReducer from "./userSlice";
-import AllUserReducer from "./allUserSlice";
-import ModalReducer from "./modalSlice";
-import NavbarReducer from "./navbarSlice";
-import EventsReducer from "./eventsSlice";
-import MessagesReducer from "./messageSlice";
+import userReducer from "../features/auth/authSlice";
+import AllUserReducer from "../features/allUsers/allUserSlice";
+import ModalReducer from "../features/modal/modalSlice";
+import NavbarReducer from "../features/navbar/navbarSlice";
+import EventsReducer from "../features/events/eventsSlice";
+import MessagesReducer from "../features/messages/messageSlice";
 
 export const store = configureStore({
   reducer: {

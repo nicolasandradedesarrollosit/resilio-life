@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { useApi } from "./useApi";
 
-import { selectEventsData } from "@/redux/eventsSlice";
+import { selectEventsData } from "@/features/events/eventsSlice";
 import {
   setEventsData,
   clearEventsData,
   setLoading,
-} from "@/redux/eventsSlice";
+} from "@/features/events/eventsSlice";
 import { EventData } from "@/types/EventData.type";
 
 export function useEvents() {
