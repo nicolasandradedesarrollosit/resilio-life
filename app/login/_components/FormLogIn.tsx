@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
 import { signInWithGoogle } from "@/lib";
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 import { useApi } from "@/shared/hooks";
 
 interface LogInFormData {

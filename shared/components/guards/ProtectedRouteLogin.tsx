@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Loader } from "@/shared/components/ui";
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 
 export const ProtectedRouteLogin = ({
   children,

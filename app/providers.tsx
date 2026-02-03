@@ -10,7 +10,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
 
 import { store } from "@/shared/store";
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 
 export interface ProvidersProps {
   children: React.ReactNode;

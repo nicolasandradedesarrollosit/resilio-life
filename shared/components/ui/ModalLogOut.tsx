@@ -16,7 +16,7 @@ import { LogOut } from "lucide-react";
 
 import { selectUserDataOnly } from "@/features/auth/authSlice";
 import { useIsMobile, useModal, useApi } from "@/shared/hooks";
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 
 export const ModalLogOut = () => {
   const { logOut } = useUserData();

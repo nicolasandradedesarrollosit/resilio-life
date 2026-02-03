@@ -2,7 +2,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 import { Loader } from "@/shared/components/ui";
 
 const PUBLIC_ROUTES = [

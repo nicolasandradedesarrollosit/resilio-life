@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-import { useUserData } from "@/hooks/useUserHook";
+import { useUserData } from "@/features/auth";
 import { Loader } from "@/shared/components/ui";
 
 export const ProtectedRouteBusiness = ({
