@@ -16,7 +16,6 @@ export const useUserData = () => {
 
   const {
     data: sessionData,
-    loading,
     error,
   } = useApi({
     endpoint: "/check-session",

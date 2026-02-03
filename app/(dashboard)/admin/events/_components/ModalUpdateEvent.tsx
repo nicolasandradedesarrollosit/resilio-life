@@ -51,7 +51,6 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
 
   const {
     loading: isLoading,
-    error,
     data,
   } = useApi({
     endpoint: `/events/${id}`,

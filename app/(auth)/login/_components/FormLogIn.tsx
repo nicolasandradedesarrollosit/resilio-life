@@ -20,7 +20,6 @@ interface LogInFormData {
 export default function FormLogIn() {
   const [isVisiblePassword, setIsVisiblePassword] = useState(false);
   const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const router = useRouter();
   const { setUserDataState } = useUserData();
 

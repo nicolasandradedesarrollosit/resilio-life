@@ -45,7 +45,6 @@ export default function ModalCreateEvent() {
 
   const {
     loading: isLoading,
-    error,
     data,
   } = useApi({
     endpoint: "/events",

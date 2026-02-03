@@ -6,8 +6,6 @@ import Link from "next/link";
 import { addToast } from "@heroui/toast";
 import { useRouter, usePathname } from "next/navigation";
 import { EyeOff, Eye, MapPin, ImagePlus, X } from "lucide-react";
-import { Router } from "next/router";
-
 import LocationPickerWrapper from "./LocationPickerWrapper";
 
 import { useApi } from "@/shared/hooks";
@@ -96,7 +94,7 @@ export default function RegisterBusinessForm() {
     setStateValidations((prev) => ({ ...prev, [field]: isValid }));
   };
 
-  const [addressValue, setAddressValue] = useState("");
+  const [, setAddressValue] = useState("");
 
   const handleLocationSelect = useCallback(
     (lat: number, lng: number, address?: string) => {
