@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import TableMessages from "./_components/TableMessages";
 
-import NavbarAdmin from "@/common/NavbarAdmin";
+import { NavbarAdmin } from "@/shared/components/layout";
 import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function MessagesPage() {

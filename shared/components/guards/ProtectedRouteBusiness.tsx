@@ -3,13 +3,13 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { useUserData } from "@/hooks/useUserHook";
-import Loader from "@/common/Loader";
+import { Loader } from "@/shared/components/ui";
 
-export default function ProtectedRouteAdmin({
+export const ProtectedRouteBusiness = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const { userDataState, isLoading, isLoaded } = useUserData();
   const router = useRouter();
   const hasRedirected = useRef(false);
@@ -22,9 +22,13 @@ export default function ProtectedRouteAdmin({
     if (!userDataState.data) {
       hasRedirected.current = true;
       router.push("/login");
-    } else if (!userDataState.data.isAdmin) {
+    } else if (userDataState.data.role !== "Business") {
       hasRedirected.current = true;
-      router.push("/user");
+      if (userDataState.data.isAdmin) {
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
     }
   }, [isLoading, isLoaded, userDataState.data, router]);
 
@@ -32,9 +36,9 @@ export default function ProtectedRouteAdmin({
     return <Loader fallback="Autenticando..." />;
   }
 
-  if (!userDataState.data || !userDataState.data.isAdmin) {
+  if (!userDataState.data || userDataState.data.role !== "Business") {
     return null;
   }
 
   return <>{children}</>;
-}
+};

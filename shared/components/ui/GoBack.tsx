@@ -2,7 +2,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function GoBack({ url }: { url: string }) {
+export const GoBack = ({ url }: { url: string }) => {
   const router = useRouter();
 
   return (
@@ -21,4 +21,4 @@ export default function GoBack({ url }: { url: string }) {
       </span>
     </button>
   );
-}
+};

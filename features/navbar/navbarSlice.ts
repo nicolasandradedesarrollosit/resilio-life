@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { RootState } from "@/redux/store";
+import type { RootState } from "@/shared/store";
 
 export interface NavbarState {
   isNavOpen: boolean;

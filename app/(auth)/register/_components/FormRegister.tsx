@@ -9,8 +9,8 @@ import { useDispatch } from "react-redux";
 import { EyeOff, Eye } from "lucide-react";
 
 import { setUserData } from "@/features/auth/authSlice";
-import { UserData } from "@/types/userData.type";
-import { useApi } from "@/hooks/useApi";
+import type { UserData } from "@/shared/types";
+import { useApi } from "@/shared/hooks";
 
 interface RegisterFormData {
   name: string;

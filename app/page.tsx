@@ -4,7 +4,7 @@ import FirstSection from "./_components/FirstSection";
 import SecondSection from "./_components/SecondSection";
 import ThirdSection from "./_components/ThirdSection";
 
-import Footer from "@/common/Footer";
+import { Footer } from "@/shared/components/layout";
 
 export default function Home() {
   return (

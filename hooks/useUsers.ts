@@ -3,14 +3,14 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { useApi } from "./useApi";
+import { useApi } from "@/shared/hooks";
 
 import {
   selectAllUsers,
   setAllUserData,
   setLoading,
 } from "@/features/allUsers/allUserSlice";
-import { UserData } from "@/types/userData.type";
+import type { UserData } from "@/shared/types";
 
 export const useUsers = () => {
   const allUsers = useSelector(selectAllUsers);

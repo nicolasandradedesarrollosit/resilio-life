@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { addToast } from "@heroui/toast";
 import { Button } from "@heroui/button";
 
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@/shared/hooks";
 
 interface ContactFormData {
   name: string;

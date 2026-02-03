@@ -3,7 +3,7 @@ import { Card, CardBody, CardHeader } from "@heroui/card";
 import { ClipboardList, Users, Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/shared/hooks";
 
 export default function SecondSection() {
   const IconWrapper = ({ children }: { children: React.ReactNode }) => (

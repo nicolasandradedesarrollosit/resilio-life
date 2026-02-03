@@ -15,17 +15,16 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import ModalLogOut from "./ModalLogOut";
-
 import { selectUserDataOnly } from "@/features/auth/authSlice";
 import { selectIsNavOpen, toggleNav } from "@/features/navbar/navbarSlice";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks";
+import { ModalLogOut } from "@/shared/components/ui";
 
-export interface NavbarAdminProps {
+export interface NavbarUserProps {
   currentPageName: string;
 }
 
-export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
+export const NavbarUser = ({ currentPageName }: NavbarUserProps) => {
   const dispatch = useDispatch();
   const isNavOpen = useSelector(selectIsNavOpen);
   const userData = useSelector(selectUserDataOnly);
@@ -212,4 +211,4 @@ export default function NavbarAdmin({ currentPageName }: NavbarAdminProps) {
       <ModalLogOut />
     </>
   );
-}
+};

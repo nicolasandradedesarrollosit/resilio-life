@@ -2,15 +2,14 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { useApi } from "./useApi";
+import { useApi } from "@/shared/hooks";
+import { Loader } from "@/shared/components/ui";
 
-import Loader from "@/common/Loader";
-
-export default function ProtectedRouteUnilink({
+export const ProtectedRouteUnilink = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const token = pathname.split("/").pop();
@@ -41,4 +40,4 @@ export default function ProtectedRouteUnilink({
   }
 
   return children;
-}
+};

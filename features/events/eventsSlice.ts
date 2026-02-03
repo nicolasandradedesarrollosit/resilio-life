@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { EventData } from "@/types/EventData.type";
+import type { EventData } from "@/shared/types";
 
 interface EventsState {
   events: Array<EventData>;

@@ -9,9 +9,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Trash } from "lucide-react";
 
-import { useApi } from "@/hooks/useApi";
-import { useModal } from "@/hooks/useModal";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useApi, useModal, useIsMobile } from "@/shared/hooks";
 
 export default function ModalDeleteEvent({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("deleteEventModal");

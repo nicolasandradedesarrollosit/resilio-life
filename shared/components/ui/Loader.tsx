@@ -1,7 +1,7 @@
 import { Spinner } from "@heroui/spinner";
 import Image from "next/image";
 
-export default function Loader({ fallback }: { fallback: string }) {
+export const Loader = ({ fallback }: { fallback: string }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
       <div className="absolute inset-0 bg-gradient-to-br from-magenta-fuchsia-500/10 via-transparent to-magenta-fuchsia-700/10" />
@@ -63,4 +63,4 @@ export default function Loader({ fallback }: { fallback: string }) {
       </div>
     </div>
   );
-}
+};

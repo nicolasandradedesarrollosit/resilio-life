@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "./useApi";
+import { useApi } from "@/shared/hooks";
 
 import {
   selectAllMessages,
@@ -10,7 +10,7 @@ import {
   setMessages,
   setLoading,
 } from "@/features/messages/messageSlice";
-import { MessageResponse } from "@/types/messageData.type";
+import type { MessageResponse } from "@/shared/types";
 
 export const useMessages = () => {
   const dispatch = useDispatch();

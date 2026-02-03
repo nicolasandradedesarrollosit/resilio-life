@@ -1,5 +1,5 @@
 "use client";
-import ProtectedRouteAdmin from "@/hooks/ProtectedRouteAdmin";
+import { ProtectedRouteAdmin } from "@/shared/components/guards";
 import { useUsers } from "@/hooks/useUsers";
 import { useEvents } from "@/hooks/useEvents";
 import { useMessages } from "@/hooks/useMessages";

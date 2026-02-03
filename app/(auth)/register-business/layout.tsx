@@ -1,4 +1,4 @@
-import ProtectedRouteUnilink from "@/hooks/ProtectedRouteUnilink";
+import { ProtectedRouteUnilink } from "@/shared/components/guards";
 
 export default function RegisterBusinessLayout({
   children,

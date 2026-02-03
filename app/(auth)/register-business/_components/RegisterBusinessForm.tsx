@@ -10,7 +10,7 @@ import { Router } from "next/router";
 
 import LocationPickerWrapper from "./LocationPickerWrapper";
 
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@/shared/hooks";
 
 const BUSINESS_CATEGORIES = [
   { key: "", label: "Selecciona una categoría" },

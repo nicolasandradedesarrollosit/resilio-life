@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Modal,
   ModalContent,
@@ -13,12 +15,10 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
 import { selectUserDataOnly } from "@/features/auth/authSlice";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useModal } from "@/hooks/useModal";
-import { useApi } from "@/hooks/useApi";
+import { useIsMobile, useModal, useApi } from "@/shared/hooks";
 import { useUserData } from "@/hooks/useUserHook";
 
-export default function ModalLogOut() {
+export const ModalLogOut = () => {
   const { logOut } = useUserData();
   const userData = useSelector(selectUserDataOnly);
   const { isOpen, onOpenChange } = useModal("logOutModal");
@@ -125,4 +125,4 @@ export default function ModalLogOut() {
       </ModalContent>
     </Modal>
   );
-}
+};

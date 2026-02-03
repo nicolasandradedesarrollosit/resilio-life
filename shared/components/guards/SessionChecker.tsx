@@ -3,7 +3,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { useUserData } from "@/hooks/useUserHook";
-import Loader from "@/common/Loader";
+import { Loader } from "@/shared/components/ui";
 
 const PUBLIC_ROUTES = [
   "/",
@@ -22,11 +22,11 @@ const isPublicRoute = (pathname: string) => {
   });
 };
 
-export default function SessionChecker({
+export const SessionChecker = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const pathname = usePathname();
 
   if (isPublicRoute(pathname)) {
@@ -34,7 +34,7 @@ export default function SessionChecker({
   }
 
   return <SessionCheckerAuth>{children}</SessionCheckerAuth>;
-}
+};
 
 function SessionCheckerAuth({ children }: { children: React.ReactNode }) {
   const { userDataState } = useUserData();

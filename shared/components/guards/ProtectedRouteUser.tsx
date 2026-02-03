@@ -2,14 +2,14 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-import Loader from "@/common/Loader";
+import { Loader } from "@/shared/components/ui";
 import { useUserData } from "@/hooks/useUserHook";
 
-export default function ProtectedRouteUser({
+export const ProtectedRouteUser = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const { userDataState, isLoading, isLoaded } = useUserData();
   const router = useRouter();
   const hasRedirected = useRef(false);
@@ -40,4 +40,4 @@ export default function ProtectedRouteUser({
   }
 
   return <>{children}</>;
-}
+};

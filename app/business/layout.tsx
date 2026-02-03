@@ -1,4 +1,4 @@
-import ProtectedRouteBusiness from "@/hooks/ProtectedRouteBusiness";
+import { ProtectedRouteBusiness } from "@/shared/components/guards";
 
 export default function BusinessLayout({
     children,

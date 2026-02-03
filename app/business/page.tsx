@@ -1,7 +1,7 @@
 "use client";
 import { useSelector } from "react-redux";
 
-import NavbarUser from "@/common/NavbarUser";
+import { NavbarUser } from "@/shared/components/layout";
 import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function BusinessPage() {

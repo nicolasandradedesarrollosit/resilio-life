@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import { Providers } from "./providers";
 
-import SessionChecker from "@/hooks/SessionChecker";
+import { SessionChecker } from "@/shared/components/guards";
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {

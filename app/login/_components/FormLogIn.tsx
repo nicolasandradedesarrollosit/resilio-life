@@ -8,9 +8,9 @@ import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-import { signInWithGoogle } from "@/firebase/oauth-google";
+import { signInWithGoogle } from "@/lib";
 import { useUserData } from "@/hooks/useUserHook";
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@/shared/hooks";
 
 interface LogInFormData {
   email: string;

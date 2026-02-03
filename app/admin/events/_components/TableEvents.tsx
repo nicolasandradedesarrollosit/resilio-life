@@ -19,9 +19,9 @@ import ModalCreateEvent from "./ModalCreateEvent";
 import ModalDeleteEvent from "./ModalDeleteEvent";
 import ModalUpdateEvent from "./ModalUpdateEvent";
 
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks";
 import { selectAllEvents } from "@/features/events/eventsSlice";
-import { EventData } from "@/types/EventData.type";
+import type { EventData } from "@/shared/types";
 
 export default function TableEvents() {
   const events = (useSelector(selectAllEvents) as EventData[]) || [];

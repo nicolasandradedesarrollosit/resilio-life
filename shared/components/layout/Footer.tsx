@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Instagram, Linkedin } from "lucide-react";
 
-export default function Footer() {
+export const Footer = () => {
   return (
     <footer className="bg-black text-white w-full border-t border-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16 py-12 sm:py-16 md:py-20">
@@ -91,4 +91,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+};

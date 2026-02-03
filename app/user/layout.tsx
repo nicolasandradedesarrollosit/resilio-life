@@ -1,4 +1,4 @@
-import ProtectedRouteUser from "@/hooks/ProtectedRouteUser";
+import { ProtectedRouteUser } from "@/shared/components/guards";
 
 export default function UserLayout({
   children,

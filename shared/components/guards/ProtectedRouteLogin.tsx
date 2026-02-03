@@ -2,14 +2,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import Loader from "@/common/Loader";
+import { Loader } from "@/shared/components/ui";
 import { useUserData } from "@/hooks/useUserHook";
 
-export default function ProtectedRouteLogin({
+export const ProtectedRouteLogin = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const { userDataState } = useUserData();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
@@ -52,4 +52,4 @@ export default function ProtectedRouteLogin({
   }
 
   return <>{children}</>;
-}
+};

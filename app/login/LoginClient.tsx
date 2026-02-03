@@ -1,8 +1,8 @@
 "use client";
 import FormLogIn from "./_components/FormLogIn";
 
-import GoBack from "@/common/GoBack";
-import ProtectedRouteLogin from "@/hooks/ProtectedRouteLogin";
+import { GoBack } from "@/shared/components/ui";
+import { ProtectedRouteLogin } from "@/shared/components/guards";
 
 export default function LoginClient() {
   return (

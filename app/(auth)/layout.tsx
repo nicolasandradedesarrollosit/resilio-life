@@ -1,4 +1,4 @@
-import GoBack from "@/common/GoBack";
+import { GoBack } from "@/shared/components/ui";
 
 export default function AuthLayout({
   children,

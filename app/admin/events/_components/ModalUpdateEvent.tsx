@@ -16,11 +16,9 @@ import { ImageIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { parseDate } from "@internationalized/date";
 
-import { useApi } from "@/hooks/useApi";
+import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useModal } from "@/hooks/useModal";
-import { EventData } from "@/types/EventData.type";
+import type { EventData } from "@/shared/types";
 
 interface StateValidations {
   title: string | null;

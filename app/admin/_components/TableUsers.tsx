@@ -16,9 +16,9 @@ import { Button } from "@heroui/button";
 import { Paperclip } from "lucide-react";
 import { addToast } from "@heroui/toast";
 
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@/shared/hooks";
 import { selectAllUsers } from "@/features/allUsers/allUserSlice";
-import { UserData } from "@/types/userData.type";
+import type { UserData } from "@/shared/types";
 
 export default function TableUsers() {
   const users = useSelector(selectAllUsers);

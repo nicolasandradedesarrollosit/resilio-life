@@ -15,9 +15,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { ImageIcon } from "lucide-react";
 import { useDispatch } from "react-redux";
 
-import { useApi } from "@/hooks/useApi";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useModal } from "@/hooks/useModal";
+import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { addEvent } from "@/features/events/eventsSlice";
 
 interface StateValidations {

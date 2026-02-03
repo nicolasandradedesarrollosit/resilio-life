@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "./useApi";
+import { useApi } from "@/shared/hooks";
 
 import { selectEventsData } from "@/features/events/eventsSlice";
 import {
@@ -9,7 +9,7 @@ import {
   clearEventsData,
   setLoading,
 } from "@/features/events/eventsSlice";
-import { EventData } from "@/types/EventData.type";
+import type { EventData } from "@/shared/types";
 
 export function useEvents() {
   const dispatch = useDispatch();

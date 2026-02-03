@@ -1,11 +1,11 @@
 "use client";
 
-import type { UserData } from "@/types/userData.type";
+import type { UserData } from "@/shared/types";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 
-import { useApi } from "./useApi";
+import { useApi } from "@/shared/hooks";
 
 import { setUserData, clearUserData, setLoading, selectUserData, selectIsUserBusiness } from "@/features/auth/authSlice";
 

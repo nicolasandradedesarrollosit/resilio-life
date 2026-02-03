@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import TableEvents from "./_components/TableEvents";
 
-import NavbarAdmin from "@/common/NavbarAdmin";
+import { NavbarAdmin } from "@/shared/components/layout";
 import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 export default function EventsPage() {
