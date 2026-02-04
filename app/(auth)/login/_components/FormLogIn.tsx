@@ -11,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { signInWithGoogle } from "@/lib";
 import { useUserData } from "@/features/auth";
 import { useApi } from "@/shared/hooks";
+import { getRedirectPath } from "@/shared/utils";
 
 interface LogInFormData {
   email: string;
@@ -120,7 +121,7 @@ export default function FormLogIn() {
   };
 
   useEffect(() => {
-    if (loginResult?.user) {
+    if (loginResult?.data) {
       addToast({
         title: "Procesando la solicitud",
         description: "Iniciando sesión...",
@@ -128,20 +129,14 @@ export default function FormLogIn() {
         variant: "flat",
         timeout: 5000,
       });
-      setUserDataState(loginResult.user);
+      setUserDataState(loginResult.data);
       formRef.current?.reset();
       setStateValidations({
         email: null,
         password: null,
       });
       setLoginFormData(null);
-      if (loginResult.user.role === "Business") {
-        router.push("/business");
-      } else if (loginResult.user.isAdmin) {
-        router.push("/admin");
-      } else {
-        router.push("/user");
-      }
+      router.push(getRedirectPath(loginResult.data));
     }
   }, [loginResult, setUserDataState, router]);
 
@@ -160,16 +155,10 @@ export default function FormLogIn() {
   }, [loginError]);
 
   useEffect(() => {
-    if (googleResult?.user) {
-      setUserDataState(googleResult.user);
+    if (googleResult?.data) {
+      setUserDataState(googleResult.data);
       setGoogleFormData(null);
-      if (googleResult.user.role === "Business") {
-        router.push("/business");
-      } else if (googleResult.user.isAdmin) {
-        router.push("/admin");
-      } else {
-        router.push("/user");
-      }
+      router.push(getRedirectPath(googleResult.data));
     }
   }, [googleResult, setUserDataState, router]);
 

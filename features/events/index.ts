@@ -3,6 +3,7 @@ export {
   setEventsData,
   addEvent,
   updateEvent,
+  removeEvent,
   clearEventsData,
   setLoading,
   selectEventsData,

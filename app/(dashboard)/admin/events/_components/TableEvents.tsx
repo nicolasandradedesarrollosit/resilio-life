@@ -157,7 +157,7 @@ export default function TableEvents() {
               items={items}
             >
               {(item: EventData) => (
-                <TableRow key={item.title}>
+                <TableRow key={item._id}>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">

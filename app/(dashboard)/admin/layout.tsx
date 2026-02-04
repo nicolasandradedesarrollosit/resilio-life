@@ -1,5 +1,5 @@
 "use client";
-import { ProtectedRouteAdmin } from "@/shared/components/guards";
+import { ProtectedRoute } from "@/shared/components/guards";
 import { useUsers } from "@/features/allUsers";
 import { useEvents } from "@/features/events";
 import { useMessages } from "@/features/messages";
@@ -13,5 +13,5 @@ export default function AdminLayout({
   useEvents();
   useMessages();
 
-  return <ProtectedRouteAdmin>{children}</ProtectedRouteAdmin>;
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }

@@ -1,14 +1,18 @@
-import type { AppDispatch } from "@/shared/store";
+import type { AppDispatch, RootState } from "@/shared/store";
 
 import { useDispatch, useSelector } from "react-redux";
+import { useMemo } from "react";
 
 import { openModal, closeModal, toggleModal } from "@/features/modal/modalSlice";
-import { selectModalOpen } from "@/features/modal/modalSlice";
 
 export const useModal = (modalId: string) => {
   const dispatch = useDispatch<AppDispatch>();
-  const allModals = useSelector(selectModalOpen);
-  const isOpen = !!allModals[modalId];
+  const isOpen = useSelector(
+    useMemo(
+      () => (state: RootState) => !!state.modal.open[modalId],
+      [modalId],
+    ),
+  );
 
   const onOpen = () => {
     dispatch(openModal(modalId));
@@ -16,10 +20,6 @@ export const useModal = (modalId: string) => {
 
   const onClose = () => {
     dispatch(closeModal(modalId));
-  };
-
-  const onToggle = () => {
-    dispatch(toggleModal(modalId));
   };
 
   const onOpenChange = () => {
@@ -30,7 +30,6 @@ export const useModal = (modalId: string) => {
     isOpen,
     onOpen,
     onClose,
-    onToggle,
     onOpenChange,
   };
 };

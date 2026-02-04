@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { Loader } from "@/shared/components/ui";
 import { useUserData } from "@/features/auth";
+import { getRedirectPath } from "@/shared/utils";
 
 export const ProtectedRouteLogin = ({
   children,
@@ -16,11 +17,7 @@ export const ProtectedRouteLogin = ({
 
   useEffect(() => {
     if (userDataState.loggedIn && userDataState.data) {
-      if (userDataState.data.role === "Business") {
-        router.push("/business");
-      } else {
-        router.push(userDataState.data.isAdmin ? "/admin" : "/user");
-      }
+      router.push(getRedirectPath(userDataState.data));
 
       return;
     }

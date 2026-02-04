@@ -1,9 +1,9 @@
-import { ProtectedRouteBusiness } from "@/shared/components/guards";
+import { ProtectedRoute } from "@/shared/components/guards";
 
 export default function BusinessLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return <ProtectedRouteBusiness>{children}</ProtectedRouteBusiness>;
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }

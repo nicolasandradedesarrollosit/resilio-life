@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 interface UseApiProps {
   endpoint: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  body?: any;
+  body?: object | null;
   headers?: Record<string, string>;
   includeCredentials?: boolean;
   enabled?: boolean;
@@ -20,7 +20,7 @@ interface UseApiReturn<T = any> {
 
 export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001/api";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001";
   const {
     endpoint,
     method = "GET",
@@ -43,10 +43,13 @@ export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
     try {
       let url = `${API_BASE_URL}/api${endpoint}`;
 
-      if (method === "GET" && body && Object.keys(body).length === 1) {
-        const value = Object.values(body)[0];
+      if (method === "GET" && body && !(body instanceof FormData)) {
+        const bodyObj = body as Record<string, unknown>;
+        const keys = Object.keys(bodyObj);
 
-        url += `/${value}`;
+        if (keys.length === 1) {
+          url += `/${String(bodyObj[keys[0]])}`;
+        }
       }
 
       const isFormData = body instanceof FormData;
@@ -68,7 +71,20 @@ export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
         credentials: includeCredentials ? "include" : "omit",
       });
 
-      const result = await response.json();
+      if (!response.ok) {
+        let errorMsg = `Error ${response.status}`;
+
+        try {
+          const errorData = await response.json();
+
+          errorMsg = errorData?.message || errorData?.error || errorMsg;
+        } catch {}
+
+        throw new Error(errorMsg);
+      }
+
+      const result =
+        response.status === 204 ? ({} as T) : await response.json();
 
       setData(result);
     } catch (err) {

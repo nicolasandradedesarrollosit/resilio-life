@@ -42,6 +42,9 @@ const eventsSlice = createSlice({
         state.events[index] = action.payload;
       }
     },
+    removeEvent(state, action: PayloadAction<string>) {
+      state.events = state.events.filter((e) => e._id !== action.payload);
+    },
     clearEventsData(state) {
       state.events = [];
       state.loaded = false;
@@ -57,6 +60,7 @@ export const {
   setEventsData,
   addEvent,
   updateEvent,
+  removeEvent,
   clearEventsData,
   setLoading,
 } = eventsSlice.actions;

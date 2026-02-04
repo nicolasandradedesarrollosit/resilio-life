@@ -11,6 +11,7 @@ import { EyeOff, Eye } from "lucide-react";
 import { setUserData } from "@/features/auth/authSlice";
 import type { UserData } from "@/shared/types";
 import { useApi } from "@/shared/hooks";
+import { getRedirectPath } from "@/shared/utils";
 
 interface RegisterFormData {
   name: string;
@@ -118,6 +119,7 @@ export default function FormRegister() {
           data: data.user,
           loading: false,
           loaded: true,
+          loggedIn: true,
         }),
       );
 
@@ -131,7 +133,7 @@ export default function FormRegister() {
 
       setIsSubmitting(false);
       setRegisterData(null);
-      router.push("/login");
+      router.push(getRedirectPath(data.user));
     }
   }, [data, error, loading, dispatch, router]);
 

@@ -8,11 +8,14 @@ import {
 import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Trash } from "lucide-react";
+import { useDispatch } from "react-redux";
 
 import { useApi, useModal, useIsMobile } from "@/shared/hooks";
+import { removeEvent } from "@/features/events/eventsSlice";
 
 export default function ModalDeleteEvent({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("deleteEventModal");
+  const dispatch = useDispatch();
   const isMobile = useIsMobile();
   const [shouldDeleteEvent, setShouldDeleteEvent] = useState(false);
   const [hasDeletedEvent, setHasDeletedEvent] = useState(false);
@@ -25,10 +28,16 @@ export default function ModalDeleteEvent({ id }: { id: string }) {
   });
 
   useEffect(() => {
+    setShouldDeleteEvent(false);
+    setHasDeletedEvent(false);
+  }, [id]);
+
+  useEffect(() => {
     if (shouldDeleteEvent && !isLoading && !hasDeletedEvent) {
       setHasDeletedEvent(true);
+      dispatch(removeEvent(id));
     }
-  }, [shouldDeleteEvent, isLoading, hasDeletedEvent]);
+  }, [shouldDeleteEvent, isLoading, hasDeletedEvent, id, dispatch]);
 
   const handleDeleteEvent = async () => {
     setShouldDeleteEvent(true);

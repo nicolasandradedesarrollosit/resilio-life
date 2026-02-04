@@ -25,27 +25,12 @@ export const useUserData = () => {
   });
 
   useEffect(() => {
-    if (userDataState.loaded) {
-      console.log("[useUserData] Already loaded, skipping verification");
-
-      return;
-    }
-
-    if (verificationAttempted.current) {
-      console.log("[useUserData] Already attempted verification, skipping");
-
-      return;
-    }
+    if (userDataState.loaded || verificationAttempted.current) return;
 
     if (sessionData) {
-      console.log("[useUserData] Session data received:", {
-        loggedIn: sessionData?.loggedIn,
-        hasUser: !!sessionData?.user,
-      });
       verificationAttempted.current = true;
 
       if (sessionData?.loggedIn && sessionData.user) {
-        console.log("[useUserData] User authenticated, setting user data");
         dispatch(
           setUserData({
             loggedIn: sessionData.loggedIn,
@@ -55,7 +40,6 @@ export const useUserData = () => {
           }),
         );
       } else {
-        console.log("[useUserData] User not authenticated, clearing data");
         dispatch(
           setUserData({
             loggedIn: false,

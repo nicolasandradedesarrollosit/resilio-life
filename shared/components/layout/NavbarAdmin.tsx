@@ -11,6 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Mail,
+  Map,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,39 +22,42 @@ import { selectIsNavOpen, toggleNav } from "@/features/navbar/navbarSlice";
 import { useModal } from "@/shared/hooks";
 import { ModalLogOut } from "@/shared/components/ui";
 
-export interface NavbarAdminProps {
-  currentPageName: string;
+export interface NavItem {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  link: string;
 }
 
-export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
+export const ADMIN_NAV_ITEMS: NavItem[] = [
+  { name: "Usuarios", icon: Users, link: "/admin" },
+  { name: "Mensajes", icon: Mail, link: "/admin/messages" },
+  { name: "Eventos", icon: Calendar, link: "/admin/events" },
+  { name: "Beneficios", icon: Gift, link: "/admin/orders" },
+];
+
+export const USER_NAV_ITEMS: NavItem[] = [
+  { name: "Inicio", icon: Users, link: "/user" },
+  { name: "Mapa", icon: Map, link: "/user/map" },
+  { name: "Beneficios", icon: Gift, link: "/user/benefits" },
+  { name: "Perfil", icon: User, link: "/user/profile" },
+];
+
+export const BUSINESS_NAV_ITEMS: NavItem[] = [
+  { name: "Inicio", icon: Users, link: "/business" },
+];
+
+export interface NavbarProps {
+  currentPageName: string;
+  items: NavItem[];
+  roleLabel: string;
+}
+
+export const Navbar = ({ currentPageName, items, roleLabel }: NavbarProps) => {
   const dispatch = useDispatch();
   const isNavOpen = useSelector(selectIsNavOpen);
   const userData = useSelector(selectUserDataOnly);
   const { onOpen: onOpenLogOut } = useModal("logOutModal");
   const router = useRouter();
-
-  const buttons = [
-    {
-      name: "Usuarios",
-      svg: <Users className="h-5 w-5" />,
-      link: "/admin",
-    },
-    {
-      name: "Mensajes",
-      svg: <Mail className="h-5 w-5" />,
-      link: "/admin/messages",
-    },
-    {
-      name: "Eventos",
-      svg: <Calendar className="h-5 w-5" />,
-      link: "/admin/events",
-    },
-    {
-      name: "Beneficios",
-      svg: <Gift className="h-5 w-5" />,
-      link: "/admin/orders",
-    },
-  ];
 
   return (
     <>
@@ -87,9 +92,9 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
         </div>
 
         <div className="flex flex-col items-center w-full gap-4 flex-1">
-          {buttons.map((item, index) => (
+          {items.map((item) => (
             <Button
-              key={index}
+              key={item.name}
               className={`w-full transition-all duration-300 ${
                 currentPageName === item.name
                   ? "bg-white text-magenta-fuchsia-950 shadow-lg shadow-white/20 scale-105"
@@ -105,7 +110,7 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
                       : ""
                   }
                 >
-                  {item.svg}
+                  <item.icon className="h-5 w-5" />
                 </span>
               }
               variant="solid"
@@ -129,7 +134,7 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
                 <p className="text-sm font-semibold text-white truncate">
                   {userData?.name} {userData?.lastName}
                 </p>
-                <p className="text-xs text-white/60">Administrador</p>
+                <p className="text-xs text-white/60">{roleLabel}</p>
               </div>
             </div>
 
@@ -148,9 +153,9 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe">
         <div className="mx-4 mb-4 rounded-2xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-lg border border-gray-100">
           <div className="flex flex-row justify-around items-center px-2 py-1">
-            {buttons.map((item, index) => (
+            {items.map((item) => (
               <Button
-                key={index}
+                key={item.name}
                 aria-current={
                   currentPageName === item.name ? "page" : undefined
                 }
@@ -172,7 +177,7 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
                       : "text-gray-600"
                   }`}
                 >
-                  {item.svg}
+                  <item.icon className="h-5 w-5" />
                 </span>
                 <span
                   className={`text-[11px] font-medium transition-colors ${
@@ -210,5 +215,31 @@ export const NavbarAdmin = ({ currentPageName }: NavbarAdminProps) => {
       </div>
       <ModalLogOut />
     </>
+  );
+};
+
+export const DashboardLayout = ({
+  currentPageName,
+  items,
+  roleLabel,
+  children,
+}: NavbarProps & { children?: React.ReactNode }) => {
+  const isNavOpen = useSelector(selectIsNavOpen);
+
+  return (
+    <section className="min-h-[110vh] sm:min-h-screen w-full flex flex-row bg-gray-50">
+      <Navbar
+        currentPageName={currentPageName}
+        items={items}
+        roleLabel={roleLabel}
+      />
+      <main
+        className={`flex-1 min-h-screen transition-all duration-300 pb-32 md:pb-0 ${
+          isNavOpen ? "md:ml-72" : "md:ml-0"
+        }`}
+      >
+        {children}
+      </main>
+    </section>
   );
 };

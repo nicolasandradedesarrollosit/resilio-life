@@ -55,14 +55,14 @@ export const Footer = () => {
               <a
                 aria-label="Instagram"
                 className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center hover:bg-magenta-fuchsia-600 transition-all duration-300 group"
-                href="#"
+                href="https://www.instagram.com/resilio.life/"
               >
                 <Instagram className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
               </a>
               <a
                 aria-label="LinkedIn"
                 className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center hover:bg-magenta-fuchsia-600 transition-all duration-300 group"
-                href="#"
+                href="https://www.linkedin.com/company/resilio-life/"
               >
                 <Linkedin className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
               </a>
@@ -80,7 +80,7 @@ export const Footer = () => {
             Desarrollado por{" "}
             <a
               className="text-gray-400 hover:text-magenta-fuchsia-400 transition-colors duration-300"
-              href="https://nicolas-andrade.vercel.app"
+              href="https://nicolas-andrade-portfolio.vercel.app/"
               rel="noopener noreferrer"
               target="_blank"
             >
