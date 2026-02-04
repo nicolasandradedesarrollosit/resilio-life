@@ -1,0 +1,1 @@
+export { useSedes } from "./useSedes";
