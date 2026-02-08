@@ -10,13 +10,15 @@ import {
   setAllUserData,
   setLoading,
 } from "@/features/allUsers/allUserSlice";
-import type { UserData } from "@/shared/types";
+import type { UserData, ApiResponse } from "@/shared/types";
 
 export const useUsers = () => {
   const allUsers = useSelector(selectAllUsers);
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useApi<UserData[]>({
+  console.log("[useUsers] Current allUsers:", allUsers);
+
+  const { data, loading, error } = useApi<ApiResponse<UserData[]>>({
     endpoint: "/users",
     method: "GET",
     includeCredentials: true,
@@ -24,24 +26,33 @@ export const useUsers = () => {
   });
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      dispatch(
-        setAllUserData({
-          users: data,
-          loading: false,
-          loaded: true,
-        }),
-      );
+    if (data?.data) {
+      console.log("[useUsers] API response received:", data);
+      if (data.data.length > 0) {
+        console.log("[useUsers] Dispatching setAllUserData with:", data.data.length, "users");
+        dispatch(
+          setAllUserData({
+            users: data.data,
+            loading: false,
+            loaded: true,
+          }),
+        );
+      } else {
+        console.warn("[useUsers] API response is empty array");
+      }
     }
   }, [data, dispatch]);
 
   useEffect(() => {
+    if (loading) {
+      console.log("[useUsers] Setting loading state:", loading);
+    }
     dispatch(setLoading(loading));
   }, [loading, dispatch]);
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching users:", error);
+      console.error("[useUsers] Error fetching users:", error);
       dispatch(setLoading(false));
     }
   }, [error, dispatch]);

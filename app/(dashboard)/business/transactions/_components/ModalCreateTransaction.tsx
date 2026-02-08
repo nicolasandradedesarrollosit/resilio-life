@@ -18,6 +18,7 @@ import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { addTransaction } from "@/features/transactions/transactionsSlice";
 import { selectAllBenefits } from "@/features/benefits/benefitsSlice";
 import type { BenefitData } from "@/shared/types";
+import { REQUIRED_FIELD_ERROR_MESSAGE } from "@/shared/utils/validation";
 
 interface StateValidations {
   userId: string | null;
@@ -69,7 +70,7 @@ export default function ModalCreateTransaction() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [name]: "Este campo es requerido" }));
+      setStateValidations((prev) => ({ ...prev, [name]: REQUIRED_FIELD_ERROR_MESSAGE }));
       return;
     }
 

@@ -98,7 +98,8 @@ export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
 
   useEffect(() => {
     fetchData();
-  }, [endpoint, method, includeCredentials, enabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint, method, JSON.stringify(body), includeCredentials, enabled]);
 
   return { data, error, loading, refetch: () => fetchData(true) };
 };

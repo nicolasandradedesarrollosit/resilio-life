@@ -1,180 +1,26 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Form } from "@heroui/form";
 import Link from "next/link";
-import { addToast } from "@heroui/toast";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-import { signInWithGoogle } from "@/lib";
-import { useUserData } from "@/features/auth";
-import { useApi } from "@/shared/hooks";
-import { getRedirectPath } from "@/shared/utils";
-
-interface LogInFormData {
-  email: string;
-  password: string;
-}
+import { useLoginForm } from "@/features/auth";
 
 export default function FormLogIn() {
   const [isVisiblePassword, setIsVisiblePassword] = useState(false);
-  const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-  const router = useRouter();
-  const { setUserDataState } = useUserData();
-
-  const [loginFormData, setLoginFormData] = useState<LogInFormData | null>(
-    null,
-  );
-  const [googleFormData, setGoogleFormData] = useState<{
-    idToken?: string | null;
-    email?: string | null;
-    name?: string | null;
-  } | null>(null);
 
   const {
-    data: loginResult,
-    loading: isSubmitting,
-    error: loginError,
-  } = useApi({
-    endpoint: "/login",
-    method: "POST",
-    body: loginFormData,
-    enabled: !!loginFormData,
-  });
-
-  const {
-    data: googleResult,
-    loading: googleLoading,
-    error: googleError,
-  } = useApi({
-    endpoint: "/login-google",
-    method: "POST",
-    body: googleFormData,
-    enabled: !!googleFormData,
-  });
-
-  const [stateValidations, setStateValidations] = useState<{
-    email: boolean | null;
-    password: boolean | null;
-  }>({
-    email: null,
-    password: null,
-  });
-
-  const formRef = useRef<HTMLFormElement | null>(null);
-  const prevValidationsRef = useRef<{
-    email: boolean | null;
-    password: boolean | null;
-  }>({ email: null, password: null });
-
-  const validationRegex = [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, /^.{6,}$/];
-
-  const fields = ["email", "password"] as const;
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number,
-  ) => {
-    const value = e.target.value;
-    const isValid = validationRegex[index].test(value);
-    const key = fields[index] as keyof typeof stateValidations;
-
-    if (prevValidationsRef.current[key] === isValid) return;
-    prevValidationsRef.current[key] = isValid;
-    setStateValidations((prev) => ({ ...prev, [key]: isValid }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-      if (!Object.values(stateValidations).every(Boolean))
-        return setFormIsInvalid(true);
-      setFormIsInvalid(false);
-
-      const formData = new FormData(e.currentTarget);
-      const data: LogInFormData = Object.fromEntries(
-        Array.from(formData.entries()).map(([k, v]) => [
-          k,
-          typeof v === "string" ? v : "",
-        ]),
-      ) as unknown as LogInFormData;
-
-      setLoginFormData(data);
-    } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-
-      addToast({
-        title: "Error al enviar",
-        description:
-          "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-
-      return;
-    } finally {
-      setFormIsInvalid(null);
-    }
-  };
-
-  useEffect(() => {
-    if (loginResult?.data) {
-      addToast({
-        title: "Procesando la solicitud",
-        description: "Iniciando sesión...",
-        color: "success",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setUserDataState(loginResult.data);
-      formRef.current?.reset();
-      setStateValidations({
-        email: null,
-        password: null,
-      });
-      setLoginFormData(null);
-      router.push(getRedirectPath(loginResult.data));
-    }
-  }, [loginResult, setUserDataState, router]);
-
-  useEffect(() => {
-    if (loginError) {
-      addToast({
-        title: "Error de autenticación",
-        description:
-          "No se encontró una cuenta con ese email o la contraseña es incorrecta.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setLoginFormData(null);
-    }
-  }, [loginError]);
-
-  useEffect(() => {
-    if (googleResult?.data) {
-      setUserDataState(googleResult.data);
-      setGoogleFormData(null);
-      router.push(getRedirectPath(googleResult.data));
-    }
-  }, [googleResult, setUserDataState, router]);
-
-  useEffect(() => {
-    if (googleError) {
-      addToast({
-        title: "Error en login con Google",
-        description:
-          googleError || "Hubo un problema al iniciar sesión con Google.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setGoogleFormData(null);
-    }
-  }, [googleError]);
+    validations,
+    formIsInvalid,
+    isSubmitting,
+    googleLoading,
+    formRef,
+    handleChange,
+    handleSubmit,
+    handleGoogleLogin,
+  } = useLoginForm();
 
   const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
 
@@ -227,19 +73,7 @@ export default function FormLogIn() {
           isLoading={googleLoading}
           size="lg"
           startContent={svgGoogle}
-          onPress={async () => {
-            try {
-              const googleUser = await signInWithGoogle();
-
-              setGoogleFormData({
-                idToken: googleUser.idToken,
-                email: googleUser.email,
-                name: googleUser.name,
-              });
-            } catch (err) {
-              console.error("Error during Google login:", err);
-            }
-          }}
+          onPress={handleGoogleLogin}
         >
           Continuar con Google
         </Button>
@@ -269,7 +103,7 @@ export default function FormLogIn() {
             }}
             color="secondary"
             isInvalid={
-              formIsInvalid === null ? false : stateValidations.email === false
+              formIsInvalid === null ? false : validations.email === false
             }
             label="Email"
             name="email"
@@ -302,7 +136,7 @@ export default function FormLogIn() {
             isInvalid={
               formIsInvalid === null
                 ? false
-                : stateValidations.password === false
+                : validations.password === false
             }
             label="Contraseña"
             name="password"

@@ -17,6 +17,16 @@ import { useDispatch } from "react-redux";
 
 import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { addBenefit } from "@/features/benefits/benefitsSlice";
+import {
+  TITLE_REGEX,
+  DESCRIPTION_REGEX,
+  POSITIVE_INTEGER_REGEX,
+  TITLE_ERROR_MESSAGE,
+  DESCRIPTION_ERROR_MESSAGE,
+  POSITIVE_INTEGER_ERROR_MESSAGE,
+  REQUIRED_FIELD_ERROR_MESSAGE,
+  validateAndPreviewImage,
+} from "@/shared/utils/validation";
 
 interface StateValidations {
   title: string | null;
@@ -61,9 +71,9 @@ export default function ModalCreateBenefit() {
   }, [data, dispatch]);
 
   const validationRegex = {
-    title: /^.{3,100}$/,
-    description: /^.{10,500}$/,
-    pointsCost: /^[1-9]\d*$/,
+    title: TITLE_REGEX,
+    description: DESCRIPTION_REGEX,
+    pointsCost: POSITIVE_INTEGER_REGEX,
   };
 
   const handleChange = (
@@ -71,7 +81,7 @@ export default function ModalCreateBenefit() {
   ) => {
     const { name, value } = e.target;
     if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [name]: "Este campo es requerido" }));
+      setStateValidations((prev) => ({ ...prev, [name]: REQUIRED_FIELD_ERROR_MESSAGE }));
       return;
     }
 
@@ -82,49 +92,33 @@ export default function ModalCreateBenefit() {
     if (!isValid) {
       switch (name) {
         case "title":
-          errorMessage = "El título debe tener entre 3 y 100 caracteres";
+          errorMessage = TITLE_ERROR_MESSAGE;
           break;
         case "description":
-          errorMessage = "La descripción debe tener entre 10 y 500 caracteres";
+          errorMessage = DESCRIPTION_ERROR_MESSAGE;
           break;
         case "pointsCost":
-          errorMessage = "El costo debe ser un número positivo";
+          errorMessage = POSITIVE_INTEGER_ERROR_MESSAGE;
           break;
       }
     }
     setStateValidations((prev) => ({ ...prev, [name]: errorMessage }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      setStateValidations((prev) => ({ ...prev, image: "La imagen es requerida" }));
+    const result = await validateAndPreviewImage(file);
+
+    if (!result.isValid) {
+      setStateValidations((prev) => ({ ...prev, image: result.errorMessage }));
       setImagePreview(null);
       setImageFile(null);
       return;
     }
 
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setStateValidations((prev) => ({ ...prev, image: "La imagen no debe superar los 5MB" }));
-      setImagePreview(null);
-      setImageFile(null);
-      return;
-    }
-
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-    if (!validTypes.includes(file.type)) {
-      setStateValidations((prev) => ({ ...prev, image: "Solo se permiten imágenes (JPG, PNG, WEBP)" }));
-      setImagePreview(null);
-      setImageFile(null);
-      return;
-    }
-
-    setImageFile(file);
+    setImageFile(result.file!);
+    setImagePreview(result.previewUrl!);
     setStateValidations((prev) => ({ ...prev, image: null }));
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

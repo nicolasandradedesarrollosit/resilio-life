@@ -17,6 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { updateHeadquarters, selectAllHeadquarters } from "@/features/headquarters/headquartersSlice";
 import type { HeadquartersData } from "@/shared/types";
+import {
+  SHORT_TEXT_REGEX,
+  SHORT_TEXT_ERROR_MESSAGE,
+  REQUIRED_FIELD_ERROR_MESSAGE,
+} from "@/shared/utils/validation";
 
 interface StateValidations {
   name: string | null;
@@ -68,12 +73,13 @@ export default function ModalUpdateSede({ id }: { id: string }) {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, name: "Este campo es requerido" }));
+      setStateValidations((prev) => ({ ...prev, name: REQUIRED_FIELD_ERROR_MESSAGE }));
       return;
     }
+    const isValid = SHORT_TEXT_REGEX.test(value);
     setStateValidations((prev) => ({
       ...prev,
-      name: value.length < 2 || value.length > 100 ? "El nombre debe tener entre 2 y 100 caracteres" : null,
+      name: isValid ? null : SHORT_TEXT_ERROR_MESSAGE,
     }));
   };
 
@@ -82,7 +88,7 @@ export default function ModalUpdateSede({ id }: { id: string }) {
     else setLongitude(value);
 
     if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [field]: "Este campo es requerido" }));
+      setStateValidations((prev) => ({ ...prev, [field]: REQUIRED_FIELD_ERROR_MESSAGE }));
       return;
     }
 

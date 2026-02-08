@@ -24,6 +24,7 @@ import { selectAllEvents } from "@/features/events/eventsSlice";
 import type { EventData } from "@/shared/types";
 
 export default function TableEvents() {
+  // Events are fetched centrally in DataLoader (app/DataLoader.tsx)
   const events = (useSelector(selectAllEvents) as EventData[]) || [];
   const { onOpen: onOpenEvent } = useModal("createEventModal");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

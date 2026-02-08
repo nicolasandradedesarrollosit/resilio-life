@@ -14,6 +14,8 @@ export function useTransactions() {
   const dispatch = useDispatch();
   const transactionsState = useSelector(selectTransactionsData);
 
+  console.log("[useTransactions] Current state:", transactionsState);
+
   const { data, loading, error } = useApi<{
     message?: string;
     data: TransactionData[];
@@ -24,20 +26,29 @@ export function useTransactions() {
   });
 
   useEffect(() => {
-    if (data && data.data && Array.isArray(data.data)) {
-      dispatch(
-        setTransactionsData({ items: data.data, loading: false, loaded: true }),
-      );
+    if (data) {
+      console.log("[useTransactions] API response received:", data);
+      if (data.data && Array.isArray(data.data)) {
+        console.log("[useTransactions] Dispatching setTransactionsData with:", data.data.length, "transactions");
+        dispatch(
+          setTransactionsData({ items: data.data, loading: false, loaded: true }),
+        );
+      } else {
+        console.warn("[useTransactions] API response data is not an array:", data);
+      }
     }
   }, [data, dispatch]);
 
   useEffect(() => {
+    if (loading) {
+      console.log("[useTransactions] Setting loading state:", loading);
+    }
     dispatch(setLoading(loading));
   }, [loading, dispatch]);
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching transactions:", error);
+      console.error("[useTransactions] Error fetching transactions:", error);
       dispatch(clearTransactionsData());
     }
   }, [error, dispatch]);

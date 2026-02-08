@@ -14,6 +14,8 @@ export function useSedes() {
   const dispatch = useDispatch();
   const headquartersState = useSelector(selectHeadquartersData);
 
+  console.log("[useSedes] Current state:", headquartersState);
+
   const { data, loading, error } = useApi<{
     message?: string;
     data: HeadquartersData[];
@@ -24,20 +26,29 @@ export function useSedes() {
   });
 
   useEffect(() => {
-    if (data && data.data && Array.isArray(data.data)) {
-      dispatch(
-        setHeadquartersData({ items: data.data, loading: false, loaded: true }),
-      );
+    if (data) {
+      console.log("[useSedes] API response received:", data);
+      if (data.data && Array.isArray(data.data)) {
+        console.log("[useSedes] Dispatching setHeadquartersData with:", data.data.length, "headquarters");
+        dispatch(
+          setHeadquartersData({ items: data.data, loading: false, loaded: true }),
+        );
+      } else {
+        console.warn("[useSedes] API response data is not an array:", data);
+      }
     }
   }, [data, dispatch]);
 
   useEffect(() => {
+    if (loading) {
+      console.log("[useSedes] Setting loading state:", loading);
+    }
     dispatch(setLoading(loading));
   }, [loading, dispatch]);
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching headquarters:", error);
+      console.error("[useSedes] Error fetching headquarters:", error);
       dispatch(clearHeadquartersData());
     }
   }, [error, dispatch]);

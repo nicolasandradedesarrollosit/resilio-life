@@ -5,6 +5,423 @@ description: Desarrollo frontend con React, Redux y Next.js siguiendo arquitectu
 
 # Frontend Development - React + Redux + Next.js
 
+## 🔍 AUDITORÍA Y REFACTORIZACIÓN DEL REPOSITORIO
+
+### Objetivo Principal: Hooks para Lógica de Negocio
+
+**PRIORIDAD MÁXIMA**: Toda la lógica de negocio debe estar encapsulada en custom hooks. Los componentes deben ser declarativos y centrados en la presentación.
+
+### Checklist de Auditoría Completa
+
+#### 1. 🎯 Hooks para Lógica de Negocio (CRÍTICO)
+
+**✅ Identificar y Refactorizar:**
+
+- [ ] **Llamadas a APIs directas en componentes** → Mover a hooks personalizados
+- [ ] **Dispatches de Redux dispersos** → Centralizar en hooks del feature
+- [ ] **Lógica de formularios compleja** → Extraer a `useForm` hooks
+- [ ] **Efectos secundarios (useEffect) con lógica compleja** → Abstraer en hooks
+- [ ] **Transformación de datos en componentes** → Mover a hooks o utils
+- [ ] **Manejo de estados de carga/error repetidos** → Crear hooks reutilizables
+
+**Patrón Correcto:**
+
+```typescript
+// ❌ MAL: Lógica en el componente
+function UserProfile() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const dispatch = useAppDispatch()
+  
+  useEffect(() => {
+    setLoading(true)
+    fetch('/api/user')
+      .then(res => res.json())
+      .then(data => {
+        setUser(data)
+        dispatch(setUser(data))
+        setLoading(false)
+      })
+  }, [])
+  
+  return loading ? <Spinner /> : <div>{user?.name}</div>
+}
+
+// ✅ BIEN: Lógica en hook personalizado
+function UserProfile() {
+  const { user, isLoading } = useUser()
+  
+  if (isLoading) return <Spinner />
+  return <div>{user?.name}</div>
+}
+
+// features/users/hooks/useUser.ts
+export function useUser() {
+  const dispatch = useAppDispatch()
+  const user = useAppSelector(selectUser)
+  const isLoading = useAppSelector(selectUserLoading)
+
+  useEffect(() => {
+    dispatch(fetchUser())
+  }, [dispatch])
+
+  return { user, isLoading }
+}
+```
+
+#### 2. 📦 Modularización de Componentes (DRY)
+
+**Detectar Componentes Grandes (>200 líneas):**
+
+- [ ] Archivos TSX con más de 200 líneas de código
+- [ ] Componentes con múltiples responsabilidades
+- [ ] Renderizado condicional complejo
+- [ ] Múltiples handlers de eventos en un solo componente
+- [ ] Lógica de presentación repetida
+
+**Estrategia de División:**
+
+```typescript
+// ❌ MAL: Componente monolítico (300+ líneas)
+function UserDashboard() {
+  return (
+    <div>
+      {/* 50 líneas de header */}
+      <header>...</header>
+      
+      {/* 100 líneas de estadísticas */}
+      <section>...</section>
+      
+      {/* 80 líneas de tabla */}
+      <table>...</table>
+      
+      {/* 70 líneas de sidebar */}
+      <aside>...</aside>
+    </div>
+  )
+}
+
+// ✅ BIEN: Componentes modulares
+function UserDashboard() {
+  return (
+    <div>
+      <DashboardHeader />
+      <DashboardStats />
+      <DashboardTable />
+      <DashboardSidebar />
+    </div>
+  )
+}
+
+// Cada subcomponente en su propio archivo
+// components/DashboardHeader.tsx (30 líneas)
+// components/DashboardStats.tsx (50 líneas)
+// components/DashboardTable.tsx (60 líneas)
+// components/DashboardSidebar.tsx (40 líneas)
+```
+
+#### 3. 🧩 Componentes Dumb vs Smart
+
+**Separación Clara:**
+
+- [ ] **Dumb Components** (Presentacionales): Solo reciben props, sin lógica
+- [ ] **Smart Components** (Contenedores): Manejan lógica y estado via hooks
+- [ ] Mover componentes dumb a `shared/components/ui/`
+- [ ] Mantener smart components en `features/[feature]/components/`
+
+```typescript
+// ✅ Dumb Component (shared/components/ui/Button.tsx)
+interface ButtonProps {
+  label: string
+  onClick: () => void
+  variant?: 'primary' | 'secondary'
+  disabled?: boolean
+}
+
+export function Button({ label, onClick, variant = 'primary', disabled }: ButtonProps) {
+  return (
+    <button 
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  )
+}
+
+// ✅ Smart Component (features/products/components/ProductActions.tsx)
+export function ProductActions({ productId }: { productId: string }) {
+  const { deleteProduct, isDeleting } = useProductActions()
+  
+  const handleDelete = () => {
+    deleteProduct(productId)
+  }
+  
+  return (
+    <Button 
+      label="Delete"
+      onClick={handleDelete}
+      disabled={isDeleting}
+      variant="secondary"
+    />
+  )
+}
+```
+
+#### 4. 🏗️ Principios SOLID Aplicados
+
+**S - Single Responsibility:**
+- [ ] Un componente = Una responsabilidad
+- [ ] Un hook = Una funcionalidad específica
+- [ ] Un archivo = Una exportación principal
+
+**O - Open/Closed:**
+- [ ] Componentes extensibles via props
+- [ ] Hooks composables
+- [ ] Usar composition sobre configuración
+
+**L - Liskov Substitution:**
+- [ ] Props interfaces consistentes
+- [ ] Componentes intercambiables del mismo tipo
+
+**I - Interface Segregation:**
+- [ ] Props mínimas necesarias
+- [ ] No forzar props que no se usan
+- [ ] Dividir interfaces grandes
+
+**D - Dependency Inversion:**
+- [ ] Inyectar dependencias via props o context
+- [ ] No hardcodear servicios en componentes
+- [ ] Usar abstracciones (interfaces) no implementaciones
+
+```typescript
+// ✅ SOLID aplicado
+// Interface segregation
+interface BaseCardProps {
+  title: string
+  children: React.ReactNode
+}
+
+interface ClickableCardProps extends BaseCardProps {
+  onClick: () => void
+}
+
+// Dependency Inversion
+interface UserCardProps {
+  user: User
+  onUpdate: (user: User) => void  // Inyectamos la dependencia
+}
+
+export function UserCard({ user, onUpdate }: UserCardProps) {
+  // No llama directamente al API, recibe la función
+  return <Card onClick={() => onUpdate(user)}>{user.name}</Card>
+}
+```
+
+#### 5. 🔄 Principio DRY (Don't Repeat Yourself)
+
+**Buscar y Eliminar Duplicación:**
+
+- [ ] Código duplicado en componentes → Extraer a shared component
+- [ ] Lógica duplicada → Extraer a hook o utility
+- [ ] Validaciones repetidas → Centralizar en utils
+- [ ] Mapeos/transformaciones repetidas → Crear funciones helper
+- [ ] Estilos duplicados → Usar Tailwind utilities o crear componentes
+
+```typescript
+// ❌ MAL: Código duplicado
+function ProductList() {
+  const products = useAppSelector(state => state.products.items)
+  const loading = useAppSelector(state => state.products.loading)
+  const error = useAppSelector(state => state.products.error)
+  
+  if (loading) return <Spinner />
+  if (error) return <Error message={error} />
+  return <div>{products.map(p => <ProductCard key={p.id} product={p} />)}</div>
+}
+
+function UserList() {
+  const users = useAppSelector(state => state.users.items)
+  const loading = useAppSelector(state => state.users.loading)
+  const error = useAppSelector(state => state.users.error)
+  
+  if (loading) return <Spinner />
+  if (error) return <Error message={error} />
+  return <div>{users.map(u => <UserCard key={u.id} user={u} />)}</div>
+}
+
+// ✅ BIEN: Hook reutilizable
+function useResourceState<T>(selector: (state: RootState) => {
+  items: T[]
+  loading: boolean
+  error: string | null
+}) {
+  const { items, loading, error } = useAppSelector(selector)
+  return { items, loading, error }
+}
+
+// Uso
+function ProductList() {
+  const { items, loading, error } = useResourceState(state => state.products)
+  
+  if (loading) return <Spinner />
+  if (error) return <Error message={error} />
+  return <div>{items.map(p => <ProductCard key={p.id} product={p} />)}</div>
+}
+```
+
+#### 6. 📁 Estructura de Archivos Óptima
+
+**Reglas de Organización:**
+
+- [ ] Máximo 200 líneas por archivo (excepto generados)
+- [ ] Un componente por archivo
+- [ ] Colocar componentes relacionados en carpetas
+- [ ] Usar index.ts para exportaciones limpias
+- [ ] Separar tipos en archivos `.types.ts`
+
+```
+features/products/
+├── components/
+│   ├── ProductCard.tsx              # 80 líneas
+│   ├── ProductList.tsx              # 60 líneas
+│   ├── ProductForm/                 # Componente complejo
+│   │   ├── index.tsx                # 40 líneas (componente principal)
+│   │   ├── ProductFormFields.tsx   # 50 líneas
+│   │   ├── ProductFormActions.tsx  # 30 líneas
+│   │   └── useProductForm.ts       # 70 líneas (hook de lógica)
+│   └── index.ts                     # Exportaciones públicas
+├── hooks/
+│   ├── useProducts.ts               # Hook principal del feature
+│   ├── useProductActions.ts         # CRUD operations
+│   ├── useProductFilters.ts         # Filtrado y búsqueda
+│   └── index.ts
+├── types/
+│   ├── product.types.ts
+│   └── index.ts
+└── index.ts                         # API pública del feature
+```
+
+#### 7. 🎣 Catálogo de Hooks Requeridos
+
+**Hooks de Lógica de Negocio Esenciales:**
+
+```typescript
+// 1. Hook principal del feature
+export function useProducts() {
+  const products = useAppSelector(selectProducts)
+  const dispatch = useAppDispatch()
+  
+  const loadProducts = useCallback(() => {
+    dispatch(fetchProducts())
+  }, [dispatch])
+  
+  return { products, loadProducts }
+}
+
+// 2. Hook para acciones CRUD
+export function useProductActions() {
+  const dispatch = useAppDispatch()
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const createProduct = async (data: CreateProductDTO) => {
+    setIsLoading(true)
+    try {
+      await dispatch(createProductThunk(data)).unwrap()
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  return { createProduct, updateProduct, deleteProduct, isLoading }
+}
+
+// 3. Hook para formularios
+export function useProductForm(initialValues: Product) {
+  const [values, setValues] = useState(initialValues)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  
+  const validate = () => {
+    // Validación
+  }
+  
+  const handleSubmit = async () => {
+    if (validate()) {
+      // Submit logic
+    }
+  }
+  
+  return { values, errors, handleChange, handleSubmit }
+}
+
+// 4. Hook para filtros/búsqueda
+export function useProductFilters() {
+  const [filters, setFilters] = useState<ProductFilters>({})
+  const products = useAppSelector(selectProducts)
+  
+  const filteredProducts = useMemo(
+    () => applyFilters(products, filters),
+    [products, filters]
+  )
+  
+  return { filters, setFilters, filteredProducts }
+}
+```
+
+#### 8. 🚨 Código que Debe Refactorizarse
+
+**Señales de Alerta:**
+
+- [ ] `useEffect` con más de 10 líneas → Extraer lógica a hook
+- [ ] Funciones handler con lógica de negocio → Mover a hook
+- [ ] Múltiples `useState` relacionados → Usar `useReducer` o Redux
+- [ ] Prop drilling (>3 niveles) → Usar Context o Redux
+- [ ] Fetch/axios directo en componentes → Mover a services + hooks
+- [ ] Transformaciones de datos en JSX → Mover a useMemo o utils
+- [ ] Lógica condicional compleja en render → Extraer a funciones
+
+#### 9. ✅ Checklist Pre-Commit
+
+Antes de cada commit, verificar:
+
+- [ ] ¿El componente tiene menos de 150-200 líneas?
+- [ ] ¿Toda la lógica de negocio está en hooks?
+- [ ] ¿No hay llamadas directas a APIs en componentes?
+- [ ] ¿Los componentes dumb están en shared/?
+- [ ] ¿Se siguen los principios SOLID?
+- [ ] ¿No hay código duplicado (DRY)?
+- [ ] ¿Los nombres son descriptivos y claros?
+- [ ] ¿Hay manejo de errores apropiado?
+- [ ] ¿Los tipos TypeScript son estrictos?
+- [ ] ¿No hay imports entre features?
+
+#### 10. 🔧 Plan de Refactorización
+
+**Proceso paso a paso:**
+
+1. **Identificar**: Listar componentes >200 líneas o con lógica mezclada
+2. **Analizar**: Identificar responsabilidades y dependencias
+3. **Extraer Hooks**: Mover lógica de negocio a hooks personalizados
+4. **Dividir Componentes**: Separar en componentes más pequeños
+5. **Crear Dumb Components**: Extraer partes presentacionales
+6. **Eliminar Duplicación**: Consolidar código repetido
+7. **Testear**: Verificar que todo funciona correctamente
+8. **Documentar**: Actualizar documentación si es necesario
+
+### 🎯 Métricas de Calidad
+
+**Objetivos a alcanzar:**
+
+- ✅ Componentes: Promedio <100 líneas, máximo 200 líneas
+- ✅ Hooks: Cada feature debe tener al menos 2-3 hooks personalizados
+- ✅ Duplicación: <5% de código duplicado
+- ✅ Cobertura: Tests para componentes críticos
+- ✅ TypeScript: 100% tipado estricto, sin `any`
+- ✅ Separación: 70% dumb components, 30% smart components
+
+---
+
 ## Arquitectura del Proyecto
 
 ### Estructura Feature-Based

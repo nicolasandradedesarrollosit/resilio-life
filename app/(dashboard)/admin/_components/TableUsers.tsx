@@ -21,6 +21,7 @@ import { selectAllUsers } from "@/features/allUsers/allUserSlice";
 import type { UserData } from "@/shared/types";
 
 export default function TableUsers() {
+  // Users are fetched centrally in DataLoader (app/DataLoader.tsx)
   const users = useSelector(selectAllUsers);
   const [isLoadingUnilink, setIsLoadingUnilink] = useState(false);
 

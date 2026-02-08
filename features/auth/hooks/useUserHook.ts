@@ -17,7 +17,14 @@ export const useUserData = () => {
   const {
     data: sessionData,
     error,
-  } = useApi({
+  } = useApi<{
+    success: boolean;
+    message: string;
+    data: {
+      loggedIn: boolean;
+      user?: UserData;
+    };
+  }>({
     endpoint: "/check-session",
     method: "GET",
     includeCredentials: true,
@@ -27,19 +34,27 @@ export const useUserData = () => {
   useEffect(() => {
     if (userDataState.loaded || verificationAttempted.current) return;
 
-    if (sessionData) {
+    if (sessionData?.data) {
       verificationAttempted.current = true;
 
-      if (sessionData?.data?.loggedIn && sessionData.data?.user) {
+      console.log("[useUserData] Session check response:", sessionData);
+
+      // Access the nested data property from API response
+      const isLoggedIn = sessionData.data.loggedIn === true;
+      const userData = sessionData.data.user;
+
+      if (isLoggedIn && userData) {
+        console.log("[useUserData] User is logged in, setting user data:", userData);
         dispatch(
           setUserData({
-            loggedIn: sessionData.data.loggedIn,
-            data: sessionData.data.user as UserData,
+            loggedIn: true,
+            data: userData as UserData,
             loading: false,
             loaded: true,
           }),
         );
       } else {
+        console.log("[useUserData] User is not logged in");
         dispatch(
           setUserData({
             loggedIn: false,
@@ -54,12 +69,14 @@ export const useUserData = () => {
 
   useEffect(() => {
     if (error) {
+      console.log("[useUserData] Session check error:", error);
       verificationAttempted.current = true;
       dispatch(
         setUserData({
           data: null,
           loading: false,
           loaded: true,
+          loggedIn: false,
         }),
       );
     }

@@ -19,6 +19,18 @@ import { parseDate } from "@internationalized/date";
 import { useApi, useIsMobile, useModal } from "@/shared/hooks";
 import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
 import type { EventData } from "@/shared/types";
+import {
+  TITLE_REGEX,
+  DESCRIPTION_REGEX,
+  LOCATION_REGEX,
+  URL_REGEX,
+  TITLE_ERROR_MESSAGE,
+  DESCRIPTION_ERROR_MESSAGE,
+  LOCATION_ERROR_MESSAGE,
+  URL_ERROR_MESSAGE,
+  REQUIRED_FIELD_ERROR_MESSAGE,
+  validateAndPreviewImage,
+} from "@/shared/utils/validation";
 
 interface StateValidations {
   title: string | null;
@@ -49,10 +61,7 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const {
-    loading: isLoading,
-    data,
-  } = useApi({
+  const { loading: isLoading, data } = useApi({
     endpoint: `/events/${id}`,
     method: "PATCH",
     includeCredentials: true,
@@ -90,10 +99,10 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
   }, [data, dispatch]);
 
   const validationRegex = {
-    title: /^.{3,100}$/,
-    description: /^.{10,500}$/,
-    location: /^.{3,100}$/,
-    url_provider: /^https?:\/\/.+/,
+    title: TITLE_REGEX,
+    description: DESCRIPTION_REGEX,
+    location: LOCATION_REGEX,
+    url_provider: URL_REGEX,
   };
 
   const isMobile = useIsMobile();
@@ -106,7 +115,7 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
     if (!value || value.trim() === "") {
       setStateValidations((prev) => ({
         ...prev,
-        [name]: "Este campo es requerido",
+        [name]: REQUIRED_FIELD_ERROR_MESSAGE,
       }));
 
       return;
@@ -120,16 +129,16 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
     if (!isValid) {
       switch (name) {
         case "title":
-          errorMessage = "El título debe tener entre 3 y 100 caracteres";
+          errorMessage = TITLE_ERROR_MESSAGE;
           break;
         case "description":
-          errorMessage = "La descripción debe tener entre 10 y 500 caracteres";
+          errorMessage = DESCRIPTION_ERROR_MESSAGE;
           break;
         case "location":
-          errorMessage = "La ubicación debe tener entre 3 y 100 caracteres";
+          errorMessage = LOCATION_ERROR_MESSAGE;
           break;
         case "url_provider":
-          errorMessage = "Debe ser una URL válida (http:// o https://)";
+          errorMessage = URL_ERROR_MESSAGE;
           break;
       }
     }
@@ -145,7 +154,7 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) {
@@ -153,41 +162,21 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
       return;
     }
 
-    const maxSize = 5 * 1024 * 1024;
+    const result = await validateAndPreviewImage(file);
 
-    if (file.size > maxSize) {
+    if (!result.isValid) {
       setStateValidations((prev) => ({
         ...prev,
-        image: "La imagen no debe superar los 5MB",
+        image: result.errorMessage,
       }));
       setImagePreview(eventToUpdate?.url_image || null);
       setImageFile(null);
-
       return;
     }
 
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-
-    if (!validTypes.includes(file.type)) {
-      setStateValidations((prev) => ({
-        ...prev,
-        image: "Solo se permiten imágenes (JPG, PNG, WEBP)",
-      }));
-      setImagePreview(eventToUpdate?.url_image || null);
-      setImageFile(null);
-
-      return;
-    }
-
-    setImageFile(file);
+    setImageFile(result.file!);
+    setImagePreview(result.previewUrl!);
     setStateValidations((prev) => ({ ...prev, image: null }));
-
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
