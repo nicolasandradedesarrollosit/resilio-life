@@ -30,11 +30,11 @@ export const useUserData = () => {
     if (sessionData) {
       verificationAttempted.current = true;
 
-      if (sessionData?.loggedIn && sessionData.user) {
+      if (sessionData?.data?.loggedIn && sessionData.data?.user) {
         dispatch(
           setUserData({
-            loggedIn: sessionData.loggedIn,
-            data: sessionData.user as UserData,
+            loggedIn: sessionData.data.loggedIn,
+            data: sessionData.data.user as UserData,
             loading: false,
             loaded: true,
           }),

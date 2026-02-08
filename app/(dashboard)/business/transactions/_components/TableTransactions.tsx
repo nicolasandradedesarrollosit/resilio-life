@@ -20,13 +20,9 @@ import ModalDeleteTransaction from "./ModalDeleteTransaction";
 
 import { useModal } from "@/shared/hooks";
 import { selectAllTransactions } from "@/features/transactions/transactionsSlice";
-import { useTransactions } from "@/features/transactions";
-import { useBenefits } from "@/features/benefits";
 import type { TransactionData } from "@/shared/types";
 
 export default function TableTransactions() {
-  useTransactions();
-  useBenefits();
   const transactions = (useSelector(selectAllTransactions) as TransactionData[]) || [];
   const { onOpen: onOpenCreate } = useModal("createTransactionModal");
   const { onOpen: onOpenDelete } = useModal("deleteTransactionModal");

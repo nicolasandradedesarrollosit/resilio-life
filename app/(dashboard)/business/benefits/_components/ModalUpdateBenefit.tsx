@@ -303,8 +303,8 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
                   className="w-full sm:w-auto bg-gradient-to-r from-magenta-fuchsia-600 to-magenta-fuchsia-500 hover:from-magenta-fuchsia-700 hover:to-magenta-fuchsia-600 text-white text-sm sm:text-base font-semibold shadow-lg transition-all duration-200"
                   isLoading={isLoading}
                   size={isMobile ? "md" : "lg"}
-                  type="submit"
-                  onPress={async () => {
+                  type="button"
+                  onPress={() => {
                     const form = document.querySelector("form");
                     if (form) form.requestSubmit();
                   }}
