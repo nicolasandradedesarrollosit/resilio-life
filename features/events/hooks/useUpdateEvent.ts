@@ -7,7 +7,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { parseDate } from "@internationalized/date";
 
-import { useApi, useFormValidation, useImageUpload } from "@/shared/hooks";
+import { eventsService } from "@/features/events/services/eventsService";
+import { useFormValidation, useImageUpload } from "@/shared/hooks";
 import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
 import type { EventData } from "@/shared/types";
 import {
@@ -59,7 +60,7 @@ export function useUpdateEvent(
   const events = useSelector(selectAllEvents);
   const eventToUpdate = events.find((e: EventData) => e._id === eventId);
 
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>(null);
 
   // Form validation
@@ -111,14 +112,6 @@ export function useUpdateEvent(
     image: null,
   });
 
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/events/${eventId}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
 
   /**
    * Load existing event data when modal opens
@@ -199,7 +192,7 @@ export function useUpdateEvent(
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = [
@@ -217,37 +210,48 @@ export function useUpdateEvent(
         return;
       }
 
-      const formDataObj = new FormData(e.currentTarget);
+      try {
+        setIsLoading(true);
 
-      if (imageFile) {
-        formDataObj.append("image", imageFile);
+        const formDataObj = new FormData(e.currentTarget);
+
+        if (imageFile) {
+          formDataObj.append("image", imageFile);
+        }
+
+        const isoDate = new Date(
+          selectedDate.year,
+          selectedDate.month - 1,
+          selectedDate.day
+        ).toISOString();
+        formDataObj.set("date", isoDate);
+
+        const response = await eventsService.update(eventId, formDataObj);
+
+        if (response?.data) {
+          dispatch(updateEvent(response.data));
+          setImageFile(null);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-
-      const isoDate = new Date(
-        selectedDate.year,
-        selectedDate.month - 1,
-        selectedDate.day
-      ).toISOString();
-      formDataObj.set("date", isoDate);
-
-      setFormData(formDataObj);
     },
-    [fieldValidations, dateImageValidations, selectedDate, imageFile]
+    [
+      fieldValidations,
+      dateImageValidations,
+      selectedDate,
+      imageFile,
+      eventId,
+      dispatch,
+      onSuccess,
+      setImageFile,
+    ]
   );
-
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateEvent(data.data));
-      setFormData(null);
-      setImageFile(null);
-      if (onSuccess) {
-        onSuccess();
-      }
-    }
-  }, [data, dispatch, onSuccess, setImageFile]);
 
   return {
     eventToUpdate,

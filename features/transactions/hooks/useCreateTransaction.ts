@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
+import { transactionsService } from "@/features/transactions/services/transactionsService";
 import { addTransaction } from "@/features/transactions/transactionsSlice";
 import { selectAllBenefits } from "@/features/benefits/benefitsSlice";
 import type { BenefitData } from "@/shared/types";
@@ -42,7 +42,7 @@ export function useCreateTransaction(
   const benefits = (useSelector(selectAllBenefits) as BenefitData[]) || [];
   const activeBenefits = benefits.filter((b) => b.isActive);
 
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedBenefitId, setSelectedBenefitId] = useState<string | null>(
     null
   );
@@ -50,15 +50,6 @@ export function useCreateTransaction(
   const [validations, setValidations] = useState<TransactionValidations>({
     userId: null,
     benefitId: null,
-  });
-
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/transactions",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
   });
 
   /**
@@ -113,14 +104,13 @@ export function useCreateTransaction(
   const resetForm = useCallback(() => {
     setValidations({ userId: null, benefitId: null });
     setSelectedBenefitId(null);
-    setFormData(null);
   }, []);
 
   /**
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = Object.values(validations).some(
@@ -138,25 +128,31 @@ export function useCreateTransaction(
       }
 
       const formDataObj = new FormData(e.currentTarget);
-      formDataObj.set("benefitId", selectedBenefitId);
+      const data = {
+        userId: formDataObj.get("userId") as string,
+        benefitId: selectedBenefitId,
+      };
 
-      setFormData(formDataObj);
-    },
-    [validations, selectedBenefitId]
-  );
+      try {
+        setIsLoading(true);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addTransaction(data.data));
-      resetForm();
-      if (onSuccess) {
-        onSuccess();
+        const response = await transactionsService.create(data);
+
+        if (response.data) {
+          dispatch(addTransaction(response.data));
+          resetForm();
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess, resetForm]);
+    },
+    [validations, selectedBenefitId, dispatch, resetForm, onSuccess]
+  );
 
   return {
     validations,

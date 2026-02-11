@@ -7,150 +7,31 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input, Textarea } from "@heroui/input";
 import { ImageIcon } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { updateBenefit, selectAllBenefits } from "@/features/benefits/benefitsSlice";
-import type { BenefitData } from "@/shared/types";
-import {
-  TITLE_REGEX,
-  DESCRIPTION_REGEX,
-  POSITIVE_INTEGER_REGEX,
-  TITLE_ERROR_MESSAGE,
-  DESCRIPTION_ERROR_MESSAGE,
-  POSITIVE_INTEGER_ERROR_MESSAGE,
-  REQUIRED_FIELD_ERROR_MESSAGE,
-  validateAndPreviewImage,
-} from "@/shared/utils/validation";
-
-interface StateValidations {
-  title: string | null;
-  description: string | null;
-  pointsCost: string | null;
-  image: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useUpdateBenefit } from "@/features/benefits/hooks/useUpdateBenefit";
 
 export default function ModalUpdateBenefit({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("updateBenefitModal");
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const benefits = useSelector(selectAllBenefits);
-  const benefitToUpdate = benefits.find((b: BenefitData) => b._id === id);
 
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    title: null,
-    description: null,
-    pointsCost: null,
-    image: null,
-  });
-
-  const [formData, setFormData] = useState<any>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isActive, setIsActive] = useState(true);
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/benefits/${id}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (isOpen && benefitToUpdate) {
-      setImagePreview(benefitToUpdate.url_image);
-      setIsActive(benefitToUpdate.isActive);
-      setImageFile(null);
-      setStateValidations({ title: null, description: null, pointsCost: null, image: null });
-    }
-  }, [isOpen, benefitToUpdate]);
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateBenefit(data.data));
-      setFormData(null);
-      setImageFile(null);
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const validationRegex = {
-    title: TITLE_REGEX,
-    description: DESCRIPTION_REGEX,
-    pointsCost: POSITIVE_INTEGER_REGEX,
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [name]: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-
-    const regex = validationRegex[name as keyof typeof validationRegex];
-    const isValid = regex ? regex.test(value) : true;
-    let errorMessage = null;
-
-    if (!isValid) {
-      switch (name) {
-        case "title":
-          errorMessage = TITLE_ERROR_MESSAGE;
-          break;
-        case "description":
-          errorMessage = DESCRIPTION_ERROR_MESSAGE;
-          break;
-        case "pointsCost":
-          errorMessage = POSITIVE_INTEGER_ERROR_MESSAGE;
-          break;
-      }
-    }
-    setStateValidations((prev) => ({ ...prev, [name]: errorMessage }));
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const result = await validateAndPreviewImage(file);
-
-    if (!result.isValid) {
-      setStateValidations((prev) => ({ ...prev, image: result.errorMessage }));
-      setImagePreview(benefitToUpdate?.url_image || null);
-      setImageFile(null);
-      return;
-    }
-
-    setImageFile(result.file!);
-    setImagePreview(result.previewUrl!);
-    setStateValidations((prev) => ({ ...prev, image: null }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const hasErrors = Object.values(stateValidations).some((error) => error !== null);
-    if (hasErrors) return;
-
-    const formDataObj = new FormData(e.currentTarget);
-    formDataObj.set("isActive", String(isActive));
-
-    if (imageFile) {
-      formDataObj.set("image", imageFile);
-    } else {
-      formDataObj.delete("image");
-    }
-
-    setFormData(formDataObj);
-  };
+  const {
+    benefitToUpdate,
+    validations,
+    isLoading,
+    isActive,
+    imageFile,
+    imagePreview,
+    setIsActive,
+    handleChange,
+    handleImageChange,
+    handleSubmit,
+  } = useUpdateBenefit(id, isOpen as boolean, onOpenChange);
 
   if (!benefitToUpdate) return null;
 
@@ -199,8 +80,8 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
                     variant="bordered"
                     onChange={handleChange}
                   />
-                  <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.title ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.title}
+                  <span aria-live="polite" className={`text-xs absolute left-0 ${validations.title ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.title}
                   </span>
                 </div>
 
@@ -218,8 +99,8 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
                     variant="bordered"
                     onChange={handleChange}
                   />
-                  <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.description ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.description}
+                  <span aria-live="polite" className={`text-xs absolute left-0 ${validations.description ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.description}
                   </span>
                 </div>
 
@@ -238,8 +119,8 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
                       variant="bordered"
                       onChange={handleChange}
                     />
-                    <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.pointsCost ? "visible text-red-400" : "invisible"}`} role="alert">
-                      {stateValidations.pointsCost}
+                    <span aria-live="polite" className={`text-xs absolute left-0 ${validations.pointsCost ? "visible text-red-400" : "invisible"}`} role="alert">
+                      {validations.pointsCost}
                     </span>
                   </div>
                   <div className="flex flex-col justify-end pb-1">
@@ -273,8 +154,8 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
                       onChange={handleImageChange}
                     />
                   </div>
-                  <span aria-live="polite" className={`text-xs block ${stateValidations.image ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.image}
+                  <span aria-live="polite" className={`text-xs block ${validations.image ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.image}
                   </span>
 
                   {imagePreview ? (

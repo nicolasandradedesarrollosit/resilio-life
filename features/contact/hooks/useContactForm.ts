@@ -3,10 +3,10 @@
  * Handles contact form submission with validation and API calls
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { addToast } from "@heroui/toast";
 
-import { useApi } from "@/shared/hooks";
+import { contactService } from "@/features/contact/services/contactService";
 import {
   NAME_EXTENDED_REGEX,
   EMAIL_REGEX,
@@ -19,7 +19,6 @@ interface ContactFormData {
   email: string;
   subject: string;
   message: string;
-  origin: string;
 }
 
 interface ValidationState {
@@ -58,7 +57,7 @@ export interface UseContactFormReturn {
 export function useContactForm(): UseContactFormReturn {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-  const [formData, setFormData] = useState<ContactFormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [validations, setValidations] = useState<ValidationState>({
     name: null,
@@ -72,19 +71,6 @@ export function useContactForm(): UseContactFormReturn {
     email: null,
     subject: null,
     message: null,
-  });
-
-  // API call
-  const {
-    data: submitResult,
-    loading: isSubmitting,
-    error: submitError,
-  } = useApi({
-    endpoint: "/messages",
-    method: "POST",
-    body: formData,
-    includeCredentials: false,
-    enabled: !!formData,
   });
 
   /**
@@ -111,8 +97,9 @@ export function useContactForm(): UseContactFormReturn {
    */
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
       try {
-        e.preventDefault();
         if (!Object.values(validations).every(Boolean)) {
           setFormIsInvalid(true);
           return;
@@ -125,70 +112,47 @@ export function useContactForm(): UseContactFormReturn {
           email: formDataObj.get("email") as string,
           subject: formDataObj.get("subject") as string,
           message: formDataObj.get("message") as string,
-          origin: "web",
         };
 
-        setFormData(data);
+        setIsSubmitting(true);
+
+        const response = await contactService.submitContactForm(data);
+
+        if (response?.data) {
+          addToast({
+            title: "Mensaje enviado",
+            description: "Tu mensaje ha sido enviado correctamente. Te responderemos pronto.",
+            color: "success",
+            variant: "flat",
+            timeout: 5000,
+          });
+
+          formRef.current?.reset();
+          setValidations({
+            name: null,
+            email: null,
+            subject: null,
+            message: null,
+          });
+        }
       } catch (error) {
-        console.error("Error al enviar el formulario:", error);
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
 
         addToast({
-          title: "Error al enviar",
+          title: "Error al enviar mensaje",
           description:
-            "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
+            "Hubo un problema al enviar tu mensaje. Por favor, intentá nuevamente.",
           color: "danger",
           variant: "flat",
           timeout: 5000,
         });
-
-        return;
       } finally {
+        setIsSubmitting(false);
         setFormIsInvalid(null);
       }
     },
     [validations]
   );
-
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (submitResult?.data) {
-      addToast({
-        title: "Mensaje enviado",
-        description: "Tu mensaje ha sido enviado correctamente. Te responderemos pronto.",
-        color: "success",
-        variant: "flat",
-        timeout: 5000,
-      });
-
-      formRef.current?.reset();
-      setValidations({
-        name: null,
-        email: null,
-        subject: null,
-        message: null,
-      });
-      setFormData(null);
-    }
-  }, [submitResult]);
-
-  /**
-   * Handle API error
-   */
-  useEffect(() => {
-    if (submitError) {
-      addToast({
-        title: "Error al enviar mensaje",
-        description:
-          "Hubo un problema al enviar tu mensaje. Por favor, intentá nuevamente.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setFormData(null);
-    }
-  }, [submitError]);
 
   return {
     validations,

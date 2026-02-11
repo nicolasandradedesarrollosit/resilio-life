@@ -7,123 +7,30 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { useDispatch, useSelector } from "react-redux";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { updateHeadquarters, selectAllHeadquarters } from "@/features/headquarters/headquartersSlice";
-import type { HeadquartersData } from "@/shared/types";
-import {
-  SHORT_TEXT_REGEX,
-  SHORT_TEXT_ERROR_MESSAGE,
-  REQUIRED_FIELD_ERROR_MESSAGE,
-} from "@/shared/utils/validation";
-
-interface StateValidations {
-  name: string | null;
-  latitude: string | null;
-  longitude: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useUpdateSede } from "@/features/headquarters/hooks/useUpdateSede";
 
 export default function ModalUpdateSede({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("updateSedeModal");
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const items = useSelector(selectAllHeadquarters);
-  const sedeToUpdate = items.find((h: HeadquartersData) => h._id === id);
 
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    name: null,
-    latitude: null,
-    longitude: null,
-  });
-
-  const [formData, setFormData] = useState<any>(null);
-  const [latitude, setLatitude] = useState<string>("");
-  const [longitude, setLongitude] = useState<string>("");
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/headquarters/${id}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (isOpen && sedeToUpdate) {
-      setLatitude(String(sedeToUpdate.coordinates?.[0] ?? ""));
-      setLongitude(String(sedeToUpdate.coordinates?.[1] ?? ""));
-      setStateValidations({ name: null, latitude: null, longitude: null });
-    }
-  }, [isOpen, sedeToUpdate]);
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateHeadquarters(data.data));
-      setFormData(null);
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, name: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-    const isValid = SHORT_TEXT_REGEX.test(value);
-    setStateValidations((prev) => ({
-      ...prev,
-      name: isValid ? null : SHORT_TEXT_ERROR_MESSAGE,
-    }));
-  };
-
-  const handleCoordChange = (field: "latitude" | "longitude", value: string) => {
-    if (field === "latitude") setLatitude(value);
-    else setLongitude(value);
-
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [field]: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Debe ser un número válido" }));
-      return;
-    }
-
-    if (field === "latitude" && (num < -90 || num > 90)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -90 y 90" }));
-      return;
-    }
-    if (field === "longitude" && (num < -180 || num > 180)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -180 y 180" }));
-      return;
-    }
-
-    setStateValidations((prev) => ({ ...prev, [field]: null }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formEl = e.currentTarget;
-    const name = (formEl.elements.namedItem("name") as HTMLInputElement)?.value;
-
-    if (Object.values(stateValidations).some((e) => e !== null)) return;
-    if (!latitude?.trim() || !longitude?.trim()) return;
-
-    setFormData({
-      name: name?.trim(),
-      coordinates: [parseFloat(latitude), parseFloat(longitude)],
-    });
-  };
+  const {
+    sedeToUpdate,
+    validations,
+    isLoading,
+    latitude,
+    longitude,
+    setLatitude,
+    setLongitude,
+    handleNameChange,
+    handleCoordChange,
+    handleSubmit,
+  } = useUpdateSede(id, isOpen as boolean, onOpenChange);
 
   if (!sedeToUpdate) return null;
 
@@ -175,10 +82,10 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                   />
                   <span
                     aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.name ? "visible text-red-400" : "invisible"}`}
+                    className={`text-xs absolute left-0 ${validations.name ? "visible text-red-400" : "invisible"}`}
                     role="alert"
                   >
-                    {stateValidations.name}
+                    {validations.name}
                   </span>
                 </div>
 
@@ -197,10 +104,10 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.latitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.latitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.latitude}
+                      {validations.latitude}
                     </span>
                   </div>
                   <div className="space-y-2 relative">
@@ -217,10 +124,10 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.longitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.longitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.longitude}
+                      {validations.longitude}
                     </span>
                   </div>
                 </div>

@@ -86,7 +86,6 @@ export default function LocationPicker({
         setIsLocating(false);
       },
       (error) => {
-        console.error("Error de geolocalización:", error);
         alert("No se pudo obtener tu ubicación. Verificá los permisos.");
         setIsLocating(false);
       },
@@ -116,8 +115,8 @@ export default function LocationPicker({
       setSearchResults(data);
       setShowResults(true);
     } catch (error) {
-      console.error("Error buscando dirección:", error);
-    } finally {
+      // Error handled silently
+    } finally{
       setIsSearching(false);
     }
   }, []);

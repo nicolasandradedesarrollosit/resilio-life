@@ -5,7 +5,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
@@ -13,210 +12,26 @@ import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
 import { DatePicker } from "@heroui/date-picker";
 import { ImageIcon } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { parseDate } from "@internationalized/date";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
-import type { EventData } from "@/shared/types";
-import {
-  TITLE_REGEX,
-  DESCRIPTION_REGEX,
-  LOCATION_REGEX,
-  URL_REGEX,
-  TITLE_ERROR_MESSAGE,
-  DESCRIPTION_ERROR_MESSAGE,
-  LOCATION_ERROR_MESSAGE,
-  URL_ERROR_MESSAGE,
-  REQUIRED_FIELD_ERROR_MESSAGE,
-  validateAndPreviewImage,
-} from "@/shared/utils/validation";
-
-interface StateValidations {
-  title: string | null;
-  description: string | null;
-  date: string | null;
-  location: string | null;
-  image: string | null;
-  url_provider: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useUpdateEvent } from "@/features/events/hooks/useUpdateEvent";
 
 export default function ModalUpdateEvent({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("updateEventModal");
-  const dispatch = useDispatch();
-  const events = useSelector(selectAllEvents);
-  const eventToUpdate = events.find((e: EventData) => e._id === id);
-
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    title: null,
-    description: null,
-    date: null,
-    location: null,
-    image: null,
-    url_provider: null,
-  });
-
-  const [formData, setFormData] = useState<any>(null);
-  const [selectedDate, setSelectedDate] = useState<any>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/events/${id}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (isOpen && eventToUpdate) {
-      // Pre-fill data
-      setSelectedDate(
-        parseDate(new Date(eventToUpdate.date).toISOString().split("T")[0]),
-      );
-      setImagePreview(eventToUpdate.url_image);
-
-      // Reset validations
-      setStateValidations({
-        title: null,
-        description: null,
-        date: null,
-        location: null,
-        image: null,
-        url_provider: null,
-      });
-    }
-  }, [isOpen, eventToUpdate]);
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateEvent(data.data));
-      setFormData(null);
-      setImageFile(null);
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const validationRegex = {
-    title: TITLE_REGEX,
-    description: DESCRIPTION_REGEX,
-    location: LOCATION_REGEX,
-    url_provider: URL_REGEX,
-  };
-
   const isMobile = useIsMobile();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({
-        ...prev,
-        [name]: REQUIRED_FIELD_ERROR_MESSAGE,
-      }));
-
-      return;
-    }
-
-    const regex = validationRegex[name as keyof typeof validationRegex];
-    const isValid = regex ? regex.test(value) : true;
-
-    let errorMessage = null;
-
-    if (!isValid) {
-      switch (name) {
-        case "title":
-          errorMessage = TITLE_ERROR_MESSAGE;
-          break;
-        case "description":
-          errorMessage = DESCRIPTION_ERROR_MESSAGE;
-          break;
-        case "location":
-          errorMessage = LOCATION_ERROR_MESSAGE;
-          break;
-        case "url_provider":
-          errorMessage = URL_ERROR_MESSAGE;
-          break;
-      }
-    }
-
-    setStateValidations((prev) => ({ ...prev, [name]: errorMessage }));
-  };
-
-  const handleDateChange = (date: any) => {
-    setSelectedDate(date);
-    setStateValidations((prev) => ({
-      ...prev,
-      date: !date ? "La fecha es requerida" : null,
-    }));
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) {
-      // If no file, we keep the existing one, so no error unless they want to change it
-      return;
-    }
-
-    const result = await validateAndPreviewImage(file);
-
-    if (!result.isValid) {
-      setStateValidations((prev) => ({
-        ...prev,
-        image: result.errorMessage,
-      }));
-      setImagePreview(eventToUpdate?.url_image || null);
-      setImageFile(null);
-      return;
-    }
-
-    setImageFile(result.file!);
-    setImagePreview(result.previewUrl!);
-    setStateValidations((prev) => ({ ...prev, image: null }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-
-      // Filter out null validations (valid)
-      const hasErrors = Object.values(stateValidations).some(
-        (error) => error !== null,
-      );
-
-      if (hasErrors) return;
-
-      if (!selectedDate) {
-        setStateValidations((prev) => ({
-          ...prev,
-          date: "La fecha es requerida",
-        }));
-
-        return;
-      }
-
-      const form = e.currentTarget;
-      const formDataObj = new FormData(form);
-
-      const dateStr = selectedDate.toString().split("T")[0];
-
-      formDataObj.set("date", dateStr);
-
-      if (imageFile) {
-        formDataObj.set("image", imageFile);
-      } else {
-        formDataObj.delete("image"); // Don't send empty image field if not changing
-      }
-
-      setFormData(formDataObj);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  };
+  const {
+    eventToUpdate,
+    validations,
+    isLoading,
+    selectedDate,
+    imageFile,
+    imagePreview,
+    handleChange,
+    handleDateChange,
+    handleImageChange,
+    handleSubmit,
+  } = useUpdateEvent(id, isOpen as boolean, onOpenChange);
 
   if (!eventToUpdate) return null;
 
@@ -224,8 +39,8 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
     <Modal
       backdrop="blur"
       classNames={{
-        body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col justify-start gap-0 w-screen max-w-[calc(100vw-3rem)] sm:max-w-full",
-        base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50 w-full",
+        body: "py-6 sm:py-8 px-6 sm:px-8",
+        base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50",
         header:
           "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
         footer:
@@ -233,232 +48,183 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
         closeButton:
           "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
       }}
-      isDismissable={false}
-      isOpen={isOpen as boolean}
+      isOpen={isOpen as any}
+      radius="lg"
       scrollBehavior="inside"
-      size={isMobile ? "3xl" : "2xl"}
+      size={isMobile ? "full" : "3xl"}
       onOpenChange={onOpenChange}
     >
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="flex flex-col w-full items-center gap-4 sm:gap-5">
-              <Image
-                alt="Logo Icon"
-                height={40}
-                src="/logo-icon.png"
-                width={40}
-              />
-              <div>
-                <h2 className="text-white font-semibold text-lg sm:text-xl">
-                  Modificar Evento
-                </h2>
-                <p className="text-slate-400 text-xs sm:text-sm mt-1">
-                  Actualiza los detalles del evento
+        <ModalHeader className="flex flex-col items-center gap-2">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            Editar evento
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400 font-normal">
+            Modificá los detalles del evento
+          </p>
+        </ModalHeader>
+
+        <ModalBody>
+          <Form
+            className="flex flex-col gap-4 sm:gap-5"
+            validationErrors={validations}
+            onSubmit={handleSubmit}
+          >
+            <Input
+              required
+              classNames={{
+                label: "text-sm sm:text-base font-medium",
+                input:
+                  "bg-slate-800/50 border-slate-700/50 text-base sm:text-lg",
+                errorMessage: "text-xs sm:text-sm",
+              }}
+              defaultValue={eventToUpdate.title}
+              errorMessage={validations.title}
+              isInvalid={!!validations.title}
+              label="Título"
+              name="title"
+              placeholder="Ingresá el título del evento"
+              size={isMobile ? "md" : "lg"}
+              variant="bordered"
+              onChange={handleChange}
+            />
+
+            <Textarea
+              required
+              classNames={{
+                label: "text-sm sm:text-base font-medium",
+                input:
+                  "bg-slate-800/50 border-slate-700/50 text-base sm:text-lg min-h-[100px] sm:min-h-[120px]",
+                errorMessage: "text-xs sm:text-sm",
+              }}
+              defaultValue={eventToUpdate.description}
+              errorMessage={validations.description}
+              isInvalid={!!validations.description}
+              label="Descripción"
+              name="description"
+              placeholder="Ingresá una descripción del evento"
+              size={isMobile ? "md" : "lg"}
+              variant="bordered"
+              onChange={handleChange}
+            />
+
+            <DatePicker
+              required
+              classNames={{
+                label: "text-sm sm:text-base font-medium",
+                inputWrapper: "bg-slate-800/50 border-slate-700/50",
+                errorMessage: "text-xs sm:text-sm",
+              }}
+              errorMessage={validations.date}
+              isInvalid={!!validations.date}
+              label="Fecha del evento"
+              size={isMobile ? "md" : "lg"}
+              value={selectedDate}
+              variant="bordered"
+              onChange={handleDateChange}
+            />
+
+            <Input
+              required
+              classNames={{
+                label: "text-sm sm:text-base font-medium",
+                input:
+                  "bg-slate-800/50 border-slate-700/50 text-base sm:text-lg",
+                errorMessage: "text-xs sm:text-sm",
+              }}
+              defaultValue={eventToUpdate.location}
+              errorMessage={validations.location}
+              isInvalid={!!validations.location}
+              label="Ubicación"
+              name="location"
+              placeholder="Ingresá la ubicación del evento"
+              size={isMobile ? "md" : "lg"}
+              variant="bordered"
+              onChange={handleChange}
+            />
+
+            <Input
+              required
+              classNames={{
+                label: "text-sm sm:text-base font-medium",
+                input:
+                  "bg-slate-800/50 border-slate-700/50 text-base sm:text-lg",
+                errorMessage: "text-xs sm:text-sm",
+              }}
+              defaultValue={eventToUpdate.url_provider}
+              errorMessage={validations.url_provider}
+              isInvalid={!!validations.url_provider}
+              label="URL del proveedor"
+              name="url_provider"
+              placeholder="https://ejemplo.com"
+              size={isMobile ? "md" : "lg"}
+              type="url"
+              variant="bordered"
+              onChange={handleChange}
+            />
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm sm:text-base font-medium">
+                Imagen del evento
+              </label>
+              <div className="relative">
+                <input
+                  accept="image/*"
+                  className="hidden"
+                  id="imageUpload"
+                  type="file"
+                  onChange={handleImageChange}
+                />
+                <label
+                  className="flex items-center justify-center gap-3 p-4 sm:p-5 border-2 border-dashed border-slate-700/50 rounded-lg cursor-pointer hover:border-slate-600 hover:bg-slate-800/30 transition-all"
+                  htmlFor="imageUpload"
+                >
+                  <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
+                  <span className="text-sm sm:text-base text-slate-400">
+                    {imageFile ? "Cambiar imagen" : "Seleccionar nueva imagen"}
+                  </span>
+                </label>
+              </div>
+              {validations.image && (
+                <p className="text-xs sm:text-sm text-danger-400">
+                  {validations.image}
                 </p>
-              </div>
-            </ModalHeader>
-            <ModalBody className="flex flex-col items-center">
-              <Form
-                className="w-full space-y-5 flex flex-col items-center"
-                onSubmit={handleSubmit}
+              )}
+              {imagePreview && (
+                <div className="relative w-full h-48 sm:h-64 mt-3 rounded-lg overflow-hidden border border-slate-700/50">
+                  <Image
+                    fill
+                    alt="Preview"
+                    className="object-cover"
+                    src={imagePreview}
+                  />
+                </div>
+              )}
+            </div>
+
+            <ModalFooter className="px-0 pt-4">
+              <Button
+                className="font-medium text-base sm:text-lg"
+                color="danger"
+                size={isMobile ? "md" : "lg"}
+                variant="flat"
+                onPress={onOpenChange}
               >
-                <div className="w-4/5 space-y-2 relative">
-                  <Input
-                    classNames={{
-                      label: "text-slate-300 font-medium",
-                      inputWrapper:
-                        "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
-                      input: "text-white placeholder:text-slate-500",
-                    }}
-                    defaultValue={eventToUpdate.title}
-                    label="Título"
-                    name="title"
-                    placeholder="Ej: Festival de Música 2024"
-                    variant="bordered"
-                    onChange={handleChange}
-                  />
-                  <span
-                    aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.title ? "visible text-red-400" : "invisible"}`}
-                    role="alert"
-                  >
-                    {stateValidations.title}
-                  </span>
-                </div>
-
-                <div className="w-4/5 space-y-2 relative">
-                  <Textarea
-                    classNames={{
-                      label: "text-slate-300 font-medium",
-                      inputWrapper:
-                        "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
-                      input: "text-white placeholder:text-slate-500",
-                    }}
-                    defaultValue={eventToUpdate.description}
-                    label="Descripción"
-                    minRows={3}
-                    name="description"
-                    placeholder="Describe brevemente el evento..."
-                    variant="bordered"
-                    onChange={handleChange}
-                  />
-                  <span
-                    aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.description ? "visible text-red-400" : "invisible"}`}
-                    role="alert"
-                  >
-                    {stateValidations.description}
-                  </span>
-                </div>
-
-                <div className="w-4/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2 relative">
-                    <DatePicker
-                      classNames={{
-                        label: "text-slate-300 font-medium",
-                        inputWrapper:
-                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500",
-                        input: "text-white",
-                      }}
-                      label="Fecha del evento"
-                      value={selectedDate}
-                      variant="bordered"
-                      onChange={handleDateChange}
-                    />
-                    <span
-                      aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.date ? "visible text-red-400" : "invisible"}`}
-                      role="alert"
-                    >
-                      {stateValidations.date}
-                    </span>
-                  </div>
-                  <div className="space-y-2 relative">
-                    <Input
-                      classNames={{
-                        label: "text-slate-300 font-medium",
-                        inputWrapper:
-                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
-                        input: "text-white placeholder:text-slate-500",
-                      }}
-                      defaultValue={eventToUpdate.location}
-                      label="Ubicación"
-                      name="location"
-                      placeholder="Ej: Buenos Aires, Argentina"
-                      variant="bordered"
-                      onChange={handleChange}
-                    />
-                    <span
-                      aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.location ? "visible text-red-400" : "invisible"}`}
-                      role="alert"
-                    >
-                      {stateValidations.location}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-4/5 space-y-3">
-                  <label className="text-slate-300 font-medium text-sm block">
-                    Imagen del evento
-                  </label>
-                  <div className="relative">
-                    <Input
-                      accept="image/*"
-                      classNames={{
-                        inputWrapper:
-                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
-                        input:
-                          "text-white placeholder:text-slate-500 file:text-white file:bg-slate-700 file:border-0 file:rounded file:px-3 file:py-1 file:cursor-pointer hover:file:bg-slate-600",
-                      }}
-                      placeholder="Selecciona una imagen"
-                      type="file"
-                      variant="bordered"
-                      onChange={handleImageChange}
-                    />
-                  </div>
-
-                  <span
-                    aria-live="polite"
-                    className={`text-xs block ${stateValidations.image ? "visible text-red-400" : "invisible"}`}
-                    role="alert"
-                  >
-                    {stateValidations.image}
-                  </span>
-
-                  {imagePreview ? (
-                    <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-600 bg-slate-800">
-                      <img
-                        alt="Vista previa"
-                        className="w-full h-full object-cover"
-                        src={imagePreview}
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full h-32 rounded-lg border-2 border-dashed border-slate-600 flex flex-col items-center justify-center bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
-                      <ImageIcon className="text-slate-500 mb-2" size={32} />
-                      <p className="text-slate-400 text-sm">
-                        Sube una imagen para ver la vista previa
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-4/5 space-y-2 relative">
-                  <Input
-                    classNames={{
-                      label: "text-slate-300 font-medium",
-                      inputWrapper:
-                        "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
-                      input: "text-white placeholder:text-slate-500",
-                    }}
-                    defaultValue={eventToUpdate.url_provider}
-                    label="Enlace de compra"
-                    name="url_provider"
-                    placeholder="Ej: https://passline.com/evento"
-                    variant="bordered"
-                    onChange={handleChange}
-                  />
-                  <span
-                    aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.url_provider ? "visible text-red-400" : "invisible"}`}
-                    role="alert"
-                  >
-                    {stateValidations.url_provider}
-                  </span>
-                </div>
-              </Form>
-            </ModalBody>
-            <ModalFooter>
-              <div className="flex flex-col sm:flex-row justify-end gap-3 w-full">
-                <Button
-                  className="w-full sm:w-auto border-slate-600 text-slate-200 hover:border-slate-500 hover:bg-slate-700/50 transition-all duration-200 text-sm sm:text-base font-medium"
-                  size={isMobile ? "md" : "lg"}
-                  variant="bordered"
-                  onPress={onClose}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  className="w-full sm:w-auto bg-gradient-to-r from-magenta-fuchsia-600 to-magenta-fuchsia-500 hover:from-magenta-fuchsia-700 hover:to-magenta-fuchsia-600 text-white text-sm sm:text-base font-semibold shadow-lg transition-all duration-200"
-                  isLoading={isLoading}
-                  size={isMobile ? "md" : "lg"}
-                  type="submit"
-                  onPress={async () => {
-                    const form = document.querySelector("form");
-
-                    if (form) {
-                      form.requestSubmit();
-                    }
-                  }}
-                >
-                  Actualizar Evento
-                </Button>
-              </div>
+                Cancelar
+              </Button>
+              <Button
+                className="font-medium text-base sm:text-lg"
+                color="primary"
+                isLoading={isLoading}
+                size={isMobile ? "md" : "lg"}
+                type="submit"
+                variant="shadow"
+              >
+                Guardar cambios
+              </Button>
             </ModalFooter>
-          </>
-        )}
+          </Form>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );

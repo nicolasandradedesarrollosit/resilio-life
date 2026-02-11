@@ -7,127 +7,29 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { useDispatch } from "react-redux";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { addHeadquarters } from "@/features/headquarters/headquartersSlice";
-import {
-  SHORT_TEXT_REGEX,
-  SHORT_TEXT_ERROR_MESSAGE,
-  REQUIRED_FIELD_ERROR_MESSAGE,
-} from "@/shared/utils/validation";
-
-interface StateValidations {
-  name: string | null;
-  latitude: string | null;
-  longitude: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useCreateSede } from "@/features/headquarters/hooks/useCreateSede";
 
 export default function ModalCreateSede() {
   const { isOpen, onOpenChange } = useModal("createSedeModal");
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    name: null,
-    latitude: null,
-    longitude: null,
-  });
 
-  const [formData, setFormData] = useState<any>(null);
-  const [latitude, setLatitude] = useState<string>("");
-  const [longitude, setLongitude] = useState<string>("");
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/headquarters",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addHeadquarters(data.data));
-      setFormData(null);
-      setLatitude("");
-      setLongitude("");
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, name: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-    const isValid = SHORT_TEXT_REGEX.test(value);
-    setStateValidations((prev) => ({
-      ...prev,
-      name: isValid ? null : SHORT_TEXT_ERROR_MESSAGE,
-    }));
-  };
-
-  const handleCoordChange = (field: "latitude" | "longitude", value: string) => {
-    if (field === "latitude") setLatitude(value);
-    else setLongitude(value);
-
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [field]: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Debe ser un número válido" }));
-      return;
-    }
-
-    if (field === "latitude" && (num < -90 || num > 90)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -90 y 90" }));
-      return;
-    }
-
-    if (field === "longitude" && (num < -180 || num > 180)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -180 y 180" }));
-      return;
-    }
-
-    setStateValidations((prev) => ({ ...prev, [field]: null }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formEl = e.currentTarget;
-    const name = (formEl.elements.namedItem("name") as HTMLInputElement)?.value;
-
-    let hasError = false;
-    if (!name?.trim()) {
-      setStateValidations((prev) => ({ ...prev, name: "Este campo es requerido" }));
-      hasError = true;
-    }
-    if (!latitude?.trim()) {
-      setStateValidations((prev) => ({ ...prev, latitude: "Este campo es requerido" }));
-      hasError = true;
-    }
-    if (!longitude?.trim()) {
-      setStateValidations((prev) => ({ ...prev, longitude: "Este campo es requerido" }));
-      hasError = true;
-    }
-
-    if (hasError || Object.values(stateValidations).some((e) => e !== null)) return;
-
-    setFormData({
-      name: name.trim(),
-      coordinates: [parseFloat(latitude), parseFloat(longitude)],
-    });
-  };
+  const {
+    validations,
+    isLoading,
+    latitude,
+    longitude,
+    setLatitude,
+    setLongitude,
+    handleNameChange,
+    handleCoordChange,
+    handleSubmit,
+  } = useCreateSede(onOpenChange);
 
   return (
     <Modal
@@ -176,10 +78,10 @@ export default function ModalCreateSede() {
                   />
                   <span
                     aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.name ? "visible text-red-400" : "invisible"}`}
+                    className={`text-xs absolute left-0 ${validations.name ? "visible text-red-400" : "invisible"}`}
                     role="alert"
                   >
-                    {stateValidations.name}
+                    {validations.name}
                   </span>
                 </div>
 
@@ -199,10 +101,10 @@ export default function ModalCreateSede() {
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.latitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.latitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.latitude}
+                      {validations.latitude}
                     </span>
                   </div>
                   <div className="space-y-2 relative">
@@ -220,10 +122,10 @@ export default function ModalCreateSede() {
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.longitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.longitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.longitude}
+                      {validations.longitude}
                     </span>
                   </div>
                 </div>

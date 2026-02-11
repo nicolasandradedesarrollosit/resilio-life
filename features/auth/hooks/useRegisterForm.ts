@@ -3,13 +3,13 @@
  * Handles user registration with validation, API calls, and navigation
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { addToast } from "@heroui/toast";
 
 import { setUserData } from "@/features/auth/authSlice";
-import { useApi } from "@/shared/hooks";
+import { authService } from "@/features/auth/services/authService";
 import { getRedirectPath } from "@/shared/utils";
 import {
   NAME_REGEX,
@@ -69,9 +69,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registerData, setRegisterData] = useState<RegisterFormData | null>(
-    null
-  );
 
   const [validations, setValidations] = useState<ValidationState>({
     name: null,
@@ -85,14 +82,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
     lastName: null,
     email: null,
     password: null,
-  });
-
-  // API call
-  const { data, error, loading } = useApi<{ user: UserData }>({
-    endpoint: "/users",
-    method: "POST",
-    body: registerData,
-    enabled: registerData !== null,
   });
 
   /**
@@ -150,73 +139,54 @@ export function useRegisterForm(): UseRegisterFormReturn {
         return;
       }
 
-      addToast({
-        title: "Registro en proceso",
-        description: "Estamos procesando tu solicitud.",
-        color: "success",
-        variant: "flat",
-        timeout: 3000,
-      });
+      try {
+        setIsSubmitting(true);
 
-      setRegisterData(data);
+        addToast({
+          title: "Registro en proceso",
+          description: "Estamos procesando tu solicitud.",
+          color: "success",
+          variant: "flat",
+          timeout: 3000,
+        });
+
+        const result = await authService.register(data);
+
+        if (result?.data) {
+          addToast({
+            title: "Registro exitoso",
+            description: "Tu cuenta ha sido creada correctamente.",
+            color: "success",
+            variant: "flat",
+            timeout: 5000,
+          });
+
+          dispatch(setUserData(result.data));
+          formRef.current?.reset();
+          setValidations({
+            name: null,
+            lastName: null,
+            email: null,
+            password: null,
+          });
+          router.push(getRedirectPath(result.data));
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+
+        addToast({
+          title: "Error en el registro",
+          description: errorMsg || "Hubo un problema al crear tu cuenta.",
+          color: "danger",
+          variant: "flat",
+          timeout: 5000,
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     },
-    [validations]
+    [validations, dispatch, router]
   );
-
-  /**
-   * Handle API response
-   */
-  useEffect(() => {
-    if (loading) {
-      setIsSubmitting(true);
-      return;
-    }
-
-    if (error) {
-      addToast({
-        title: "Error al enviar",
-        description:
-          "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setIsSubmitting(false);
-      setRegisterData(null);
-
-      return;
-    }
-
-    if (data?.user) {
-      formRef.current?.reset();
-      setValidations({
-        name: null,
-        lastName: null,
-        email: null,
-        password: null,
-      });
-      dispatch(
-        setUserData({
-          data: data.user,
-          loading: false,
-          loaded: true,
-          loggedIn: true,
-        })
-      );
-
-      addToast({
-        title: "Registro exitoso",
-        description: "¡Tu cuenta ha sido creada correctamente!",
-        color: "success",
-        variant: "flat",
-        timeout: 3000,
-      });
-
-      setIsSubmitting(false);
-      setRegisterData(null);
-      router.push(getRedirectPath(data.user));
-    }
-  }, [data, error, loading, dispatch, router]);
 
   return {
     validations,

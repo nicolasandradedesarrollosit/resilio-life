@@ -3,64 +3,50 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { useApi } from "@/shared/hooks";
-
+import { allUsersService } from "@/features/allUsers/services/allUsersService";
 import {
   selectAllUsers,
   setAllUserData,
   setLoading,
 } from "@/features/allUsers/allUserSlice";
-import type { UserData, ApiResponse } from "@/shared/types";
 
 export const useUsers = () => {
   const allUsers = useSelector(selectAllUsers);
   const dispatch = useDispatch();
 
-  console.log("[useUsers] Current allUsers:", allUsers);
-
-  const { data, loading, error } = useApi<ApiResponse<UserData[]>>({
-    endpoint: "/users",
-    method: "GET",
-    includeCredentials: true,
-    enabled: allUsers.length === 0,
-  });
-
   useEffect(() => {
-    if (data?.data) {
-      console.log("[useUsers] API response received:", data);
-      if (data.data.length > 0) {
-        console.log("[useUsers] Dispatching setAllUserData with:", data.data.length, "users");
-        dispatch(
-          setAllUserData({
-            users: data.data,
-            loading: false,
-            loaded: true,
-          }),
-        );
-      } else {
-        console.warn("[useUsers] API response is empty array");
+    if (allUsers.length > 0) return;
+
+    const fetchUsers = async () => {
+      try {
+        dispatch(setLoading(true));
+
+        const response = await allUsersService.getAll();
+
+        if (response.data && response.data.length > 0) {
+          dispatch(
+            setAllUserData({
+              users: response.data,
+              loading: false,
+              loaded: true,
+            })
+          );
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+        dispatch(setLoading(false));
+      } finally {
+        dispatch(setLoading(false));
       }
-    }
-  }, [data, dispatch]);
+    };
 
-  useEffect(() => {
-    if (loading) {
-      console.log("[useUsers] Setting loading state:", loading);
-    }
-    dispatch(setLoading(loading));
-  }, [loading, dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      console.error("[useUsers] Error fetching users:", error);
-      dispatch(setLoading(false));
-    }
-  }, [error, dispatch]);
+    fetchUsers();
+  }, [allUsers.length, dispatch]);
 
   return {
     users: allUsers,
-    loading,
-    error,
+    loading: allUsers.length === 0,
+    error: null,
     hasUsers: allUsers.length > 0,
   };
 };

@@ -95,8 +95,6 @@ export default function SecondComponent() {
 
       setFormData({ ...data, origin: "Resilio B2C SAAS APP" });
     } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-
       addToast({
         title: "Error al enviar",
         description:

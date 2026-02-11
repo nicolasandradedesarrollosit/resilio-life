@@ -3,10 +3,10 @@
  * Handles sede creation with validation and API calls
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
+import { headquartersService } from "@/features/headquarters/services/headquartersService";
 import { addHeadquarters } from "@/features/headquarters/headquartersSlice";
 import {
   SHORT_TEXT_REGEX,
@@ -38,7 +38,7 @@ export interface UseCreateSedeReturn {
  */
 export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
 
@@ -46,15 +46,6 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
     name: null,
     latitude: null,
     longitude: null,
-  });
-
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/headquarters",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
   });
 
   /**
@@ -128,14 +119,13 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
     setValidations({ name: null, latitude: null, longitude: null });
     setLatitude("");
     setLongitude("");
-    setFormData(null);
   }, []);
 
   /**
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = Object.values(validations).some(
@@ -145,26 +135,32 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
       if (hasErrors) return;
 
       const formDataObj = new FormData(e.currentTarget);
-      formDataObj.set("latitude", latitude);
-      formDataObj.set("longitude", longitude);
+      const data = {
+        name: formDataObj.get("name") as string,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      };
 
-      setFormData(formDataObj);
-    },
-    [validations, latitude, longitude]
-  );
+      try {
+        setIsLoading(true);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addHeadquarters(data.data));
-      resetForm();
-      if (onSuccess) {
-        onSuccess();
+        const response = await headquartersService.create(data);
+
+        if (response.data) {
+          dispatch(addHeadquarters(response.data));
+          resetForm();
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess, resetForm]);
+    },
+    [validations, latitude, longitude, dispatch, resetForm, onSuccess]
+  );
 
   return {
     validations,

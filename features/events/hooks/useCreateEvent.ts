@@ -3,10 +3,11 @@
  * Handles event creation with validation, image upload, API calls
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 
-import { useApi, useFormValidation, useImageUpload } from "@/shared/hooks";
+import { eventsService } from "@/features/events/services/eventsService";
+import { useFormValidation, useImageUpload } from "@/shared/hooks";
 import { addEvent } from "@/features/events/eventsSlice";
 import {
   TITLE_REGEX,
@@ -51,7 +52,7 @@ export function useCreateEvent(
   onSuccess?: () => void
 ): UseCreateEventReturn {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>(null);
 
   // Form validation
@@ -103,14 +104,6 @@ export function useCreateEvent(
     image: null,
   });
 
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/events",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
 
   /**
    * Handle field change
@@ -168,7 +161,7 @@ export function useCreateEvent(
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = [
@@ -190,35 +183,48 @@ export function useCreateEvent(
         return;
       }
 
-      const formDataObj = new FormData(e.currentTarget);
-      formDataObj.append("image", imageFile);
+      try {
+        setIsLoading(true);
 
-      const isoDate = new Date(
-        selectedDate.year,
-        selectedDate.month - 1,
-        selectedDate.day
-      ).toISOString();
-      formDataObj.set("date", isoDate);
+        const formDataObj = new FormData(e.currentTarget);
+        formDataObj.append("image", imageFile);
 
-      setFormData(formDataObj);
-    },
-    [fieldValidations, dateImageValidations, selectedDate, imageFile]
-  );
+        const isoDate = new Date(
+          selectedDate.year,
+          selectedDate.month - 1,
+          selectedDate.day
+        ).toISOString();
+        formDataObj.set("date", isoDate);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addEvent(data.data));
-      resetForm();
-      setImageFile(null);
-      setImagePreview(null);
-      if (onSuccess) {
-        onSuccess();
+        const response = await eventsService.create(formDataObj);
+
+        if (response?.data) {
+          dispatch(addEvent(response.data));
+          resetForm();
+          setImageFile(null);
+          setImagePreview(null);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess, resetForm, setImageFile, setImagePreview]);
+    },
+    [
+      fieldValidations,
+      dateImageValidations,
+      selectedDate,
+      imageFile,
+      dispatch,
+      onSuccess,
+      resetForm,
+      setImageFile,
+      setImagePreview,
+    ]
+  );
 
   return {
     validations: { ...fieldValidations, ...dateImageValidations },

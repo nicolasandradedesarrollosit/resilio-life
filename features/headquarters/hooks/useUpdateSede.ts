@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
+import { headquartersService } from "@/features/headquarters/services/headquartersService";
 import {
   updateHeadquarters,
   selectAllHeadquarters,
@@ -50,7 +50,7 @@ export function useUpdateSede(
   const items = useSelector(selectAllHeadquarters);
   const sedeToUpdate = items.find((h: HeadquartersData) => h._id === sedeId);
 
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
 
@@ -58,15 +58,6 @@ export function useUpdateSede(
     name: null,
     latitude: null,
     longitude: null,
-  });
-
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/headquarters/${sedeId}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
   });
 
   /**
@@ -149,14 +140,13 @@ export function useUpdateSede(
    */
   const resetForm = useCallback(() => {
     setValidations({ name: null, latitude: null, longitude: null });
-    setFormData(null);
   }, []);
 
   /**
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = Object.values(validations).some(
@@ -166,26 +156,31 @@ export function useUpdateSede(
       if (hasErrors) return;
 
       const formDataObj = new FormData(e.currentTarget);
-      formDataObj.set("latitude", latitude);
-      formDataObj.set("longitude", longitude);
+      const data = {
+        name: formDataObj.get("name") as string,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      };
 
-      setFormData(formDataObj);
-    },
-    [validations, latitude, longitude]
-  );
+      try {
+        setIsLoading(true);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateHeadquarters(data.data));
-      setFormData(null);
-      if (onSuccess) {
-        onSuccess();
+        const response = await headquartersService.update(sedeId, data);
+
+        if (response.data) {
+          dispatch(updateHeadquarters(response.data));
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess]);
+    },
+    [validations, latitude, longitude, sedeId, dispatch, onSuccess]
+  );
 
   return {
     sedeToUpdate,

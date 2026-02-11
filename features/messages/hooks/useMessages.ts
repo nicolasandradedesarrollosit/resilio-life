@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
-
+import { messagesService } from "@/features/messages/services/messagesService";
 import {
   selectAllMessages,
   selectLoading,
@@ -10,7 +9,6 @@ import {
   setMessages,
   setLoading,
 } from "@/features/messages/messageSlice";
-import type { MessageResponse } from "@/shared/types";
 
 export const useMessages = () => {
   const dispatch = useDispatch();
@@ -18,32 +16,30 @@ export const useMessages = () => {
   const loaded = useSelector(selectLoaded);
   const reduxLoading = useSelector(selectLoading);
 
-  const {
-    data,
-    loading: apiLoading,
-    error,
-  } = useApi<MessageResponse>({
-    endpoint: "/messages",
-    method: "GET",
-    enabled: !loaded,
-  });
-
   useEffect(() => {
-    if (data && !loaded) {
-      dispatch(setMessages(data.data));
-    }
-  }, [data, loaded, dispatch]);
+    if (loaded) return;
 
-  useEffect(() => {
-    if (apiLoading && !reduxLoading && !loaded) {
-      dispatch(setLoading());
-    }
-  }, [apiLoading, reduxLoading, loaded, dispatch]);
+    const fetchMessages = async () => {
+      try {
+        dispatch(setLoading());
+
+        const response = await messagesService.getAll();
+
+        if (response.data) {
+          dispatch(setMessages(response.data));
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      }
+    };
+
+    fetchMessages();
+  }, [loaded, dispatch]);
 
   return {
     messages,
-    loading: apiLoading || (reduxLoading && !loaded),
+    loading: reduxLoading && !loaded,
     loaded,
-    error,
+    error: null,
   };
 };

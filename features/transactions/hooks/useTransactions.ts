@@ -1,55 +1,40 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
+import { transactionsService } from "@/features/transactions/services/transactionsService";
 import {
   selectTransactionsData,
   setTransactionsData,
   clearTransactionsData,
   setLoading,
 } from "@/features/transactions/transactionsSlice";
-import type { TransactionData } from "@/shared/types";
 
 export function useTransactions() {
   const dispatch = useDispatch();
   const transactionsState = useSelector(selectTransactionsData);
 
-  console.log("[useTransactions] Current state:", transactionsState);
-
-  const { data, loading, error } = useApi<{
-    message?: string;
-    data: TransactionData[];
-  }>({
-    endpoint: "/transactions",
-    method: "GET",
-    enabled: transactionsState.loaded === false,
-  });
-
   useEffect(() => {
-    if (data) {
-      console.log("[useTransactions] API response received:", data);
-      if (data.data && Array.isArray(data.data)) {
-        console.log("[useTransactions] Dispatching setTransactionsData with:", data.data.length, "transactions");
-        dispatch(
-          setTransactionsData({ items: data.data, loading: false, loaded: true }),
-        );
-      } else {
-        console.warn("[useTransactions] API response data is not an array:", data);
+    if (transactionsState.loaded) return;
+
+    const fetchTransactions = async () => {
+      try {
+        dispatch(setLoading(true));
+
+        const response = await transactionsService.getAll();
+
+        if (response.data && Array.isArray(response.data)) {
+          dispatch(
+            setTransactionsData({ items: response.data, loading: false, loaded: true })
+          );
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+        dispatch(clearTransactionsData());
+      } finally {
+        dispatch(setLoading(false));
       }
-    }
-  }, [data, dispatch]);
+    };
 
-  useEffect(() => {
-    if (loading) {
-      console.log("[useTransactions] Setting loading state:", loading);
-    }
-    dispatch(setLoading(loading));
-  }, [loading, dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      console.error("[useTransactions] Error fetching transactions:", error);
-      dispatch(clearTransactionsData());
-    }
-  }, [error, dispatch]);
+    fetchTransactions();
+  }, [transactionsState.loaded, dispatch]);
 }

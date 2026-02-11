@@ -7,137 +7,30 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input, Textarea } from "@heroui/input";
 import { ImageIcon } from "lucide-react";
-import { useDispatch } from "react-redux";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { addBenefit } from "@/features/benefits/benefitsSlice";
-import {
-  TITLE_REGEX,
-  DESCRIPTION_REGEX,
-  POSITIVE_INTEGER_REGEX,
-  TITLE_ERROR_MESSAGE,
-  DESCRIPTION_ERROR_MESSAGE,
-  POSITIVE_INTEGER_ERROR_MESSAGE,
-  REQUIRED_FIELD_ERROR_MESSAGE,
-  validateAndPreviewImage,
-} from "@/shared/utils/validation";
-
-interface StateValidations {
-  title: string | null;
-  description: string | null;
-  pointsCost: string | null;
-  image: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useCreateBenefit } from "@/features/benefits/hooks/useCreateBenefit";
 
 export default function ModalCreateBenefit() {
   const { isOpen, onOpenChange } = useModal("createBenefitModal");
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    title: null,
-    description: null,
-    pointsCost: null,
-    image: null,
-  });
 
-  const [formData, setFormData] = useState<any>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isActive, setIsActive] = useState(true);
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/benefits",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addBenefit(data.data));
-      setFormData(null);
-      setImageFile(null);
-      setImagePreview(null);
-      setIsActive(true);
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const validationRegex = {
-    title: TITLE_REGEX,
-    description: DESCRIPTION_REGEX,
-    pointsCost: POSITIVE_INTEGER_REGEX,
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [name]: REQUIRED_FIELD_ERROR_MESSAGE }));
-      return;
-    }
-
-    const regex = validationRegex[name as keyof typeof validationRegex];
-    const isValid = regex ? regex.test(value) : true;
-    let errorMessage = null;
-
-    if (!isValid) {
-      switch (name) {
-        case "title":
-          errorMessage = TITLE_ERROR_MESSAGE;
-          break;
-        case "description":
-          errorMessage = DESCRIPTION_ERROR_MESSAGE;
-          break;
-        case "pointsCost":
-          errorMessage = POSITIVE_INTEGER_ERROR_MESSAGE;
-          break;
-      }
-    }
-    setStateValidations((prev) => ({ ...prev, [name]: errorMessage }));
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const result = await validateAndPreviewImage(file);
-
-    if (!result.isValid) {
-      setStateValidations((prev) => ({ ...prev, image: result.errorMessage }));
-      setImagePreview(null);
-      setImageFile(null);
-      return;
-    }
-
-    setImageFile(result.file!);
-    setImagePreview(result.previewUrl!);
-    setStateValidations((prev) => ({ ...prev, image: null }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const hasErrors = Object.values(stateValidations).some((error) => error !== null);
-    if (hasErrors) return;
-
-    if (!imageFile) {
-      setStateValidations((prev) => ({ ...prev, image: "La imagen es requerida" }));
-      return;
-    }
-
-    const formDataObj = new FormData(e.currentTarget);
-    formDataObj.set("isActive", String(isActive));
-    formDataObj.append("image", imageFile);
-
-    setFormData(formDataObj);
-  };
+  const {
+    validations,
+    isLoading,
+    isActive,
+    imageFile,
+    imagePreview,
+    setIsActive,
+    handleChange,
+    handleImageChange,
+    handleSubmit,
+  } = useCreateBenefit(onOpenChange);
 
   return (
     <Modal
@@ -184,8 +77,8 @@ export default function ModalCreateBenefit() {
                     variant="bordered"
                     onChange={handleChange}
                   />
-                  <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.title ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.title}
+                  <span aria-live="polite" className={`text-xs absolute left-0 ${validations.title ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.title}
                   </span>
                 </div>
 
@@ -203,8 +96,8 @@ export default function ModalCreateBenefit() {
                     variant="bordered"
                     onChange={handleChange}
                   />
-                  <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.description ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.description}
+                  <span aria-live="polite" className={`text-xs absolute left-0 ${validations.description ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.description}
                   </span>
                 </div>
 
@@ -223,8 +116,8 @@ export default function ModalCreateBenefit() {
                       variant="bordered"
                       onChange={handleChange}
                     />
-                    <span aria-live="polite" className={`text-xs absolute left-0 ${stateValidations.pointsCost ? "visible text-red-400" : "invisible"}`} role="alert">
-                      {stateValidations.pointsCost}
+                    <span aria-live="polite" className={`text-xs absolute left-0 ${validations.pointsCost ? "visible text-red-400" : "invisible"}`} role="alert">
+                      {validations.pointsCost}
                     </span>
                   </div>
                   <div className="flex flex-col justify-end pb-1">
@@ -258,23 +151,13 @@ export default function ModalCreateBenefit() {
                       onChange={handleImageChange}
                     />
                   </div>
-                  <span aria-live="polite" className={`text-xs block ${stateValidations.image ? "visible text-red-400" : "invisible"}`} role="alert">
-                    {stateValidations.image}
+                  <span aria-live="polite" className={`text-xs block ${validations.image ? "visible text-red-400" : "invisible"}`} role="alert">
+                    {validations.image}
                   </span>
 
                   {imagePreview ? (
                     <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-600 bg-slate-800">
                       <img alt="Vista previa" className="w-full h-full object-cover" src={imagePreview} />
-                      <button
-                        aria-label="Eliminar imagen"
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-colors"
-                        type="button"
-                        onClick={() => { setImagePreview(null); setImageFile(null); }}
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path clipRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" fillRule="evenodd" />
-                        </svg>
-                      </button>
                     </div>
                   ) : (
                     <div className="w-full h-32 rounded-lg border-2 border-dashed border-slate-600 flex flex-col items-center justify-center bg-slate-800/30 hover:bg-slate-800/50 transition-colors">

@@ -58,7 +58,6 @@ export default function TableUsers() {
   useEffect(() => {
     const handleUnilinkResponse = async () => {
     if (unilinkBusiness?.data?.token) {
-      console.log(unilinkBusiness.data.token);
       const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-business/${unilinkBusiness.data.token}`;
       if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(url);

@@ -150,7 +150,6 @@ export default function RegisterBusinessForm() {
           router.push("/login");
         }
       } catch (err) {
-        console.error("Error handling API response:", err);
         addToast({
           title: "Error inesperado",
           description:

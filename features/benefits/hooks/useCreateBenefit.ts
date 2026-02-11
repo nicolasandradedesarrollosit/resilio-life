@@ -3,10 +3,11 @@
  * Handles benefit creation with validation, image upload, API calls
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 
-import { useApi, useFormValidation, useImageUpload } from "@/shared/hooks";
+import { benefitsService } from "@/features/benefits/services/benefitsService";
+import { useFormValidation, useImageUpload } from "@/shared/hooks";
 import { addBenefit } from "@/features/benefits/benefitsSlice";
 import {
   TITLE_REGEX,
@@ -46,7 +47,7 @@ export interface UseCreateBenefitReturn {
  */
 export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
   // Form validation
@@ -88,15 +89,6 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
 
   const [imageValidation, setImageValidation] = useState<string | null>(null);
 
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: "/benefits",
-    method: "POST",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
   /**
    * Handle field change
    */
@@ -131,7 +123,6 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
     resetValidations();
     resetImage();
     setImageValidation(null);
-    setFormData(null);
     setIsActive(true);
   }, [resetValidations, resetImage]);
 
@@ -139,7 +130,7 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = [
@@ -158,23 +149,26 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
       formDataObj.append("image", imageFile);
       formDataObj.set("isActive", String(isActive));
 
-      setFormData(formDataObj);
-    },
-    [fieldValidations, imageValidation, imageFile, isActive]
-  );
+      try {
+        setIsLoading(true);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(addBenefit(data.data));
-      resetForm();
-      if (onSuccess) {
-        onSuccess();
+        const response = await benefitsService.create(formDataObj);
+
+        if (response.data) {
+          dispatch(addBenefit(response.data));
+          resetForm();
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess, resetForm]);
+    },
+    [fieldValidations, imageValidation, imageFile, isActive, dispatch, resetForm, onSuccess]
+  );
 
   return {
     validations: { ...fieldValidations, image: imageValidation },

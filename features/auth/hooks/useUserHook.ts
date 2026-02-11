@@ -37,31 +37,27 @@ export const useUserData = () => {
     if (sessionData?.data) {
       verificationAttempted.current = true;
 
-      console.log("[useUserData] Session check response:", sessionData);
-
       // Access the nested data property from API response
       const isLoggedIn = sessionData.data.loggedIn === true;
       const userData = sessionData.data.user;
 
       if (isLoggedIn && userData) {
-        console.log("[useUserData] User is logged in, setting user data:", userData);
         dispatch(
           setUserData({
             loggedIn: true,
             data: userData as UserData,
             loading: false,
             loaded: true,
-          }),
+          })
         );
       } else {
-        console.log("[useUserData] User is not logged in");
         dispatch(
           setUserData({
             loggedIn: false,
             data: null,
             loading: false,
             loaded: true,
-          }),
+          })
         );
       }
     }
@@ -69,7 +65,6 @@ export const useUserData = () => {
 
   useEffect(() => {
     if (error) {
-      console.log("[useUserData] Session check error:", error);
       verificationAttempted.current = true;
       dispatch(
         setUserData({
@@ -77,7 +72,7 @@ export const useUserData = () => {
           loading: false,
           loaded: true,
           loggedIn: false,
-        }),
+        })
       );
     }
   }, [error, dispatch]);

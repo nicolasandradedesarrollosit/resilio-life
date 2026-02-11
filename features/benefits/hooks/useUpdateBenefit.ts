@@ -6,7 +6,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi, useFormValidation, useImageUpload } from "@/shared/hooks";
+import { benefitsService } from "@/features/benefits/services/benefitsService";
+import { useFormValidation, useImageUpload } from "@/shared/hooks";
 import { updateBenefit, selectAllBenefits } from "@/features/benefits/benefitsSlice";
 import type { BenefitData } from "@/shared/types";
 import {
@@ -55,7 +56,7 @@ export function useUpdateBenefit(
   const benefits = useSelector(selectAllBenefits);
   const benefitToUpdate = benefits.find((b: BenefitData) => b._id === benefitId);
 
-  const [formData, setFormData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
   // Form validation
@@ -98,15 +99,6 @@ export function useUpdateBenefit(
   });
 
   const [imageValidation, setImageValidation] = useState<string | null>(null);
-
-  // API call
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/benefits/${benefitId}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
 
   /**
    * Load existing benefit data when modal opens
@@ -157,14 +149,13 @@ export function useUpdateBenefit(
     resetValidations();
     resetImage();
     setImageValidation(null);
-    setFormData(null);
   }, [resetValidations, resetImage]);
 
   /**
    * Handle form submission
    */
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const hasErrors = Object.values(fieldValidations).some(
@@ -182,24 +173,26 @@ export function useUpdateBenefit(
         formDataObj.delete("image");
       }
 
-      setFormData(formDataObj);
-    },
-    [fieldValidations, imageFile, isActive]
-  );
+      try {
+        setIsLoading(true);
 
-  /**
-   * Handle API success
-   */
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateBenefit(data.data));
-      setFormData(null);
-      setImageFile(null);
-      if (onSuccess) {
-        onSuccess();
+        const response = await benefitsService.update(benefitId, formDataObj);
+
+        if (response.data) {
+          dispatch(updateBenefit(response.data));
+          setImageFile(null);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [data, dispatch, onSuccess, setImageFile]);
+    },
+    [fieldValidations, imageFile, isActive, benefitId, dispatch, setImageFile, onSuccess]
+  );
 
   return {
     benefitToUpdate,

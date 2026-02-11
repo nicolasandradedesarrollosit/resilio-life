@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 
 import { useUserData } from "@/features/auth";
-import { useApi } from "@/shared/hooks";
+import { authService } from "@/features/auth/services/authService";
 import { getRedirectPath } from "@/shared/utils";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "@/shared/utils/validation";
 import { signInWithGoogle } from "@/lib";
@@ -58,12 +58,8 @@ export function useLoginForm(): UseLoginFormReturn {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const [formIsInvalid, setFormIsInvalid] = useState<boolean | null>(null);
-  const [loginFormData, setLoginFormData] = useState<LogInFormData | null>(
-    null
-  );
-  const [googleFormData, setGoogleFormData] = useState<GoogleFormData | null>(
-    null
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const [validations, setValidations] = useState<ValidationState>({
     email: null,
@@ -73,30 +69,6 @@ export function useLoginForm(): UseLoginFormReturn {
   const prevValidationsRef = useRef<ValidationState>({
     email: null,
     password: null,
-  });
-
-  // Email/Password Login API
-  const {
-    data: loginResult,
-    loading: isSubmitting,
-    error: loginError,
-  } = useApi({
-    endpoint: "/login",
-    method: "POST",
-    body: loginFormData,
-    enabled: !!loginFormData,
-  });
-
-  // Google Login API
-  const {
-    data: googleResult,
-    loading: googleLoading,
-    error: googleError,
-  } = useApi({
-    endpoint: "/login-google",
-    method: "POST",
-    body: googleFormData,
-    enabled: !!googleFormData,
   });
 
   /**
@@ -123,8 +95,9 @@ export function useLoginForm(): UseLoginFormReturn {
    */
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
       try {
-        e.preventDefault();
         if (!Object.values(validations).every(Boolean)) {
           setFormIsInvalid(true);
           return;
@@ -132,32 +105,51 @@ export function useLoginForm(): UseLoginFormReturn {
         setFormIsInvalid(false);
 
         const formData = new FormData(e.currentTarget);
-        const data: LogInFormData = Object.fromEntries(
+        const credentials: LogInFormData = Object.fromEntries(
           Array.from(formData.entries()).map(([k, v]) => [
             k,
             typeof v === "string" ? v : "",
           ])
         ) as unknown as LogInFormData;
 
-        setLoginFormData(data);
+        setIsSubmitting(true);
+
+        const result = await authService.login(credentials);
+
+        if (result?.data) {
+          addToast({
+            title: "Procesando la solicitud",
+            description: "Iniciando sesión...",
+            color: "success",
+            variant: "flat",
+            timeout: 5000,
+          });
+
+          setUserDataState(result.data);
+          formRef.current?.reset();
+          setValidations({
+            email: null,
+            password: null,
+          });
+          router.push(getRedirectPath(result.data));
+        }
       } catch (error) {
-        console.error("Error al enviar el formulario:", error);
+        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
 
         addToast({
-          title: "Error al enviar",
+          title: "Error de autenticación",
           description:
-            "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
+            "No se encontró una cuenta con ese email o la contraseña es incorrecta.",
           color: "danger",
           variant: "flat",
           timeout: 5000,
         });
-
-        return;
       } finally {
+        setIsSubmitting(false);
         setFormIsInvalid(null);
       }
     },
-    [validations]
+    [validations, setUserDataState, router]
   );
 
   /**
@@ -165,79 +157,35 @@ export function useLoginForm(): UseLoginFormReturn {
    */
   const handleGoogleLogin = useCallback(async () => {
     try {
+      setGoogleLoading(true);
+
       const googleUser = await signInWithGoogle();
 
-      setGoogleFormData({
+      const result = await authService.loginWithGoogle({
         idToken: googleUser.idToken,
         email: googleUser.email,
         name: googleUser.name,
       });
-    } catch (err) {
-      console.error("Error during Google login:", err);
-    }
-  }, []);
 
-  /**
-   * Handle email/password login response
-   */
-  useEffect(() => {
-    if (loginResult?.data) {
-      addToast({
-        title: "Procesando la solicitud",
-        description: "Iniciando sesión...",
-        color: "success",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setUserDataState(loginResult.data);
-      formRef.current?.reset();
-      setValidations({
-        email: null,
-        password: null,
-      });
-      setLoginFormData(null);
-      router.push(getRedirectPath(loginResult.data));
-    }
-  }, [loginResult, setUserDataState, router]);
+      if (result?.data) {
+        setUserDataState(result.data);
+        router.push(getRedirectPath(result.data));
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Error desconocido";
 
-  useEffect(() => {
-    if (loginError) {
-      addToast({
-        title: "Error de autenticación",
-        description:
-          "No se encontró una cuenta con ese email o la contraseña es incorrecta.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setLoginFormData(null);
-    }
-  }, [loginError]);
-
-  /**
-   * Handle Google login response
-   */
-  useEffect(() => {
-    if (googleResult?.data) {
-      setUserDataState(googleResult.data);
-      setGoogleFormData(null);
-      router.push(getRedirectPath(googleResult.data));
-    }
-  }, [googleResult, setUserDataState, router]);
-
-  useEffect(() => {
-    if (googleError) {
       addToast({
         title: "Error en login con Google",
         description:
-          googleError || "Hubo un problema al iniciar sesión con Google.",
+          errorMsg || "Hubo un problema al iniciar sesión con Google.",
         color: "danger",
         variant: "flat",
         timeout: 5000,
       });
-      setGoogleFormData(null);
+    } finally {
+      setGoogleLoading(false);
     }
-  }, [googleError]);
+  }, [setUserDataState, router]);
 
   return {
     validations,
