@@ -6,7 +6,4 @@ export type { UseContactFormReturn } from "./hooks";
 export { contactService } from "./services/contactService";
 
 // Types
-export type {
-  ContactFormData,
-  ContactResponse,
-} from "./types/contact.types";
+export type { ContactFormData, ContactResponse } from "./types/contact.types";

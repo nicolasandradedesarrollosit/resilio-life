@@ -3,13 +3,14 @@
  * Handles all authentication-related API calls
  */
 
-import { apiClient } from "@/shared/services/apiClient";
 import type {
   LoginCredentials,
   RegisterData,
   GoogleLoginData,
   AuthResponse,
 } from "../types/auth.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class AuthService {
   /**
@@ -47,6 +48,7 @@ class AuthService {
   async verifySession(): Promise<boolean> {
     try {
       await apiClient.get<AuthResponse>("/check-session");
+
       return true;
     } catch {
       return false;

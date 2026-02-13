@@ -24,7 +24,11 @@ export function useBenefits() {
 
         if (response.data && Array.isArray(response.data)) {
           dispatch(
-            setBenefitsData({ items: response.data, loading: false, loaded: true })
+            setBenefitsData({
+              items: response.data,
+              loading: false,
+              loaded: true,
+            }),
           );
         }
       } catch {

@@ -2,7 +2,10 @@
 
 import TableTransactions from "./_components/TableTransactions";
 
-import { DashboardLayout, BUSINESS_NAV_ITEMS } from "@/shared/components/layout";
+import {
+  DashboardLayout,
+  BUSINESS_NAV_ITEMS,
+} from "@/shared/components/layout";
 
 export default function TransaccionesPage() {
   return (

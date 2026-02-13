@@ -29,7 +29,7 @@ export const useUsers = () => {
               users: response.data,
               loading: false,
               loaded: true,
-            })
+            }),
           );
         }
       } catch {

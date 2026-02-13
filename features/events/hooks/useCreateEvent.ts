@@ -37,7 +37,7 @@ export interface UseCreateEventReturn {
   imageFile: File | null;
   imagePreview: string | null;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   handleDateChange: (date: any) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -48,9 +48,7 @@ export interface UseCreateEventReturn {
 /**
  * Custom hook for event creation form
  */
-export function useCreateEvent(
-  onSuccess?: () => void
-): UseCreateEventReturn {
+export function useCreateEvent(onSuccess?: () => void): UseCreateEventReturn {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<any>(null);
@@ -104,7 +102,6 @@ export function useCreateEvent(
     image: null,
   });
 
-
   /**
    * Handle field change
    */
@@ -113,16 +110,14 @@ export function useCreateEvent(
       const { name, value } = e.target;
 
       if (!value || value.trim() === "") {
-        setFieldError(
-          name as EventFieldName,
-          REQUIRED_FIELD_ERROR_MESSAGE
-        );
+        setFieldError(name as EventFieldName, REQUIRED_FIELD_ERROR_MESSAGE);
+
         return;
       }
 
       validateField(name as EventFieldName, value);
     },
-    [validateField, setFieldError]
+    [validateField, setFieldError],
   );
 
   /**
@@ -143,7 +138,7 @@ export function useCreateEvent(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       await handleImageUpload(e);
     },
-    [handleImageUpload]
+    [handleImageUpload],
   );
 
   /**
@@ -175,6 +170,7 @@ export function useCreateEvent(
           ...prev,
           date: "La fecha es requerida",
         }));
+
         return;
       }
 
@@ -186,13 +182,15 @@ export function useCreateEvent(
         setIsLoading(true);
 
         const formDataObj = new FormData(e.currentTarget);
+
         formDataObj.append("image", imageFile);
 
         const isoDate = new Date(
           selectedDate.year,
           selectedDate.month - 1,
-          selectedDate.day
+          selectedDate.day,
         ).toISOString();
+
         formDataObj.set("date", isoDate);
 
         const response = await eventsService.create(formDataObj);
@@ -222,7 +220,7 @@ export function useCreateEvent(
       resetForm,
       setImageFile,
       setImagePreview,
-    ]
+    ],
   );
 
   return {

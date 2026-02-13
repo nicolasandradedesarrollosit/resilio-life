@@ -42,9 +42,12 @@ export default function ModalUpdateSede({ id }: { id: string }) {
       classNames={{
         body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col justify-start gap-0 w-screen max-w-[calc(100vw-3rem)] sm:max-w-full",
         base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50 w-full",
-        header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
-        footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
-        closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
+        header:
+          "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
+        footer:
+          "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
+        closeButton:
+          "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
       }}
       isDismissable={false}
       isOpen={isOpen as boolean}
@@ -56,7 +59,12 @@ export default function ModalUpdateSede({ id }: { id: string }) {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col w-full items-center gap-4 sm:gap-5">
-              <Image alt="Logo Icon" height={40} src="/logo-icon.png" width={40} />
+              <Image
+                alt="Logo Icon"
+                height={40}
+                src="/logo-icon.png"
+                width={40}
+              />
               <div>
                 <h2 className="text-white font-semibold text-lg sm:text-xl">
                   Modificar Sede
@@ -67,12 +75,16 @@ export default function ModalUpdateSede({ id }: { id: string }) {
               </div>
             </ModalHeader>
             <ModalBody className="flex flex-col items-center">
-              <Form className="w-full space-y-5 flex flex-col items-center" onSubmit={handleSubmit}>
+              <Form
+                className="w-full space-y-5 flex flex-col items-center"
+                onSubmit={handleSubmit}
+              >
                 <div className="w-4/5 space-y-2 relative">
                   <Input
                     classNames={{
                       label: "text-slate-300 font-medium",
-                      inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                      inputWrapper:
+                        "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                       input: "text-white placeholder:text-slate-500",
                     }}
                     defaultValue={sedeToUpdate.name}
@@ -96,13 +108,19 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                     <Input
                       classNames={{
                         label: "text-slate-300 font-medium",
-                        inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                        inputWrapper:
+                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                         input: "text-white placeholder:text-slate-500",
                       }}
                       label="Latitud"
                       value={latitude}
                       variant="bordered"
-                      onChange={(e) => handleCoordChange("latitude", (e.target as HTMLInputElement).value)}
+                      onChange={(e) =>
+                        handleCoordChange(
+                          "latitude",
+                          (e.target as HTMLInputElement).value,
+                        )
+                      }
                     />
                     <span
                       aria-live="polite"
@@ -116,13 +134,19 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                     <Input
                       classNames={{
                         label: "text-slate-300 font-medium",
-                        inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                        inputWrapper:
+                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                         input: "text-white placeholder:text-slate-500",
                       }}
                       label="Longitud"
                       value={longitude}
                       variant="bordered"
-                      onChange={(e) => handleCoordChange("longitude", (e.target as HTMLInputElement).value)}
+                      onChange={(e) =>
+                        handleCoordChange(
+                          "longitude",
+                          (e.target as HTMLInputElement).value,
+                        )
+                      }
                     />
                     <span
                       aria-live="polite"
@@ -175,6 +199,7 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                   type="submit"
                   onPress={async () => {
                     const form = document.querySelector("form");
+
                     if (form) form.requestSubmit();
                   }}
                 >

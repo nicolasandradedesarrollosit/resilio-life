@@ -28,7 +28,7 @@ export default function ModalDeleteSede({ id }: { id: string }) {
       await headquartersService.delete(id);
       dispatch(removeHeadquarters(id));
       onClose();
-    } catch (error) {
+    } catch {
       // Keep modal open on error
     } finally {
       setIsLoading(false);
@@ -41,9 +41,12 @@ export default function ModalDeleteSede({ id }: { id: string }) {
       classNames={{
         body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col items-center justify-start",
         base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50",
-        header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
-        footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
-        closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
+        header:
+          "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
+        footer:
+          "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
+        closeButton:
+          "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
       }}
       isOpen={isOpen as boolean}
       radius="lg"
@@ -66,7 +69,8 @@ export default function ModalDeleteSede({ id }: { id: string }) {
                   <div className="absolute inset-0 rounded-full border-2 border-magenta-fuchsia-500/30 scale-125" />
                 </div>
                 <p className="text-slate-300 text-sm sm:text-base text-center px-4 max-w-sm leading-relaxed">
-                  ¿Estás seguro que deseas eliminar esta sede? Esta acción no puede deshacerse.
+                  ¿Estás seguro que deseas eliminar esta sede? Esta acción no
+                  puede deshacerse.
                 </p>
               </div>
             </ModalBody>

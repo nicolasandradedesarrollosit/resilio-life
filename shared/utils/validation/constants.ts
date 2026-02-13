@@ -45,7 +45,8 @@ export const NAME_ERROR_MESSAGE = "El nombre debe tener al menos 2 letras";
  */
 export const NAME_EXTENDED_REGEX = /^[A-Za-záéíóúÁÉÍÓÚñÑ'\-\s]{3,}$/;
 
-export const NAME_EXTENDED_ERROR_MESSAGE = "El nombre debe tener al menos 3 caracteres";
+export const NAME_EXTENDED_ERROR_MESSAGE =
+  "El nombre debe tener al menos 3 caracteres";
 
 // ============================================================
 // TEXT LENGTH VALIDATION
@@ -57,7 +58,8 @@ export const NAME_EXTENDED_ERROR_MESSAGE = "El nombre debe tener al menos 3 cara
  */
 export const SHORT_TEXT_REGEX = /^.{2,100}$/;
 
-export const SHORT_TEXT_ERROR_MESSAGE = "El texto debe tener entre 2 y 100 caracteres";
+export const SHORT_TEXT_ERROR_MESSAGE =
+  "El texto debe tener entre 2 y 100 caracteres";
 
 /**
  * Medium text (titles in events/benefits)
@@ -65,7 +67,8 @@ export const SHORT_TEXT_ERROR_MESSAGE = "El texto debe tener entre 2 y 100 carac
  */
 export const TITLE_REGEX = /^.{3,100}$/;
 
-export const TITLE_ERROR_MESSAGE = "El título debe tener entre 3 y 100 caracteres";
+export const TITLE_ERROR_MESSAGE =
+  "El título debe tener entre 3 y 100 caracteres";
 
 /**
  * Long text (descriptions)
@@ -73,7 +76,8 @@ export const TITLE_ERROR_MESSAGE = "El título debe tener entre 3 y 100 caracter
  */
 export const DESCRIPTION_REGEX = /^.{10,500}$/;
 
-export const DESCRIPTION_ERROR_MESSAGE = "La descripción debe tener entre 10 y 500 caracteres";
+export const DESCRIPTION_ERROR_MESSAGE =
+  "La descripción debe tener entre 10 y 500 caracteres";
 
 /**
  * Generic message validation
@@ -81,7 +85,8 @@ export const DESCRIPTION_ERROR_MESSAGE = "La descripción debe tener entre 10 y 
  */
 export const MESSAGE_REGEX = /^[\w\sáéíóúÁÉÍÓÚñÑ.,!?'"-]{5,}$/;
 
-export const MESSAGE_ERROR_MESSAGE = "El mensaje debe tener al menos 5 caracteres";
+export const MESSAGE_ERROR_MESSAGE =
+  "El mensaje debe tener al menos 5 caracteres";
 
 /**
  * Long message validation
@@ -89,7 +94,8 @@ export const MESSAGE_ERROR_MESSAGE = "El mensaje debe tener al menos 5 caractere
  */
 export const LONG_MESSAGE_REGEX = /^[\w\sáéíóúÁÉÍÓÚñÑ.,!?'"()\-:\/\n\r]{10,}$/;
 
-export const LONG_MESSAGE_ERROR_MESSAGE = "El mensaje debe tener al menos 10 caracteres";
+export const LONG_MESSAGE_ERROR_MESSAGE =
+  "El mensaje debe tener al menos 10 caracteres";
 
 // ============================================================
 // URL VALIDATION
@@ -112,7 +118,8 @@ export const URL_ERROR_MESSAGE = "La URL debe comenzar con http:// o https://";
  */
 export const POSITIVE_INTEGER_REGEX = /^[1-9]\d*$/;
 
-export const POSITIVE_INTEGER_ERROR_MESSAGE = "Debe ser un número entero positivo";
+export const POSITIVE_INTEGER_ERROR_MESSAGE =
+  "Debe ser un número entero positivo";
 
 // ============================================================
 // LOCATION VALIDATION
@@ -124,7 +131,8 @@ export const POSITIVE_INTEGER_ERROR_MESSAGE = "Debe ser un número entero positi
  */
 export const LOCATION_REGEX = /^.{3,100}$/;
 
-export const LOCATION_ERROR_MESSAGE = "La ubicación debe tener entre 3 y 100 caracteres";
+export const LOCATION_ERROR_MESSAGE =
+  "La ubicación debe tener entre 3 y 100 caracteres";
 
 // ============================================================
 // GENERIC REQUIRED FIELD

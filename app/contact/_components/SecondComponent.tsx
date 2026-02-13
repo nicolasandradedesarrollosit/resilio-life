@@ -94,7 +94,7 @@ export default function SecondComponent() {
       ) as unknown as ContactFormData;
 
       setFormData({ ...data, origin: "Resilio B2C SAAS APP" });
-    } catch (error) {
+    } catch {
       addToast({
         title: "Error al enviar",
         description:

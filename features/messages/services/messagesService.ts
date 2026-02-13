@@ -3,8 +3,12 @@
  * Handles all messages-related API calls
  */
 
+import type {
+  MessagesResponse,
+  MessageResponse,
+} from "../types/messages.types";
+
 import { apiClient } from "@/shared/services/apiClient";
-import type { MessagesResponse, MessageResponse } from "../types/messages.types";
 
 class MessagesService {
   /**

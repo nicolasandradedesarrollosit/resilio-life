@@ -24,7 +24,11 @@ export function useEvents() {
 
         if (response.data && Array.isArray(response.data)) {
           dispatch(
-            setEventsData({ events: response.data, loading: false, loaded: true })
+            setEventsData({
+              events: response.data,
+              loading: false,
+              loaded: true,
+            }),
           );
         }
       } catch {

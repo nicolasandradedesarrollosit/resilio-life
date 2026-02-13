@@ -3,8 +3,9 @@
  * Handles all users-related API calls
  */
 
-import { apiClient } from "@/shared/services/apiClient";
 import type { UsersResponse, UserResponse } from "../types/allUsers.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class AllUsersService {
   /**

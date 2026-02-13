@@ -1,5 +1,7 @@
 "use client";
 
+import type { BenefitData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -22,7 +24,6 @@ import ModalUpdateBenefit from "./ModalUpdateBenefit";
 
 import { useModal } from "@/shared/hooks";
 import { selectAllBenefits } from "@/features/benefits/benefitsSlice";
-import type { BenefitData } from "@/shared/types";
 
 export default function TableBenefits() {
   const benefits = (useSelector(selectAllBenefits) as BenefitData[]) || [];
@@ -38,8 +39,10 @@ export default function TableBenefits() {
 
   const rows = useMemo(() => {
     const base = Array.isArray(benefits) ? benefits : [];
+
     if (!filterTitle) return base;
     const term = filterTitle.toLowerCase();
+
     return base.filter((b) => (b.title || "").toLowerCase().includes(term));
   }, [benefits, filterTitle]);
 
@@ -47,6 +50,7 @@ export default function TableBenefits() {
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
+
     return rows.slice(start, start + rowsPerPage);
   }, [page, rows]);
 
@@ -183,9 +187,9 @@ export default function TableBenefits() {
                   <TableCell>
                     {item.url_image && (
                       <button
-                        type="button"
                         aria-label={`Ver imagen de ${item.title}`}
                         className="relative w-12 h-12 rounded-lg overflow-hidden group cursor-zoom-in border border-gray-100 shadow-sm p-0"
+                        type="button"
                         onClick={() => {
                           setSelectedImage(item.url_image);
                           onOpen();
@@ -215,7 +219,11 @@ export default function TableBenefits() {
                           onOpenUpdate();
                         }}
                       >
-                        <Pencil className="text-yellow-300" height={15} width={15} />
+                        <Pencil
+                          className="text-yellow-300"
+                          height={15}
+                          width={15}
+                        />
                       </button>
                       <button
                         aria-label="Eliminar"
@@ -225,7 +233,11 @@ export default function TableBenefits() {
                           onOpenDelete();
                         }}
                       >
-                        <Trash2 className="text-red-300" height={15} width={15} />
+                        <Trash2
+                          className="text-red-300"
+                          height={15}
+                          width={15}
+                        />
                       </button>
                     </div>
                   </TableCell>

@@ -3,6 +3,8 @@
  * Handles event updates with validation, image upload, API calls
  */
 
+import type { EventData } from "@/shared/types";
+
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { parseDate } from "@internationalized/date";
@@ -10,7 +12,6 @@ import { parseDate } from "@internationalized/date";
 import { eventsService } from "@/features/events/services/eventsService";
 import { useFormValidation, useImageUpload } from "@/shared/hooks";
 import { updateEvent, selectAllEvents } from "@/features/events/eventsSlice";
-import type { EventData } from "@/shared/types";
 import {
   TITLE_REGEX,
   DESCRIPTION_REGEX,
@@ -40,7 +41,7 @@ export interface UseUpdateEventReturn {
   imageFile: File | null;
   imagePreview: string | null;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   handleDateChange: (date: any) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -54,7 +55,7 @@ export interface UseUpdateEventReturn {
 export function useUpdateEvent(
   eventId: string,
   isOpen: boolean,
-  onSuccess?: () => void
+  onSuccess?: () => void,
 ): UseUpdateEventReturn {
   const dispatch = useDispatch();
   const events = useSelector(selectAllEvents);
@@ -112,17 +113,17 @@ export function useUpdateEvent(
     image: null,
   });
 
-
   /**
    * Load existing event data when modal opens
    */
   useEffect(() => {
     if (isOpen && eventToUpdate) {
       const eventDate = new Date(eventToUpdate.date);
+
       setSelectedDate(
         parseDate(
-          `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, "0")}-${String(eventDate.getDate()).padStart(2, "0")}`
-        )
+          `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, "0")}-${String(eventDate.getDate()).padStart(2, "0")}`,
+        ),
       );
       setImagePreview(eventToUpdate.url_image);
       resetValidations();
@@ -141,16 +142,14 @@ export function useUpdateEvent(
       const { name, value } = e.target;
 
       if (!value || value.trim() === "") {
-        setFieldError(
-          name as EventFieldName,
-          REQUIRED_FIELD_ERROR_MESSAGE
-        );
+        setFieldError(name as EventFieldName, REQUIRED_FIELD_ERROR_MESSAGE);
+
         return;
       }
 
       validateField(name as EventFieldName, value);
     },
-    [validateField, setFieldError]
+    [validateField, setFieldError],
   );
 
   /**
@@ -170,11 +169,12 @@ export function useUpdateEvent(
   const handleImageChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+
       if (!file) return;
 
       await handleImageUpload(e);
     },
-    [handleImageUpload]
+    [handleImageUpload],
   );
 
   /**
@@ -206,6 +206,7 @@ export function useUpdateEvent(
           ...prev,
           date: "La fecha es requerida",
         }));
+
         return;
       }
 
@@ -221,8 +222,9 @@ export function useUpdateEvent(
         const isoDate = new Date(
           selectedDate.year,
           selectedDate.month - 1,
-          selectedDate.day
+          selectedDate.day,
         ).toISOString();
+
         formDataObj.set("date", isoDate);
 
         const response = await eventsService.update(eventId, formDataObj);
@@ -249,7 +251,7 @@ export function useUpdateEvent(
       dispatch,
       onSuccess,
       setImageFile,
-    ]
+    ],
   );
 
   return {

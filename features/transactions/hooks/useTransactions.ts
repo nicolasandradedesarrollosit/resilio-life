@@ -24,7 +24,11 @@ export function useTransactions() {
 
         if (response.data && Array.isArray(response.data)) {
           dispatch(
-            setTransactionsData({ items: response.data, loading: false, loaded: true })
+            setTransactionsData({
+              items: response.data,
+              loading: false,
+              loaded: true,
+            }),
           );
         }
       } catch {

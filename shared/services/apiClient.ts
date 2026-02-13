@@ -37,7 +37,7 @@ class ApiClient {
     options: {
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: "GET",
@@ -54,7 +54,7 @@ class ApiClient {
     options: {
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: "POST",
@@ -72,7 +72,7 @@ class ApiClient {
     options: {
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PUT",
@@ -90,7 +90,7 @@ class ApiClient {
     options: {
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PATCH",
@@ -107,7 +107,7 @@ class ApiClient {
     options: {
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: "DELETE",
@@ -125,7 +125,7 @@ class ApiClient {
       body?: any;
       headers?: Record<string, string>;
       includeCredentials?: boolean;
-    }
+    },
   ): Promise<T> {
     const { method, body, headers = {}, includeCredentials } = options;
 
@@ -152,7 +152,7 @@ class ApiClient {
               : JSON.stringify(body)
             : undefined,
         credentials:
-          includeCredentials ?? this.includeCredentials ? "include" : "omit",
+          (includeCredentials ?? this.includeCredentials) ? "include" : "omit",
       });
 
       if (!response.ok) {
@@ -160,6 +160,7 @@ class ApiClient {
 
         try {
           const errorData = await response.json();
+
           errorMsg = errorData?.message || errorData?.error || errorMsg;
         } catch {
           // If error response is not JSON, use status text
@@ -167,6 +168,7 @@ class ApiClient {
         }
 
         const error = new Error(errorMsg) as ApiError;
+
         error.status = response.status;
         throw error;
       }

@@ -51,10 +51,12 @@ export function useFormValidation<T extends string>({
   // Initialize validation state with null for all fields
   const initialState = fields.reduce((acc, field) => {
     acc[field] = null;
+
     return acc;
   }, {} as ValidationState<T>);
 
-  const [validations, setValidations] = useState<ValidationState<T>>(initialState);
+  const [validations, setValidations] =
+    useState<ValidationState<T>>(initialState);
   const prevValidationsRef = useRef<ValidationState<T>>(initialState);
 
   /**
@@ -65,14 +67,17 @@ export function useFormValidation<T extends string>({
       // Check if field is empty
       if (!value || value.trim() === "") {
         const errorMessage = requiredFieldMessage;
+
         if (prevValidationsRef.current[field] !== errorMessage) {
           prevValidationsRef.current[field] = errorMessage;
           setValidations((prev) => ({ ...prev, [field]: errorMessage }));
         }
+
         return false;
       }
 
       const rule = rules[field];
+
       if (!rule) return true;
 
       // Validate using pattern or custom validation function
@@ -92,7 +97,7 @@ export function useFormValidation<T extends string>({
 
       return isValid;
     },
-    [rules, requiredFieldMessage]
+    [rules, requiredFieldMessage],
   );
 
   /**
@@ -105,12 +110,13 @@ export function useFormValidation<T extends string>({
       fields.forEach((field) => {
         const value = formData[field] || "";
         const isValid = validateField(field, value);
+
         if (!isValid) allValid = false;
       });
 
       return allValid;
     },
-    [fields, validateField]
+    [fields, validateField],
   );
 
   /**
@@ -141,7 +147,7 @@ export function useFormValidation<T extends string>({
     (field: T): boolean => {
       return validations[field] === null;
     },
-    [validations]
+    [validations],
   );
 
   return {

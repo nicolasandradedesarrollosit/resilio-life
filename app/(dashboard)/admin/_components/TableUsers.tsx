@@ -1,4 +1,6 @@
 "use client";
+import type { UserData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -18,7 +20,6 @@ import { addToast } from "@heroui/toast";
 
 import { useApi } from "@/shared/hooks";
 import { selectAllUsers } from "@/features/allUsers/allUserSlice";
-import type { UserData } from "@/shared/types";
 
 export default function TableUsers() {
   // Users are fetched centrally in DataLoader (app/DataLoader.tsx)
@@ -57,29 +58,31 @@ export default function TableUsers() {
 
   useEffect(() => {
     const handleUnilinkResponse = async () => {
-    if (unilinkBusiness?.data?.token) {
-      const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-business/${unilinkBusiness.data.token}`;
-      if (navigator.clipboard && window.isSecureContext) {
+      if (unilinkBusiness?.data?.token) {
+        const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-business/${unilinkBusiness.data.token}`;
+
+        if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(url);
         } else {
           const textArea = document.createElement("textarea");
+
           textArea.value = url;
           document.body.appendChild(textArea);
           textArea.select();
-          document.execCommand('copy');
+          document.execCommand("copy");
           document.body.removeChild(textArea);
         }
 
-      addToast({
-        title: "Unilink creado",
-        description: "El enlace ha sido copiado al portapapeles",
-        color: "success",
-      });
-    }
-    setIsLoadingUnilink(false);
-  };
+        addToast({
+          title: "Unilink creado",
+          description: "El enlace ha sido copiado al portapapeles",
+          color: "success",
+        });
+      }
+      setIsLoadingUnilink(false);
+    };
 
-  handleUnilinkResponse();
+    handleUnilinkResponse();
   }, [unilinkBusiness]);
 
   const handleUnilinkBusiness = async () => {

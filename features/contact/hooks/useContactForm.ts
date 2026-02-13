@@ -36,7 +36,12 @@ const validationRegex = [
   MESSAGE_REGEX,
   LONG_MESSAGE_REGEX,
 ];
-const fields: readonly ValidatedFieldName[] = ["name", "email", "subject", "message"];
+const fields: readonly ValidatedFieldName[] = [
+  "name",
+  "email",
+  "subject",
+  "message",
+];
 
 export interface UseContactFormReturn {
   validations: ValidationState;
@@ -45,7 +50,7 @@ export interface UseContactFormReturn {
   formRef: React.RefObject<HTMLFormElement>;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number
+    index: number,
   ) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
 }
@@ -79,7 +84,7 @@ export function useContactForm(): UseContactFormReturn {
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-      index: number
+      index: number,
     ) => {
       const value = e.target.value;
       const isValid = validationRegex[index].test(value);
@@ -89,7 +94,7 @@ export function useContactForm(): UseContactFormReturn {
       prevValidationsRef.current[key] = isValid;
       setValidations((prev) => ({ ...prev, [key]: isValid }));
     },
-    []
+    [],
   );
 
   /**
@@ -102,6 +107,7 @@ export function useContactForm(): UseContactFormReturn {
       try {
         if (!Object.values(validations).every(Boolean)) {
           setFormIsInvalid(true);
+
           return;
         }
         setFormIsInvalid(false);
@@ -121,7 +127,8 @@ export function useContactForm(): UseContactFormReturn {
         if (response?.data) {
           addToast({
             title: "Mensaje enviado",
-            description: "Tu mensaje ha sido enviado correctamente. Te responderemos pronto.",
+            description:
+              "Tu mensaje ha sido enviado correctamente. Te responderemos pronto.",
             color: "success",
             variant: "flat",
             timeout: 5000,
@@ -149,7 +156,7 @@ export function useContactForm(): UseContactFormReturn {
         setFormIsInvalid(null);
       }
     },
-    [validations]
+    [validations],
   );
 
   return {

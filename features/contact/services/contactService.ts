@@ -3,8 +3,9 @@
  * Handles contact form submission
  */
 
-import { apiClient } from "@/shared/services/apiClient";
 import type { ContactFormData, ContactResponse } from "../types/contact.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class ContactService {
   /**

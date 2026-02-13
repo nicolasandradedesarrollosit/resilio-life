@@ -6,6 +6,7 @@ import Link from "next/link";
 import { addToast } from "@heroui/toast";
 import { useRouter, usePathname } from "next/navigation";
 import { EyeOff, Eye, MapPin, ImagePlus, X } from "lucide-react";
+
 import LocationPickerWrapper from "./LocationPickerWrapper";
 
 import { useApi } from "@/shared/hooks";
@@ -149,7 +150,7 @@ export default function RegisterBusinessForm() {
           setRegisterData(null);
           router.push("/login");
         }
-      } catch (err) {
+      } catch {
         addToast({
           title: "Error inesperado",
           description:
@@ -165,6 +166,7 @@ export default function RegisterBusinessForm() {
         setIsSubmitting(false);
       }
     };
+
     handleApiResponse();
   }, [data, error, loading, router]);
 
@@ -442,12 +444,16 @@ export default function RegisterBusinessForm() {
             </div>
 
             <div className="flex flex-col">
-              <label className="font-semibold text-sm text-gray-700 mb-2 ml-1">
+              <label
+                className="font-semibold text-sm text-gray-700 mb-2 ml-1"
+                htmlFor="businessCategory"
+              >
                 Categoría <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   className="w-full text-black cursor-pointer h-14 px-3 rounded-2xl border-2 border-default-200 bg-transparent outline-none transition-colors hover:border-magenta-fuchsia-600 focus:border-magenta-fuchsia-500 text-small shadow-none appearance-none"
+                  id="businessCategory"
                   name="businessCategory"
                   onChange={(e) =>
                     handleChange("businessCategory", e.target.value)
@@ -456,8 +462,8 @@ export default function RegisterBusinessForm() {
                   {BUSINESS_CATEGORIES.map((cat) => (
                     <option
                       key={cat.key}
-                      value={cat.key}
                       className="text-black bg-white hover:bg-gray-100 py-2"
+                      value={cat.key}
                     >
                       {cat.label}
                     </option>
@@ -465,18 +471,18 @@ export default function RegisterBusinessForm() {
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                   <svg
-                    width="24"
+                    fill="none"
                     height="24"
                     viewBox="0 0 24 24"
-                    fill="none"
+                    width="24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       d="M6 9L12 15L18 9"
                       stroke="currentColor"
-                      strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      strokeWidth="2"
                     />
                   </svg>
                 </div>
@@ -490,16 +496,16 @@ export default function RegisterBusinessForm() {
 
             <div className="flex flex-col">
               <label
-                htmlFor="businessImage"
                 className="font-semibold text-sm text-gray-700 mb-2"
+                htmlFor="businessImage"
               >
                 Imagen del Negocio *
               </label>
               <input
-                id="businessImage"
                 ref={fileInputRef}
                 accept="image/jpeg,image/png,image/gif,image/webp"
                 className="hidden"
+                id="businessImage"
                 type="file"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -516,6 +522,7 @@ export default function RegisterBusinessForm() {
                     handleChange("businessImage", "");
                     setImageFile(null);
                     setImagePreview(null);
+
                     return;
                   }
 

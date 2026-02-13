@@ -134,9 +134,7 @@ export default function FormLogIn() {
               </button>
             }
             isInvalid={
-              formIsInvalid === null
-                ? false
-                : validations.password === false
+              formIsInvalid === null ? false : validations.password === false
             }
             label="Contraseña"
             name="password"

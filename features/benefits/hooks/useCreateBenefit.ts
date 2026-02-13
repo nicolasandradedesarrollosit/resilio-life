@@ -35,7 +35,7 @@ export interface UseCreateBenefitReturn {
   imagePreview: string | null;
   setIsActive: (active: boolean) => void;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -45,7 +45,9 @@ export interface UseCreateBenefitReturn {
 /**
  * Custom hook for benefit creation form
  */
-export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn {
+export function useCreateBenefit(
+  onSuccess?: () => void,
+): UseCreateBenefitReturn {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -98,12 +100,13 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
 
       if (!value || value.trim() === "") {
         setFieldError(name as BenefitFieldName, REQUIRED_FIELD_ERROR_MESSAGE);
+
         return;
       }
 
       validateField(name as BenefitFieldName, value);
     },
-    [validateField, setFieldError]
+    [validateField, setFieldError],
   );
 
   /**
@@ -113,7 +116,7 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       await handleImageUpload(e);
     },
-    [handleImageUpload]
+    [handleImageUpload],
   );
 
   /**
@@ -142,10 +145,12 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
 
       if (!imageFile) {
         setImageValidation("La imagen es requerida");
+
         return;
       }
 
       const formDataObj = new FormData(e.currentTarget);
+
       formDataObj.append("image", imageFile);
       formDataObj.set("isActive", String(isActive));
 
@@ -167,7 +172,15 @@ export function useCreateBenefit(onSuccess?: () => void): UseCreateBenefitReturn
         setIsLoading(false);
       }
     },
-    [fieldValidations, imageValidation, imageFile, isActive, dispatch, resetForm, onSuccess]
+    [
+      fieldValidations,
+      imageValidation,
+      imageFile,
+      isActive,
+      dispatch,
+      resetForm,
+      onSuccess,
+    ],
   );
 
   return {

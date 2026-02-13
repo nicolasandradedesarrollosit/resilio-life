@@ -6,11 +6,7 @@ import { useUserData } from "@/features/auth";
 import { Loader } from "@/shared/components/ui";
 import { getRedirectPath } from "@/shared/utils";
 
-export const ProtectedRoute = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { userDataState, isLoading, isLoaded } = useUserData();
   const router = useRouter();
   const pathname = usePathname();

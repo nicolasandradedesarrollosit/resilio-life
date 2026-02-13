@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback } from "react";
+
 import { validateAndPreviewImage } from "@/shared/utils/validation";
 
 export interface UseImageUploadOptions {
@@ -32,7 +33,7 @@ export interface UseImageUploadReturn {
  * });
  */
 export function useImageUpload(
-  options: UseImageUploadOptions = {}
+  options: UseImageUploadOptions = {},
 ): UseImageUploadReturn {
   const { onValidationError, onSuccess } = options;
 
@@ -73,8 +74,9 @@ export function useImageUpload(
         if (onSuccess) {
           onSuccess(result.file!, result.previewUrl!);
         }
-      } catch (err) {
+      } catch {
         const errorMessage = "Error al procesar la imagen";
+
         setError(errorMessage);
         setImageFile(null);
         setImagePreview(null);
@@ -86,7 +88,7 @@ export function useImageUpload(
         setIsUploading(false);
       }
     },
-    [onValidationError, onSuccess]
+    [onValidationError, onSuccess],
   );
 
   /**

@@ -3,13 +3,14 @@
  * Handles all headquarters-related API calls
  */
 
-import { apiClient } from "@/shared/services/apiClient";
 import type {
   HeadquartersResponse,
   HeadquarterResponse,
   CreateHeadquarterDTO,
   UpdateHeadquarterDTO,
 } from "../types/headquarters.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class HeadquartersService {
   async getAll(): Promise<HeadquartersResponse> {
@@ -26,7 +27,7 @@ class HeadquartersService {
 
   async update(
     id: string,
-    data: UpdateHeadquarterDTO
+    data: UpdateHeadquarterDTO,
   ): Promise<HeadquarterResponse> {
     return apiClient.patch<HeadquarterResponse>(`/headquarters/${id}`, data);
   }

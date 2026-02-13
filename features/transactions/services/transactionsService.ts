@@ -3,12 +3,13 @@
  * Handles transactions API calls
  */
 
-import { apiClient } from "@/shared/services/apiClient";
-import type { 
-  TransactionsResponse, 
-  TransactionResponse, 
-  CreateTransactionDTO 
+import type {
+  TransactionsResponse,
+  TransactionResponse,
+  CreateTransactionDTO,
 } from "../types/transactions.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class TransactionsService {
   async getAll(): Promise<TransactionsResponse> {

@@ -16,7 +16,6 @@ export async function signInWithGoogle() {
       name: user.displayName,
     };
   } catch (err) {
-    console.error("Error during Google sign-in:", err);
     throw err;
   }
 }

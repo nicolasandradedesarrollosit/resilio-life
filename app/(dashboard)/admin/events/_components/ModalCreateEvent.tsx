@@ -68,7 +68,11 @@ export default function ModalCreateEvent() {
         <ModalBody>
           <Form
             className="flex flex-col gap-4 sm:gap-5"
-            validationErrors={Object.fromEntries(Object.entries(validations).filter(([, v]) => v !== null)) as Record<string, string>}
+            validationErrors={
+              Object.fromEntries(
+                Object.entries(validations).filter(([, v]) => v !== null),
+              ) as Record<string, string>
+            }
             onSubmit={handleSubmit}
           >
             <Input
@@ -161,9 +165,9 @@ export default function ModalCreateEvent() {
             />
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm sm:text-base font-medium">
+              <p className="text-sm sm:text-base font-medium">
                 Imagen del evento
-              </label>
+              </p>
               <div className="relative">
                 <input
                   required

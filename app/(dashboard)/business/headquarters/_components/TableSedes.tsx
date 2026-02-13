@@ -1,5 +1,7 @@
 "use client";
 
+import type { HeadquartersData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -21,10 +23,10 @@ import ModalUpdateSede from "./ModalUpdateSede";
 
 import { useModal } from "@/shared/hooks";
 import { selectAllHeadquarters } from "@/features/headquarters/headquartersSlice";
-import type { HeadquartersData } from "@/shared/types";
 
 export default function TableSedes() {
-  const headquarters = (useSelector(selectAllHeadquarters) as HeadquartersData[]) || [];
+  const headquarters =
+    (useSelector(selectAllHeadquarters) as HeadquartersData[]) || [];
   const { onOpen: onOpenCreate } = useModal("createSedeModal");
   const { onOpen: onOpenDelete } = useModal("deleteSedeModal");
   const { onOpen: onOpenUpdate } = useModal("updateSedeModal");
@@ -35,8 +37,10 @@ export default function TableSedes() {
 
   const rows = useMemo(() => {
     const base = Array.isArray(headquarters) ? headquarters : [];
+
     if (!filterName) return base;
     const term = filterName.toLowerCase();
+
     return base.filter((h) => (h.name || "").toLowerCase().includes(term));
   }, [headquarters, filterName]);
 
@@ -44,6 +48,7 @@ export default function TableSedes() {
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
+
     return rows.slice(start, start + rowsPerPage);
   }, [page, rows]);
 
@@ -174,7 +179,11 @@ export default function TableSedes() {
                           onOpenUpdate();
                         }}
                       >
-                        <Pencil className="text-yellow-300" height={15} width={15} />
+                        <Pencil
+                          className="text-yellow-300"
+                          height={15}
+                          width={15}
+                        />
                       </button>
                       <button
                         aria-label="Eliminar"
@@ -184,7 +193,11 @@ export default function TableSedes() {
                           onOpenDelete();
                         }}
                       >
-                        <Trash2 className="text-red-300" height={15} width={15} />
+                        <Trash2
+                          className="text-red-300"
+                          height={15}
+                          width={15}
+                        />
                       </button>
                     </div>
                   </TableCell>

@@ -6,18 +6,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 
 import { useApi } from "@/shared/hooks";
-
-import { setUserData, clearUserData, setLoading, selectUserData, selectIsUserBusiness } from "@/features/auth/authSlice";
+import {
+  setUserData,
+  clearUserData,
+  setLoading,
+  selectUserData,
+  selectIsUserBusiness,
+} from "@/features/auth/authSlice";
 
 export const useUserData = () => {
   const dispatch = useDispatch();
   const userDataState = useSelector(selectUserData);
   const verificationAttempted = useRef(false);
 
-  const {
-    data: sessionData,
-    error,
-  } = useApi<{
+  const { data: sessionData, error } = useApi<{
     success: boolean;
     message: string;
     data: {
@@ -48,7 +50,7 @@ export const useUserData = () => {
             data: userData as UserData,
             loading: false,
             loaded: true,
-          })
+          }),
         );
       } else {
         dispatch(
@@ -57,7 +59,7 @@ export const useUserData = () => {
             data: null,
             loading: false,
             loaded: true,
-          })
+          }),
         );
       }
     }
@@ -72,7 +74,7 @@ export const useUserData = () => {
           loading: false,
           loaded: true,
           loggedIn: false,
-        })
+        }),
       );
     }
   }, [error, dispatch]);

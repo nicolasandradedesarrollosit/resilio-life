@@ -52,7 +52,7 @@ export interface UseRegisterFormReturn {
   formRef: React.RefObject<HTMLFormElement>;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number
+    index: number,
   ) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   getErrorMessage: (field: FieldName) => string;
@@ -89,7 +89,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-      index: number
+      index: number,
     ) => {
       const value = e.target.value;
       const isValid = validationRegex[index].test(value);
@@ -99,7 +99,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
       prevValidationsRef.current[key] = isValid;
       setValidations((prev) => ({ ...prev, [key]: isValid }));
     },
-    []
+    [],
   );
 
   /**
@@ -121,7 +121,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
         Array.from(formData.entries()).map(([k, v]) => [
           k,
           typeof v === "string" ? v : "",
-        ])
+        ]),
       ) as unknown as RegisterFormData;
 
       const allValid = Object.values(validations).every((val) => val === true);
@@ -160,12 +160,14 @@ export function useRegisterForm(): UseRegisterFormReturn {
             timeout: 5000,
           });
 
-          dispatch(setUserData({
-            data: result.data,
-            loading: false,
-            loaded: true,
-            loggedIn: true,
-          }));
+          dispatch(
+            setUserData({
+              data: result.data,
+              loading: false,
+              loaded: true,
+              loggedIn: true,
+            }),
+          );
           formRef.current?.reset();
           setValidations({
             name: null,
@@ -178,7 +180,10 @@ export function useRegisterForm(): UseRegisterFormReturn {
       } catch (error) {
         addToast({
           title: "Error en el registro",
-          description: error instanceof Error ? error.message : "Hubo un problema al crear tu cuenta.",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Hubo un problema al crear tu cuenta.",
           color: "danger",
           variant: "flat",
           timeout: 5000,
@@ -187,7 +192,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
         setIsSubmitting(false);
       }
     },
-    [validations, dispatch, router]
+    [validations, dispatch, router],
   );
 
   return {

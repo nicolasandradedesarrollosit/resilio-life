@@ -23,11 +23,7 @@ const isPublicRoute = (pathname: string) => {
   });
 };
 
-export const SessionChecker = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const SessionChecker = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   if (isPublicRoute(pathname)) {

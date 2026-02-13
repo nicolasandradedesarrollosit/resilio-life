@@ -24,7 +24,11 @@ export function useSedes() {
 
         if (response.data && Array.isArray(response.data)) {
           dispatch(
-            setHeadquartersData({ items: response.data, loading: false, loaded: true })
+            setHeadquartersData({
+              items: response.data,
+              loading: false,
+              loaded: true,
+            }),
           );
         }
       } catch {

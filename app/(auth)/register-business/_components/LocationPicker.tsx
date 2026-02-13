@@ -41,6 +41,8 @@ export default function LocationPicker({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const initialCoordsRef = useRef({ lat: initialLat, lng: initialLng });
+  const onLocationSelectRef = useRef(onLocationSelect);
   const [selectedCoords, setSelectedCoords] = useState<{
     lat: number;
     lng: number;
@@ -51,6 +53,10 @@ export default function LocationPicker({
   const [showResults, setShowResults] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    onLocationSelectRef.current = onLocationSelect;
+  }, [onLocationSelect]);
 
   const useMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -82,7 +88,7 @@ export default function LocationPicker({
         }
 
         setSelectedCoords({ lat, lng });
-        onLocationSelect(lat, lng);
+        onLocationSelectRef.current(lat, lng);
         setIsLocating(false);
       },
       () => {
@@ -91,7 +97,7 @@ export default function LocationPicker({
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
-  }, [onLocationSelect]);
+  }, []);
 
   const searchAddress = useCallback(async (query: string) => {
     if (query.length < 3) {
@@ -114,9 +120,9 @@ export default function LocationPicker({
 
       setSearchResults(data);
       setShowResults(true);
-    } catch (error) {
+    } catch {
       // Error handled silently
-    } finally{
+    } finally {
       setIsSearching(false);
     }
   }, []);
@@ -159,14 +165,14 @@ export default function LocationPicker({
     setSelectedCoords({ lat, lng });
     setSearchQuery(result.display_name.split(",")[0]);
     setShowResults(false);
-    onLocationSelect(lat, lng, result.display_name);
+    onLocationSelectRef.current(lat, lng, result.display_name);
   };
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
     const map = L.map(mapContainerRef.current).setView(
-      [initialLat, initialLng],
+      [initialCoordsRef.current.lat, initialCoordsRef.current.lng],
       14,
     );
 
@@ -192,7 +198,7 @@ export default function LocationPicker({
       markerRef.current = marker;
 
       setSelectedCoords({ lat, lng });
-      onLocationSelect(lat, lng);
+      onLocationSelectRef.current(lat, lng);
       setSearchQuery("");
       setSearchResults([]);
       setShowResults(false);
@@ -201,23 +207,27 @@ export default function LocationPicker({
     mapRef.current = map;
 
     return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [initialLat, initialLng, onLocationSelect]);
+  }, []);
 
   return (
     <div className="w-full space-y-3">
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-black"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             size={18}
           />
           <input
-            className="w-full text-black pl-10 pr-10 py-2.5 border-2 border-gray-200 rounded-xl focus:border-fuchsia-500 focus:outline-none text-sm transition-colors"
+            className="w-full bg-slate-800/80 text-slate-100 placeholder:text-slate-400 pl-10 pr-10 py-2.5 border-2 border-slate-600 rounded-xl focus:border-fuchsia-500 focus:outline-none text-sm transition-colors"
             placeholder="Buscar dirección..."
             type="text"
             value={searchQuery}
@@ -301,7 +311,8 @@ export default function LocationPicker({
       )}
 
       <p className="text-xs text-gray-400">
-        Usá el botón &quot;Mi ubicación&quot; o buscá una dirección para encontrar tu negocio
+        Usá el botón &quot;Mi ubicación&quot; o buscá una dirección para
+        encontrar tu negocio
       </p>
     </div>
   );

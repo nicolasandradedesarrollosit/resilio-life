@@ -36,7 +36,7 @@ export interface UseLoginFormReturn {
   formRef: React.RefObject<HTMLFormElement>;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number
+    index: number,
   ) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   handleGoogleLogin: () => Promise<void>;
@@ -71,7 +71,7 @@ export function useLoginForm(): UseLoginFormReturn {
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-      index: number
+      index: number,
     ) => {
       const value = e.target.value;
       const isValid = validationRegex[index].test(value);
@@ -81,7 +81,7 @@ export function useLoginForm(): UseLoginFormReturn {
       prevValidationsRef.current[key] = isValid;
       setValidations((prev) => ({ ...prev, [key]: isValid }));
     },
-    []
+    [],
   );
 
   /**
@@ -94,6 +94,7 @@ export function useLoginForm(): UseLoginFormReturn {
       try {
         if (!Object.values(validations).every(Boolean)) {
           setFormIsInvalid(true);
+
           return;
         }
         setFormIsInvalid(false);
@@ -103,7 +104,7 @@ export function useLoginForm(): UseLoginFormReturn {
           Array.from(formData.entries()).map(([k, v]) => [
             k,
             typeof v === "string" ? v : "",
-          ])
+          ]),
         ) as unknown as LogInFormData;
 
         setIsSubmitting(true);
@@ -141,7 +142,7 @@ export function useLoginForm(): UseLoginFormReturn {
         setFormIsInvalid(null);
       }
     },
-    [validations, setUserDataState, router]
+    [validations, setUserDataState, router],
   );
 
   /**
@@ -167,7 +168,9 @@ export function useLoginForm(): UseLoginFormReturn {
       addToast({
         title: "Error en login con Google",
         description:
-          error instanceof Error ? error.message : "Hubo un problema al iniciar sesión con Google.",
+          error instanceof Error
+            ? error.message
+            : "Hubo un problema al iniciar sesión con Google.",
         color: "danger",
         variant: "flat",
         timeout: 5000,

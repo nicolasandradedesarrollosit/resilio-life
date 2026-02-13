@@ -3,6 +3,8 @@
  * Handles sede updates with validation and API calls
  */
 
+import type { HeadquartersData } from "@/shared/types";
+
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,7 +13,6 @@ import {
   updateHeadquarters,
   selectAllHeadquarters,
 } from "@/features/headquarters/headquartersSlice";
-import type { HeadquartersData } from "@/shared/types";
 import {
   SHORT_TEXT_REGEX,
   SHORT_TEXT_ERROR_MESSAGE,
@@ -44,7 +45,7 @@ export interface UseUpdateSedeReturn {
 export function useUpdateSede(
   sedeId: string,
   isOpen: boolean,
-  onSuccess?: () => void
+  onSuccess?: () => void,
 ): UseUpdateSedeReturn {
   const dispatch = useDispatch();
   const items = useSelector(selectAllHeadquarters);
@@ -83,16 +84,18 @@ export function useUpdateSede(
           ...prev,
           name: REQUIRED_FIELD_ERROR_MESSAGE,
         }));
+
         return;
       }
 
       const isValid = SHORT_TEXT_REGEX.test(value);
+
       setValidations((prev) => ({
         ...prev,
         name: isValid ? null : SHORT_TEXT_ERROR_MESSAGE,
       }));
     },
-    []
+    [],
   );
 
   /**
@@ -108,31 +111,36 @@ export function useUpdateSede(
           ...prev,
           [field]: REQUIRED_FIELD_ERROR_MESSAGE,
         }));
+
         return;
       }
 
       const num = parseFloat(value);
+
       if (isNaN(num)) {
         setValidations((prev) => ({
           ...prev,
           [field]: "Debe ser un número válido",
         }));
+
         return;
       }
 
       if (field === "latitude" && (num < -90 || num > 90)) {
         setValidations((prev) => ({ ...prev, [field]: "Entre -90 y 90" }));
+
         return;
       }
 
       if (field === "longitude" && (num < -180 || num > 180)) {
         setValidations((prev) => ({ ...prev, [field]: "Entre -180 y 180" }));
+
         return;
       }
 
       setValidations((prev) => ({ ...prev, [field]: null }));
     },
-    []
+    [],
   );
 
   /**
@@ -167,7 +175,7 @@ export function useUpdateSede(
       setValidations(nextValidations);
 
       const hasErrors = Object.values(nextValidations).some(
-        (error) => error !== null
+        (error) => error !== null,
       );
 
       if (hasErrors) return;
@@ -195,7 +203,7 @@ export function useUpdateSede(
         setIsLoading(false);
       }
     },
-    [validations, latitude, longitude, sedeId, dispatch, onSuccess]
+    [validations, latitude, longitude, sedeId, dispatch, onSuccess],
   );
 
   return {

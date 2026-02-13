@@ -1,5 +1,7 @@
 "use client";
 
+import type { TransactionData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -15,18 +17,20 @@ import { Search } from "lucide-react";
 import { useSelector } from "react-redux";
 
 import { selectAllTransactions } from "@/features/transactions/transactionsSlice";
-import type { TransactionData } from "@/shared/types";
 
 export default function TableTransactions() {
-  const transactions = (useSelector(selectAllTransactions) as TransactionData[]) || [];
+  const transactions =
+    (useSelector(selectAllTransactions) as TransactionData[]) || [];
   const [page, setPage] = useState(1);
   const [filterUser, setFilterUser] = useState("");
   const rowsPerPage = 10;
 
   const rows = useMemo(() => {
     const base = Array.isArray(transactions) ? transactions : [];
+
     if (!filterUser) return base;
     const term = filterUser.toLowerCase();
+
     return base.filter(
       (t) =>
         (t.user?.name || "").toLowerCase().includes(term) ||
@@ -39,6 +43,7 @@ export default function TableTransactions() {
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
+
     return rows.slice(start, start + rowsPerPage);
   }, [page, rows]);
 
@@ -48,6 +53,7 @@ export default function TableTransactions() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "short",

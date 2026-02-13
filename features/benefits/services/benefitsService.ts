@@ -3,8 +3,12 @@
  * Handles all benefits-related API calls
  */
 
+import type {
+  BenefitsResponse,
+  BenefitResponse,
+} from "../types/benefits.types";
+
 import { apiClient } from "@/shared/services/apiClient";
-import type { BenefitsResponse, BenefitResponse } from "../types/benefits.types";
 
 class BenefitsService {
   async getAll(): Promise<BenefitsResponse> {

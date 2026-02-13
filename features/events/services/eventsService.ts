@@ -3,8 +3,9 @@
  * Handles all events-related API calls
  */
 
-import { apiClient } from "@/shared/services/apiClient";
 import type { EventsResponse, EventResponse } from "../types/events.types";
+
+import { apiClient } from "@/shared/services/apiClient";
 
 class EventsService {
   /**

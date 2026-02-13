@@ -62,7 +62,7 @@ export interface ImageValidationResult {
  * }
  */
 export function validateImageFile(
-  file: File | null | undefined
+  file: File | null | undefined,
 ): ImageValidationResult {
   // Check if file exists
   if (!file) {
@@ -138,7 +138,7 @@ export function createImagePreview(file: File): Promise<string> {
  * }
  */
 export async function validateAndPreviewImage(
-  file: File | null | undefined
+  file: File | null | undefined,
 ): Promise<ImageValidationResult & { previewUrl?: string }> {
   const validationResult = validateImageFile(file);
 
@@ -148,11 +148,12 @@ export async function validateAndPreviewImage(
 
   try {
     const previewUrl = await createImagePreview(validationResult.file);
+
     return {
       ...validationResult,
       previewUrl,
     };
-  } catch (error) {
+  } catch {
     return {
       isValid: false,
       errorMessage: "Error al crear la vista previa de la imagen",

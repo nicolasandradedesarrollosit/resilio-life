@@ -3,13 +3,17 @@
  * Handles benefit updates with validation, image upload, API calls
  */
 
+import type { BenefitData } from "@/shared/types";
+
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { benefitsService } from "@/features/benefits/services/benefitsService";
 import { useFormValidation, useImageUpload } from "@/shared/hooks";
-import { updateBenefit, selectAllBenefits } from "@/features/benefits/benefitsSlice";
-import type { BenefitData } from "@/shared/types";
+import {
+  updateBenefit,
+  selectAllBenefits,
+} from "@/features/benefits/benefitsSlice";
 import {
   TITLE_REGEX,
   DESCRIPTION_REGEX,
@@ -37,7 +41,7 @@ export interface UseUpdateBenefitReturn {
   imagePreview: string | null;
   setIsActive: (active: boolean) => void;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -50,11 +54,13 @@ export interface UseUpdateBenefitReturn {
 export function useUpdateBenefit(
   benefitId: string,
   isOpen: boolean,
-  onSuccess?: () => void
+  onSuccess?: () => void,
 ): UseUpdateBenefitReturn {
   const dispatch = useDispatch();
   const benefits = useSelector(selectAllBenefits);
-  const benefitToUpdate = benefits.find((b: BenefitData) => b._id === benefitId);
+  const benefitToUpdate = benefits.find(
+    (b: BenefitData) => b._id === benefitId,
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -121,12 +127,13 @@ export function useUpdateBenefit(
 
       if (!value || value.trim() === "") {
         setFieldError(name as BenefitFieldName, REQUIRED_FIELD_ERROR_MESSAGE);
+
         return;
       }
 
       validateField(name as BenefitFieldName, value);
     },
-    [validateField, setFieldError]
+    [validateField, setFieldError],
   );
 
   /**
@@ -135,11 +142,12 @@ export function useUpdateBenefit(
   const handleImageChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+
       if (!file) return;
 
       await handleImageUpload(e);
     },
-    [handleImageUpload]
+    [handleImageUpload],
   );
 
   /**
@@ -159,12 +167,13 @@ export function useUpdateBenefit(
       e.preventDefault();
 
       const hasErrors = Object.values(fieldValidations).some(
-        (error) => error !== null
+        (error) => error !== null,
       );
 
       if (hasErrors) return;
 
       const formDataObj = new FormData(e.currentTarget);
+
       formDataObj.set("isActive", String(isActive));
 
       if (imageFile) {
@@ -191,7 +200,15 @@ export function useUpdateBenefit(
         setIsLoading(false);
       }
     },
-    [fieldValidations, imageFile, isActive, benefitId, dispatch, setImageFile, onSuccess]
+    [
+      fieldValidations,
+      imageFile,
+      isActive,
+      benefitId,
+      dispatch,
+      setImageFile,
+      onSuccess,
+    ],
   );
 
   return {

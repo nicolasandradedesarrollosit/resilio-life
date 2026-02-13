@@ -14,7 +14,8 @@ export const ProtectedRouteUnilink = ({
   const router = useRouter();
   const pathSegments = pathname.split("/").filter(Boolean);
   const token = pathSegments[pathSegments.length - 1];
-  const hasToken = pathSegments.length >= 2 && pathSegments[0] === "register-business";
+  const hasToken =
+    pathSegments.length >= 2 && pathSegments[0] === "register-business";
 
   const { loading, data, error } = useApi({
     body: {
