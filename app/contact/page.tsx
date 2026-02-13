@@ -1,7 +1,7 @@
 import FirstComponent from "./_components/FirstComponent";
 import SecondComponent from "./_components/SecondComponent";
 
-import GoBack from "@/common/GoBack";
+import { GoBack } from "@/shared/components/ui";
 
 export default function Contact() {
   return (

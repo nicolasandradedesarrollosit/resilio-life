@@ -9,22 +9,15 @@ import { EyeOff, Eye, MapPin, ImagePlus, X } from "lucide-react";
 
 import LocationPickerWrapper from "./LocationPickerWrapper";
 
-import { useApi } from "@/hooks/useApi";
-
-interface BusinessFormData {
-  name: string;
-  lastName: string;
-  email: string;
-  password: string;
-  businessName: string;
-  businessDescription: string;
-  businessCategory: string;
-  businessImageURL: string;
-  location: {
-    address: string;
-    coordinates: [number, number] | undefined;
-  };
-}
+import { useApi } from "@/shared/hooks";
+import {
+  NAME_REGEX,
+  EMAIL_REGEX,
+  PASSWORD_REGEX,
+  SHORT_TEXT_REGEX,
+  DESCRIPTION_REGEX,
+  validateAndPreviewImage,
+} from "@/shared/utils/validation";
 
 const BUSINESS_CATEGORIES = [
   { key: "", label: "Selecciona una categoría" },
@@ -85,12 +78,12 @@ export default function RegisterBusinessForm() {
   const prevValidationsRef = useRef(stateValidations);
 
   const validationRules: Record<string, RegExp> = {
-    name: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/,
-    lastName: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/,
-    email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-    password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-    businessName: /^.{2,100}$/,
-    businessDescription: /^.{10,500}$/,
+    name: NAME_REGEX,
+    lastName: NAME_REGEX,
+    email: EMAIL_REGEX,
+    password: PASSWORD_REGEX,
+    businessName: SHORT_TEXT_REGEX,
+    businessDescription: DESCRIPTION_REGEX,
     businessCategory: /^.{1,}$/,
     businessImage: /^.+$/,
   };
@@ -110,7 +103,7 @@ export default function RegisterBusinessForm() {
     setStateValidations((prev) => ({ ...prev, [field]: isValid }));
   };
 
-  const [addressValue, setAddressValue] = useState("");
+  const [, setAddressValue] = useState("");
 
   const handleLocationSelect = useCallback(
     (lat: number, lng: number, address?: string) => {
@@ -123,40 +116,58 @@ export default function RegisterBusinessForm() {
   );
 
   useEffect(() => {
-    if (loading) {
-      setIsSubmitting(true);
+    const handleApiResponse = async () => {
+      try {
+        if (loading) {
+          setIsSubmitting(true);
 
-      return;
-    }
+          return;
+        }
+        if (error) {
+          addToast({
+            title: "Error al registrar",
+            description:
+              "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
+            color: "danger",
+            variant: "flat",
+            timeout: 5000,
+          });
+          setIsSubmitting(false);
+          setRegisterData(null);
 
-    if (error) {
-      addToast({
-        title: "Error al registrar",
-        description:
-          "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setIsSubmitting(false);
-      setRegisterData(null);
+          return;
+        }
+        if (data?.user) {
+          formRef.current?.reset();
+          addToast({
+            title: "Registro exitoso",
+            description: "¡Tu negocio ha sido registrado correctamente!",
+            color: "success",
+            variant: "flat",
+            timeout: 3000,
+          });
+          setIsSubmitting(false);
+          setRegisterData(null);
+          router.push("/login");
+        }
+      } catch {
+        addToast({
+          title: "Error inesperado",
+          description:
+            "Ocurrió un error inesperado. Por favor, intentá nuevamente más tarde.",
+          color: "danger",
+          variant: "flat",
+          timeout: 5000,
+        });
+        setIsSubmitting(false);
+        setRegisterData(null);
+        router.push("/");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
-      return;
-    }
-
-    if (data?.user) {
-      formRef.current?.reset();
-      addToast({
-        title: "Registro exitoso",
-        description: "¡Tu negocio ha sido registrado correctamente!",
-        color: "success",
-        variant: "flat",
-        timeout: 3000,
-      });
-      setIsSubmitting(false);
-      setRegisterData(null);
-      router.push("/login");
-    }
+    handleApiResponse();
   }, [data, error, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -207,7 +218,7 @@ export default function RegisterBusinessForm() {
     formDataToSend.append(
       "name",
       e.currentTarget.querySelector<HTMLInputElement>('[name="name"]')?.value ||
-      "",
+        "",
     );
     formDataToSend.append(
       "lastName",
@@ -243,14 +254,8 @@ export default function RegisterBusinessForm() {
     );
     formDataToSend.append("image", imageFile);
 
-    if (addressValue || coordinates) {
-      formDataToSend.append(
-        "location",
-        JSON.stringify({
-          address: addressValue,
-          coordinates: coordinates,
-        }),
-      );
+    if (coordinates) {
+      formDataToSend.append("coordinates", JSON.stringify(coordinates));
     }
 
     addToast({
@@ -439,26 +444,46 @@ export default function RegisterBusinessForm() {
             </div>
 
             <div className="flex flex-col">
-              <label className="font-semibold text-sm text-gray-700 mb-2 ml-1">
+              <label
+                className="font-semibold text-sm text-gray-700 mb-2 ml-1"
+                htmlFor="businessCategory"
+              >
                 Categoría <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   className="w-full text-black cursor-pointer h-14 px-3 rounded-2xl border-2 border-default-200 bg-transparent outline-none transition-colors hover:border-magenta-fuchsia-600 focus:border-magenta-fuchsia-500 text-small shadow-none appearance-none"
+                  id="businessCategory"
                   name="businessCategory"
                   onChange={(e) =>
                     handleChange("businessCategory", e.target.value)
                   }
                 >
                   {BUSINESS_CATEGORIES.map((cat) => (
-                    <option key={cat.key} value={cat.key} className="text-black bg-white hover:bg-gray-100 py-2">
+                    <option
+                      key={cat.key}
+                      className="text-black bg-white hover:bg-gray-100 py-2"
+                      value={cat.key}
+                    >
                       {cat.label}
                     </option>
                   ))}
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    fill="none"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6 9L12 15L18 9"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </div>
               </div>
@@ -470,28 +495,40 @@ export default function RegisterBusinessForm() {
             </div>
 
             <div className="flex flex-col">
-              <label htmlFor="businessImage" className="font-semibold text-sm text-gray-700 mb-2">
+              <label
+                className="font-semibold text-sm text-gray-700 mb-2"
+                htmlFor="businessImage"
+              >
                 Imagen del Negocio *
               </label>
               <input
-                id="businessImage"
                 ref={fileInputRef}
                 accept="image/jpeg,image/png,image/gif,image/webp"
                 className="hidden"
+                id="businessImage"
                 type="file"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
+                  const result = await validateAndPreviewImage(file);
 
-                  if (file) {
-                    setImageFile(file);
-                    const reader = new FileReader();
+                  if (!result.isValid) {
+                    addToast({
+                      title: "Error de validación",
+                      description: result.errorMessage || "Imagen inválida",
+                      color: "danger",
+                      variant: "flat",
+                      timeout: 5000,
+                    });
+                    handleChange("businessImage", "");
+                    setImageFile(null);
+                    setImagePreview(null);
 
-                    reader.onloadend = () => {
-                      setImagePreview(reader.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                    handleChange("businessImage", file.name);
+                    return;
                   }
+
+                  setImageFile(result.file!);
+                  setImagePreview(result.previewUrl!);
+                  handleChange("businessImage", result.file!.name);
                 }}
               />
 
@@ -527,10 +564,11 @@ export default function RegisterBusinessForm() {
                 </div>
               ) : (
                 <button
-                  className={`w-full h-48 rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-3 ${stateValidations.businessImage === false
-                    ? "border-red-400 bg-red-50"
-                    : "border-gray-300 hover:border-magenta-fuchsia-500 hover:bg-fuchsia-50"
-                    }`}
+                  className={`w-full h-48 rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-3 ${
+                    stateValidations.businessImage === false
+                      ? "border-red-400 bg-red-50"
+                      : "border-gray-300 hover:border-magenta-fuchsia-500 hover:bg-fuchsia-50"
+                  }`}
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                 >

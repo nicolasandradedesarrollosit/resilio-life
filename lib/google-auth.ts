@@ -1,0 +1,21 @@
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
+import { auth } from "./firebase";
+
+const provider = new GoogleAuthProvider();
+
+export async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const idToken = await user.getIdToken();
+
+    return {
+      idToken,
+      email: user.email,
+      name: user.displayName,
+    };
+  } catch (err) {
+    throw err;
+  }
+}

@@ -2,7 +2,7 @@
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { CreditCard, Star, Zap, Smartphone } from "lucide-react";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/shared/hooks";
 
 export default function FirstSection() {
   const IconWrapper = ({ children }: { children: React.ReactNode }) => (

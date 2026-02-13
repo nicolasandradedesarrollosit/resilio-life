@@ -4,7 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { addToast } from "@heroui/toast";
 import { Button } from "@heroui/button";
 
-import { useApi } from "@/hooks/useApi";
+import { useApi } from "@/shared/hooks";
+import {
+  NAME_EXTENDED_REGEX,
+  EMAIL_REGEX,
+  MESSAGE_REGEX,
+  LONG_MESSAGE_REGEX,
+} from "@/shared/utils/validation";
 
 interface ContactFormData {
   name: string;
@@ -51,10 +57,10 @@ export default function SecondComponent() {
   }>({ name: null, email: null, subject: null, message: null });
 
   const validationRegex = [
-    /^[A-Za-záéíóúÁÉÍÓÚñÑ'\-\s]{3,}$/,
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-    /^[\w\sáéíóúÁÉÍÓÚñÑ.,!?'"-]{5,}$/,
-    /^[\w\sáéíóúÁÉÍÓÚñÑ.,!?'"()\-:\/\n\r]{10,}$/,
+    NAME_EXTENDED_REGEX,
+    EMAIL_REGEX,
+    MESSAGE_REGEX,
+    LONG_MESSAGE_REGEX,
   ];
 
   const fields = ["name", "email", "subject", "message"] as const;
@@ -88,9 +94,7 @@ export default function SecondComponent() {
       ) as unknown as ContactFormData;
 
       setFormData({ ...data, origin: "Resilio B2C SAAS APP" });
-    } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-
+    } catch {
       addToast({
         title: "Error al enviar",
         description:

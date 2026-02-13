@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
 
-import { store } from "@/redux/store";
-import { useUserData } from "@/hooks/useUserHook";
+import { store } from "@/shared/store";
+import { useUserData } from "@/features/auth";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -25,7 +25,9 @@ declare module "@react-types/shared" {
   }
 }
 
+// Component to initialize user session data
 function InitialDataLoader({ children }: { children: React.ReactNode }) {
+  // Only load user session at the root level
   useUserData();
 
   return <>{children}</>;
