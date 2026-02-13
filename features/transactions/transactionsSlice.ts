@@ -32,12 +32,6 @@ const transactionsSlice = createSlice({
       if (action.payload.loaded !== undefined)
         state.loaded = action.payload.loaded;
     },
-    addTransaction(state, action: PayloadAction<TransactionData>) {
-      state.items.push(action.payload);
-    },
-    removeTransaction(state, action: PayloadAction<string>) {
-      state.items = state.items.filter((t) => t._id !== action.payload);
-    },
     clearTransactionsData(state) {
       state.items = [];
       state.loaded = false;
@@ -51,8 +45,6 @@ const transactionsSlice = createSlice({
 
 export const {
   setTransactionsData,
-  addTransaction,
-  removeTransaction,
   clearTransactionsData,
   setLoading,
 } = transactionsSlice.actions;

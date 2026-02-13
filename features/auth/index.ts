@@ -7,13 +7,10 @@ export { authService } from "./services/authService";
 
 // Types
 export type {
-  User,
   LoginCredentials,
   RegisterData,
   GoogleLoginData,
   AuthResponse,
-  LoginFormData,
-  ValidationState,
 } from "./types/auth.types";
 
 // Redux

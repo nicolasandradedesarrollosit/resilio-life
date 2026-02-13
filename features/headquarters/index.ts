@@ -11,7 +11,6 @@ export type {
   UpdateHeadquarterDTO,
   HeadquartersResponse,
   HeadquarterResponse,
-  HeadquarterFormFields,
 } from "./types/headquarters.types";
 
 // Redux

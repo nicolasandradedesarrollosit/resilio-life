@@ -85,7 +85,7 @@ export default function LocationPicker({
         onLocationSelect(lat, lng);
         setIsLocating(false);
       },
-      (error) => {
+      () => {
         alert("No se pudo obtener tu ubicación. Verificá los permisos.");
         setIsLocating(false);
       },

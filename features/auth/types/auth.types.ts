@@ -2,13 +2,7 @@
  * Auth Type Definitions
  */
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  [key: string]: any;
-}
+import type { UserData } from "@/shared/types";
 
 export interface LoginCredentials {
   email: string;
@@ -29,17 +23,7 @@ export interface GoogleLoginData {
 }
 
 export interface AuthResponse {
-  data: User;
-  token?: string;
+  success?: boolean;
   message?: string;
-}
-
-export interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-export interface ValidationState {
-  email: boolean | null;
-  password: boolean | null;
+  data: UserData;
 }

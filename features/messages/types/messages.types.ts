@@ -2,23 +2,18 @@
  * Messages Type Definitions
  */
 
-export interface MessageData {
-  _id: string;
-  senderId: string;
-  recipientId: string;
-  subject: string;
-  content: string;
-  isRead: boolean;
-  createdAt: string;
-  updatedAt?: string;
-}
+import type { MessageData } from "@/shared/types";
+
+export type { MessageData };
 
 export interface MessagesResponse {
+  success?: boolean;
   message?: string;
   data: MessageData[];
 }
 
 export interface MessageResponse {
+  success?: boolean;
   message?: string;
   data: MessageData;
 }

@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from "@/shared/services/apiClient";
-import type { UserData, UsersResponse, UserResponse } from "../types/allUsers.types";
+import type { UsersResponse, UserResponse } from "../types/allUsers.types";
 
 class AllUsersService {
   /**

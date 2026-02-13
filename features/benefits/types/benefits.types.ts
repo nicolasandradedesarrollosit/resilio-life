@@ -6,44 +6,38 @@ export interface BenefitData {
   _id: string;
   title: string;
   description: string;
-  discount: string;
-  businessName: string;
-  location: string;
-  url_provider?: string;
-  image?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  business: string;
+  pointsCost: number;
+  url_image: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateBenefitDTO {
   title: string;
   description: string;
-  discount: string;
-  businessName: string;
-  location: string;
-  url_provider?: string;
+  pointsCost: number;
+  isActive: boolean;
   image?: File;
 }
 
-export interface UpdateBenefitDTO extends Partial<CreateBenefitDTO> {
-  _id: string;
+export interface UpdateBenefitDTO {
+  title?: string;
+  description?: string;
+  pointsCost?: number;
+  isActive?: boolean;
+  image?: File;
 }
 
 export interface BenefitsResponse {
+  success?: boolean;
   message?: string;
   data: BenefitData[];
 }
 
 export interface BenefitResponse {
+  success?: boolean;
   message?: string;
   data: BenefitData;
-}
-
-export interface BenefitFormFields {
-  title: string;
-  description: string;
-  discount: string;
-  businessName: string;
-  location: string;
-  url_provider: string;
 }

@@ -67,7 +67,7 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
         <ModalBody>
           <Form
             className="flex flex-col gap-4 sm:gap-5"
-            validationErrors={validations}
+            validationErrors={Object.fromEntries(Object.entries(validations).filter(([, v]) => v !== null)) as Record<string, string>}
             onSubmit={handleSubmit}
           >
             <Input
@@ -109,7 +109,7 @@ export default function ModalUpdateEvent({ id }: { id: string }) {
             />
 
             <DatePicker
-              required
+              isRequired
               classNames={{
                 label: "text-sm sm:text-base font-medium",
                 inputWrapper: "bg-slate-800/50 border-slate-700/50",

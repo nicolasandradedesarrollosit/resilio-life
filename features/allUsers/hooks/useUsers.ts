@@ -32,8 +32,7 @@ export const useUsers = () => {
             })
           );
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
         dispatch(setLoading(false));
       } finally {
         dispatch(setLoading(false));

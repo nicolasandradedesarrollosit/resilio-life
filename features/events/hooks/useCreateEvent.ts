@@ -154,7 +154,6 @@ export function useCreateEvent(
     resetImage();
     setSelectedDate(null);
     setDateImageValidations({ date: null, image: null });
-    setFormData(null);
   }, [resetValidations, resetImage]);
 
   /**
@@ -207,8 +206,8 @@ export function useCreateEvent(
             onSuccess();
           }
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
+        // Error handled silently
       } finally {
         setIsLoading(false);
       }

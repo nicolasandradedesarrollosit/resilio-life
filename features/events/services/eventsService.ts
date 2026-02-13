@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from "@/shared/services/apiClient";
-import type { EventData, EventsResponse, EventResponse } from "../types/events.types";
+import type { EventsResponse, EventResponse } from "../types/events.types";
 
 class EventsService {
   /**
@@ -35,7 +35,7 @@ class EventsService {
    * @param formData - FormData containing updated event data and optional image file
    */
   async update(id: string, formData: FormData): Promise<EventResponse> {
-    return apiClient.put<EventResponse>(`/events/${id}`, formData);
+    return apiClient.patch<EventResponse>(`/events/${id}`, formData);
   }
 
   /**

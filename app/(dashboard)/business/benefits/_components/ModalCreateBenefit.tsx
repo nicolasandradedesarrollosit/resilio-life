@@ -24,7 +24,6 @@ export default function ModalCreateBenefit() {
     validations,
     isLoading,
     isActive,
-    imageFile,
     imagePreview,
     setIsActive,
     handleChange,

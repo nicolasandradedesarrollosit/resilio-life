@@ -27,8 +27,7 @@ export function useEvents() {
             setEventsData({ events: response.data, loading: false, loaded: true })
           );
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
         dispatch(clearEventsData());
       } finally {
         dispatch(setLoading(false));

@@ -19,7 +19,6 @@ import {
   EMAIL_ERROR_MESSAGE,
   PASSWORD_ERROR_MESSAGE,
 } from "@/shared/utils/validation";
-import type { UserData } from "@/shared/types";
 
 interface RegisterFormData {
   name: string;
@@ -161,7 +160,12 @@ export function useRegisterForm(): UseRegisterFormReturn {
             timeout: 5000,
           });
 
-          dispatch(setUserData(result.data));
+          dispatch(setUserData({
+            data: result.data,
+            loading: false,
+            loaded: true,
+            loggedIn: true,
+          }));
           formRef.current?.reset();
           setValidations({
             name: null,
@@ -172,11 +176,9 @@ export function useRegisterForm(): UseRegisterFormReturn {
           router.push(getRedirectPath(result.data));
         }
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
-
         addToast({
           title: "Error en el registro",
-          description: errorMsg || "Hubo un problema al crear tu cuenta.",
+          description: error instanceof Error ? error.message : "Hubo un problema al crear tu cuenta.",
           color: "danger",
           variant: "flat",
           timeout: 5000,

@@ -185,8 +185,8 @@ export function useUpdateBenefit(
             onSuccess();
           }
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
+        // Error handled silently
       } finally {
         setIsLoading(false);
       }

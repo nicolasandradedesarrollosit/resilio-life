@@ -27,8 +27,7 @@ export function useTransactions() {
             setTransactionsData({ items: response.data, loading: false, loaded: true })
           );
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
         dispatch(clearTransactionsData());
       } finally {
         dispatch(setLoading(false));

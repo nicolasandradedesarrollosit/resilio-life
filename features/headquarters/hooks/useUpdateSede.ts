@@ -149,7 +149,24 @@ export function useUpdateSede(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      const hasErrors = Object.values(validations).some(
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+
+      const nextValidations: SedeValidations = {
+        ...validations,
+        latitude:
+          !latitude || Number.isNaN(lat)
+            ? "Debe ser un número válido"
+            : validations.latitude,
+        longitude:
+          !longitude || Number.isNaN(lng)
+            ? "Debe ser un número válido"
+            : validations.longitude,
+      };
+
+      setValidations(nextValidations);
+
+      const hasErrors = Object.values(nextValidations).some(
         (error) => error !== null
       );
 
@@ -158,8 +175,7 @@ export function useUpdateSede(
       const formDataObj = new FormData(e.currentTarget);
       const data = {
         name: formDataObj.get("name") as string,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
+        coordinates: [lat, lng] as [number, number],
       };
 
       try {
@@ -173,8 +189,8 @@ export function useUpdateSede(
             onSuccess();
           }
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
+        // Error handled silently
       } finally {
         setIsLoading(false);
       }

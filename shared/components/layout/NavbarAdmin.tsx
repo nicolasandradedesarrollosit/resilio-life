@@ -46,9 +46,9 @@ export const USER_NAV_ITEMS: NavItem[] = [
 
 export const BUSINESS_NAV_ITEMS: NavItem[] = [
   { name: "Inicio", icon: Users, link: "/business" },
-  { name: "Sedes", icon: MapPin, link: "/business/sedes" },
-  { name: "Beneficios", icon: Gift, link: "/business/beneficios" },
-  { name: "Transacciones", icon: Receipt, link: "/business/transacciones" },
+  { name: "Sedes", icon: MapPin, link: "/business/headquarters" },
+  { name: "Beneficios", icon: Gift, link: "/business/benefits" },
+  { name: "Transacciones", icon: Receipt, link: "/business/transactions" },
 ];
 
 export interface NavbarProps {

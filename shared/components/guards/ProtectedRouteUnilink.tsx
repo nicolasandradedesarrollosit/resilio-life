@@ -12,7 +12,9 @@ export const ProtectedRouteUnilink = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const token = pathname.split("/").pop();
+  const pathSegments = pathname.split("/").filter(Boolean);
+  const token = pathSegments[pathSegments.length - 1];
+  const hasToken = pathSegments.length >= 2 && pathSegments[0] === "register-business";
 
   const { loading, data, error } = useApi({
     body: {
@@ -20,16 +22,20 @@ export const ProtectedRouteUnilink = ({
     },
     method: "POST",
     endpoint: "/check-unilink",
-    enabled: true,
+    enabled: hasToken,
   });
 
-  const available = data?.available;
+  const available = data?.data?.available;
 
   useEffect(() => {
-    if (!loading && data && !available) {
+    if (!loading && hasToken && (error || (data && !available))) {
       router.push("/");
     }
-  }, [loading, available, data, router]);
+  }, [loading, available, data, error, hasToken, router]);
+
+  if (!hasToken) {
+    return null;
+  }
 
   if (loading || !data) {
     return <Loader fallback="Autenticando token..." />;

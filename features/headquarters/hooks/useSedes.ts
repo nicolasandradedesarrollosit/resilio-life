@@ -27,8 +27,7 @@ export function useSedes() {
             setHeadquartersData({ items: response.data, loading: false, loaded: true })
           );
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
         dispatch(clearHeadquartersData());
       } finally {
         dispatch(setLoading(false));

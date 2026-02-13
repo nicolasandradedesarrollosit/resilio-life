@@ -28,8 +28,8 @@ export const useMessages = () => {
         if (response.data) {
           dispatch(setMessages(response.data));
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
+        // Error handled silently
       }
     };
 

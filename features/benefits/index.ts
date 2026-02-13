@@ -11,7 +11,6 @@ export type {
   UpdateBenefitDTO,
   BenefitsResponse,
   BenefitResponse,
-  BenefitFormFields,
 } from "./types/benefits.types";
 
 // Redux

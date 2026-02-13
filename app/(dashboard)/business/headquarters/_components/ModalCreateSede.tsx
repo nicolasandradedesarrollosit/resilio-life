@@ -11,21 +11,23 @@ import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
+import { MapPin } from "lucide-react";
+import { useState } from "react";
 
 import { useIsMobile, useModal } from "@/shared/hooks";
 import { useCreateSede } from "@/features/headquarters/hooks/useCreateSede";
+import LocationPickerWrapper from "@/app/(auth)/register-business/_components/LocationPickerWrapper";
 
 export default function ModalCreateSede() {
   const { isOpen, onOpenChange } = useModal("createSedeModal");
   const isMobile = useIsMobile();
+  const [showMap, setShowMap] = useState(false);
 
   const {
     validations,
     isLoading,
     latitude,
     longitude,
-    setLatitude,
-    setLongitude,
     handleNameChange,
     handleCoordChange,
     handleSubmit,
@@ -128,6 +130,29 @@ export default function ModalCreateSede() {
                       {validations.longitude}
                     </span>
                   </div>
+                </div>
+
+                <div className="w-4/5 space-y-3">
+                  <Button
+                    className="w-full border-slate-600 text-slate-200 hover:border-slate-500 hover:bg-slate-700/50"
+                    startContent={<MapPin size={16} />}
+                    type="button"
+                    variant="bordered"
+                    onPress={() => setShowMap((prev) => !prev)}
+                  >
+                    {showMap ? "Ocultar mapa" : "Seleccionar ubicación en mapa"}
+                  </Button>
+
+                  {showMap && (
+                    <LocationPickerWrapper
+                      initialLat={latitude ? Number(latitude) : undefined}
+                      initialLng={longitude ? Number(longitude) : undefined}
+                      onLocationSelect={(lat, lng) => {
+                        handleCoordChange("latitude", String(lat));
+                        handleCoordChange("longitude", String(lng));
+                      }}
+                    />
+                  )}
                 </div>
               </Form>
             </ModalBody>

@@ -60,16 +60,18 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
           ...prev,
           name: REQUIRED_FIELD_ERROR_MESSAGE,
         }));
+
         return;
       }
 
       const isValid = SHORT_TEXT_REGEX.test(value);
+
       setValidations((prev) => ({
         ...prev,
         name: isValid ? null : SHORT_TEXT_ERROR_MESSAGE,
       }));
     },
-    []
+    [],
   );
 
   /**
@@ -85,31 +87,36 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
           ...prev,
           [field]: REQUIRED_FIELD_ERROR_MESSAGE,
         }));
+
         return;
       }
 
       const num = parseFloat(value);
+
       if (isNaN(num)) {
         setValidations((prev) => ({
           ...prev,
           [field]: "Debe ser un número válido",
         }));
+
         return;
       }
 
       if (field === "latitude" && (num < -90 || num > 90)) {
         setValidations((prev) => ({ ...prev, [field]: "Entre -90 y 90" }));
+
         return;
       }
 
       if (field === "longitude" && (num < -180 || num > 180)) {
         setValidations((prev) => ({ ...prev, [field]: "Entre -180 y 180" }));
+
         return;
       }
 
       setValidations((prev) => ({ ...prev, [field]: null }));
     },
-    []
+    [],
   );
 
   /**
@@ -128,8 +135,25 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      const hasErrors = Object.values(validations).some(
-        (error) => error !== null
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+
+      const nextValidations: SedeValidations = {
+        ...validations,
+        latitude:
+          !latitude || Number.isNaN(lat)
+            ? "Debe ser un número válido"
+            : validations.latitude,
+        longitude:
+          !longitude || Number.isNaN(lng)
+            ? "Debe ser un número válido"
+            : validations.longitude,
+      };
+
+      setValidations(nextValidations);
+
+      const hasErrors = Object.values(nextValidations).some(
+        (error) => error !== null,
       );
 
       if (hasErrors) return;
@@ -137,8 +161,7 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
       const formDataObj = new FormData(e.currentTarget);
       const data = {
         name: formDataObj.get("name") as string,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
+        coordinates: [lat, lng] as [number, number],
       };
 
       try {
@@ -153,13 +176,13 @@ export function useCreateSede(onSuccess?: () => void): UseCreateSedeReturn {
             onSuccess();
           }
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
+        // Error handled silently
       } finally {
         setIsLoading(false);
       }
     },
-    [validations, latitude, longitude, dispatch, resetForm, onSuccess]
+    [validations, latitude, longitude, dispatch, resetForm, onSuccess],
   );
 
   return {

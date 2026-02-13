@@ -135,9 +135,7 @@ export function useContactForm(): UseContactFormReturn {
             message: null,
           });
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
-
+      } catch {
         addToast({
           title: "Error al enviar mensaje",
           description:

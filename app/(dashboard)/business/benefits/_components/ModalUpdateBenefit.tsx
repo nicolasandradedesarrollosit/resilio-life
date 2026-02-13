@@ -25,7 +25,6 @@ export default function ModalUpdateBenefit({ id }: { id: string }) {
     validations,
     isLoading,
     isActive,
-    imageFile,
     imagePreview,
     setIsActive,
     handleChange,

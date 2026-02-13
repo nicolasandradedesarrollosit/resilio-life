@@ -3,7 +3,7 @@
  * Handles user login with validation, API calls, Google auth, and navigation
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 
@@ -23,12 +23,6 @@ type FieldName = keyof LogInFormData;
 interface ValidationState {
   email: boolean | null;
   password: boolean | null;
-}
-
-interface GoogleFormData {
-  idToken?: string | null;
-  email?: string | null;
-  name?: string | null;
 }
 
 const validationRegex = [EMAIL_REGEX, PASSWORD_REGEX];
@@ -133,9 +127,7 @@ export function useLoginForm(): UseLoginFormReturn {
           });
           router.push(getRedirectPath(result.data));
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
-
+      } catch {
         addToast({
           title: "Error de autenticación",
           description:
@@ -172,12 +164,10 @@ export function useLoginForm(): UseLoginFormReturn {
         router.push(getRedirectPath(result.data));
       }
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Error desconocido";
-
       addToast({
         title: "Error en login con Google",
         description:
-          errorMsg || "Hubo un problema al iniciar sesión con Google.",
+          error instanceof Error ? error.message : "Hubo un problema al iniciar sesión con Google.",
         color: "danger",
         variant: "flat",
         timeout: 5000,

@@ -7,17 +7,12 @@ export { transactionsService } from "./services/transactionsService";
 // Types
 export type {
   TransactionData,
-  CreateTransactionDTO,
-  UpdateTransactionDTO,
   TransactionsResponse,
-  TransactionResponse,
 } from "./types/transactions.types";
 
 // Redux
 export {
   setTransactionsData,
-  addTransaction,
-  removeTransaction,
   clearTransactionsData,
   setLoading,
   selectTransactionsData,

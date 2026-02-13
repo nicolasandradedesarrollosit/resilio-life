@@ -11,22 +11,14 @@ import {
 import { Input } from "@heroui/input";
 import { Pagination } from "@heroui/pagination";
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Trash2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Button } from "@heroui/button";
 
-import ModalCreateTransaction from "./ModalCreateTransaction";
-import ModalDeleteTransaction from "./ModalDeleteTransaction";
-
-import { useModal } from "@/shared/hooks";
 import { selectAllTransactions } from "@/features/transactions/transactionsSlice";
 import type { TransactionData } from "@/shared/types";
 
 export default function TableTransactions() {
   const transactions = (useSelector(selectAllTransactions) as TransactionData[]) || [];
-  const { onOpen: onOpenCreate } = useModal("createTransactionModal");
-  const { onOpen: onOpenDelete } = useModal("deleteTransactionModal");
-  const [selectedId, setSelectedId] = useState<string>("");
   const [page, setPage] = useState(1);
   const [filterUser, setFilterUser] = useState("");
   const rowsPerPage = 10;
@@ -71,20 +63,8 @@ export default function TableTransactions() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="ml-12 text-2xl font-bold text-gray-800">
-              Gestión de Transacciones
+              Transacciones
             </h1>
-          </div>
-          <div>
-            <Button
-              className="bg-magenta-fuchsia-900"
-              color="secondary"
-              size="md"
-              startContent={<Plus className="h-4 w-4" />}
-              variant="solid"
-              onPress={onOpenCreate}
-            >
-              Nueva Transacción
-            </Button>
           </div>
           <div className="w-full md:w-auto">
             <Input
@@ -148,7 +128,6 @@ export default function TableTransactions() {
               <TableColumn>BENEFICIO</TableColumn>
               <TableColumn>PUNTOS</TableColumn>
               <TableColumn>FECHA</TableColumn>
-              <TableColumn>ACCIONES</TableColumn>
             </TableHeader>
             <TableBody
               emptyContent={
@@ -190,26 +169,12 @@ export default function TableTransactions() {
                       {formatDate(item.redeemedAt)}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <button
-                      aria-label="Eliminar"
-                      className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setSelectedId(item._id);
-                        onOpenDelete();
-                      }}
-                    >
-                      <Trash2 className="text-red-300" height={15} width={15} />
-                    </button>
-                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
       </div>
-      <ModalCreateTransaction />
-      <ModalDeleteTransaction id={selectedId} />
     </div>
   );
 }

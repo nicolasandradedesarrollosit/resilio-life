@@ -41,18 +41,12 @@ class AuthService {
   }
 
   /**
-   * Get current user data
-   */
-  async getCurrentUser(): Promise<AuthResponse> {
-    return apiClient.get<AuthResponse>("/auth/me");
-  }
-
-  /**
    * Verify user session
+   * Uses /check-session endpoint instead
    */
   async verifySession(): Promise<boolean> {
     try {
-      await this.getCurrentUser();
+      await apiClient.get<AuthResponse>("/check-session");
       return true;
     } catch {
       return false;

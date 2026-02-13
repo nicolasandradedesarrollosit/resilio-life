@@ -1,26 +1,20 @@
 /**
  * AllUsers Type Definitions
+ * Re-exports UserData from shared types to ensure consistency
  */
 
-export interface UserData {
-  _id: string;
-  email: string;
-  name: string;
-  role: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { UserData } from "@/shared/types";
+
+export type { UserData };
 
 export interface UsersResponse {
+  success?: boolean;
   message?: string;
   data: UserData[];
 }
 
 export interface UserResponse {
+  success?: boolean;
   message?: string;
   data: UserData;
 }

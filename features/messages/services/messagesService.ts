@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from "@/shared/services/apiClient";
-import type { MessageData, MessagesResponse, MessageResponse } from "../types/messages.types";
+import type { MessagesResponse, MessageResponse } from "../types/messages.types";
 
 class MessagesService {
   /**

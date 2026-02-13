@@ -27,8 +27,7 @@ export function useBenefits() {
             setBenefitsData({ items: response.data, loading: false, loaded: true })
           );
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+      } catch {
         dispatch(clearBenefitsData());
       } finally {
         dispatch(setLoading(false));

@@ -7,39 +7,33 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Trash } from "lucide-react";
 import { useDispatch } from "react-redux";
 
-import { useApi, useModal, useIsMobile } from "@/shared/hooks";
+import { useModal, useIsMobile } from "@/shared/hooks";
+import { benefitsService } from "@/features/benefits/services/benefitsService";
 import { removeBenefit } from "@/features/benefits/benefitsSlice";
 
 export default function ModalDeleteBenefit({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("deleteBenefitModal");
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const [shouldDelete, setShouldDelete] = useState(false);
-  const [hasDeleted, setHasDeleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { loading: isLoading } = useApi({
-    endpoint: `/benefits/${id}`,
-    method: "DELETE",
-    enabled: shouldDelete,
-    includeCredentials: true,
-  });
-
-  useEffect(() => {
-    setShouldDelete(false);
-    setHasDeleted(false);
-  }, [id]);
-
-  useEffect(() => {
-    if (shouldDelete && !isLoading && !hasDeleted) {
-      setHasDeleted(true);
+  const handleDelete = async (onClose: () => void) => {
+    try {
+      setIsLoading(true);
+      await benefitsService.delete(id);
       dispatch(removeBenefit(id));
+      onClose();
+    } catch (error) {
+      // Keep modal open on error
+    } finally {
+      setIsLoading(false);
     }
-  }, [shouldDelete, isLoading, hasDeleted, id, dispatch]);
+  };
 
   return (
     <Modal
@@ -51,7 +45,7 @@ export default function ModalDeleteBenefit({ id }: { id: string }) {
         footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
         closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
       }}
-      isOpen={isOpen as any}
+      isOpen={isOpen as boolean}
       radius="lg"
       scrollBehavior="inside"
       size={isMobile ? "3xl" : "xl"}
@@ -90,10 +84,7 @@ export default function ModalDeleteBenefit({ id }: { id: string }) {
                   className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white text-sm sm:text-base font-semibold shadow-lg transition-all duration-200"
                   isLoading={isLoading}
                   size={isMobile ? "md" : "lg"}
-                  onPress={async () => {
-                    onClose();
-                    setShouldDelete(true);
-                  }}
+                  onPress={() => handleDelete(onClose)}
                 >
                   Eliminar beneficio
                 </Button>

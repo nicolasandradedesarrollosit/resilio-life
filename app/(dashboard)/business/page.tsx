@@ -74,7 +74,7 @@ export default function BusinessPage() {
 
   return (
     <DashboardLayout
-      currentPageName="Mi Negocio"
+      currentPageName="Inicio"
       items={BUSINESS_NAV_ITEMS}
       roleLabel="Negocio"
     >
