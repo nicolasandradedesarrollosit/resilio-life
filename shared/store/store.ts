@@ -9,6 +9,9 @@ import MessagesReducer from "@/features/messages/messageSlice";
 import HeadquartersReducer from "@/features/headquarters/headquartersSlice";
 import BenefitsReducer from "@/features/benefits/benefitsSlice";
 import TransactionsReducer from "@/features/transactions/transactionsSlice";
+import BenefitCatalogReducer from "@/features/benefitCatalog/benefitCatalogSlice";
+import RedeemedBenefitsReducer from "@/features/redeemedBenefits/redeemedBenefitsSlice";
+import MapLocationsReducer from "@/features/mapLocations/mapLocationsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +24,9 @@ export const store = configureStore({
     headquarters: HeadquartersReducer,
     benefits: BenefitsReducer,
     transactions: TransactionsReducer,
+    benefitCatalog: BenefitCatalogReducer,
+    redeemedBenefits: RedeemedBenefitsReducer,
+    mapLocations: MapLocationsReducer,
   },
 });
 

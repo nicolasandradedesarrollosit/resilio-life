@@ -20,24 +20,9 @@ export function useTransactions() {
       try {
         dispatch(setLoading(true));
 
-        const response = await transactionsService.getAll();
-
-        if (response.data && Array.isArray(response.data)) {
-          dispatch(
-            setTransactionsData({
-              items: response.data,
-              loading: false,
-              loaded: true,
-            }),
-          );
-        }
-      } catch {
-        dispatch(clearTransactionsData());
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchTransactions();
-  }, [transactionsState.loaded, dispatch]);
+  useEffect(() => {
+    if (error) {
+      dispatch(clearTransactionsData());
+    }
+  }, [error, dispatch]);
 }

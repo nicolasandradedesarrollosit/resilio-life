@@ -20,24 +20,9 @@ export function useSedes() {
       try {
         dispatch(setLoading(true));
 
-        const response = await headquartersService.getAll();
-
-        if (response.data && Array.isArray(response.data)) {
-          dispatch(
-            setHeadquartersData({
-              items: response.data,
-              loading: false,
-              loaded: true,
-            }),
-          );
-        }
-      } catch {
-        dispatch(clearHeadquartersData());
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchHeadquarters();
-  }, [headquartersState.loaded, dispatch]);
+  useEffect(() => {
+    if (error) {
+      dispatch(clearHeadquartersData());
+    }
+  }, [error, dispatch]);
 }

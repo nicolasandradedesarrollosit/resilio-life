@@ -20,24 +20,9 @@ export function useBenefits() {
       try {
         dispatch(setLoading(true));
 
-        const response = await benefitsService.getAll();
-
-        if (response.data && Array.isArray(response.data)) {
-          dispatch(
-            setBenefitsData({
-              items: response.data,
-              loading: false,
-              loaded: true,
-            }),
-          );
-        }
-      } catch {
-        dispatch(clearBenefitsData());
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchBenefits();
-  }, [benefitsState.loaded, dispatch]);
+  useEffect(() => {
+    if (error) {
+      dispatch(clearBenefitsData());
+    }
+  }, [error, dispatch]);
 }

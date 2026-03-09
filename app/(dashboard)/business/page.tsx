@@ -88,7 +88,7 @@ export default function BusinessPage() {
     >
       <div className="w-full px-4 md:px-6 lg:px-8 mt-6 max-w-[100vw]">
         <div className="max-w-2xl mx-auto">
-          <h1 className="ml-12 text-2xl font-bold text-gray-800 mb-6">
+          <h1 className="ml-0 md:ml-12 text-xl md:text-2xl font-bold text-gray-800 mb-6">
             Perfil de Negocio
           </h1>
 

@@ -20,24 +20,9 @@ export function useEvents() {
       try {
         dispatch(setLoading(true));
 
-        const response = await eventsService.getAll();
-
-        if (response.data && Array.isArray(response.data)) {
-          dispatch(
-            setEventsData({
-              events: response.data,
-              loading: false,
-              loaded: true,
-            }),
-          );
-        }
-      } catch {
-        dispatch(clearEventsData());
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchEvents();
-  }, [eventsState.loaded, dispatch]);
+  useEffect(() => {
+    if (error) {
+      dispatch(clearEventsData());
+    }
+  }, [error, dispatch]);
 }

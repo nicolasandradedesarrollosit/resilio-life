@@ -14,8 +14,5 @@ export type {
 } from "./message.types";
 export type { HeadquartersData } from "./headquarters.types";
 export type { BenefitData } from "./benefit.types";
-export type {
-  TransactionData,
-  TransactionUser,
-  TransactionBenefit,
-} from "./transaction.types";
+export type { TransactionData, TransactionUser, TransactionBenefit } from "./transaction.types";
+export type { CatalogBenefitData, RedeemedBenefitData, MapLocationData } from "./benefitRedeemed.types";
