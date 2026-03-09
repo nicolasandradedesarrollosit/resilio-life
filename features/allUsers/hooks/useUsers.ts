@@ -15,10 +15,32 @@ export const useUsers = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (error) {
-      dispatch(setLoading(false));
-    }
-  }, [error, dispatch]);
+    if (allUsers.length > 0) return;
+
+    const fetchUsers = async () => {
+      try {
+        dispatch(setLoading(true));
+
+        const response = await allUsersService.getAll();
+
+        if (response.data && response.data.length > 0) {
+          dispatch(
+            setAllUserData({
+              users: response.data,
+              loading: false,
+              loaded: true,
+            }),
+          );
+        }
+      } catch {
+        dispatch(setLoading(false));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+
+    fetchUsers();
+  }, [allUsers.length, dispatch]);
 
   return {
     users: allUsers,
