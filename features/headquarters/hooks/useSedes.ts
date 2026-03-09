@@ -37,7 +37,6 @@ export function useSedes() {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching headquarters:", error);
       dispatch(clearHeadquartersData());
     }
   }, [error, dispatch]);

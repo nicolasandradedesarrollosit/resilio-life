@@ -41,7 +41,6 @@ export const useUsers = () => {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching users:", error);
       dispatch(setLoading(false));
     }
   }, [error, dispatch]);

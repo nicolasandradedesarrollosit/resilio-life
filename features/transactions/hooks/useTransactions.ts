@@ -37,7 +37,6 @@ export function useTransactions() {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching transactions:", error);
       dispatch(clearTransactionsData());
     }
   }, [error, dispatch]);

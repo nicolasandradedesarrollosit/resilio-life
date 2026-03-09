@@ -54,13 +54,11 @@ export default function TableSedes() {
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 mt-6 max-w-[100vw]">
       <div className="flex flex-col gap-6 w-full mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="ml-12 text-2xl font-bold text-gray-800">
+        <div className="flex flex-col gap-3 md:gap-4">
+          <div className="flex items-center justify-between">
+            <h1 className="ml-0 md:ml-12 text-xl md:text-2xl font-bold text-gray-800">
               Gestión de Sedes
             </h1>
-          </div>
-          <div>
             <Button
               className="bg-magenta-fuchsia-900"
               color="secondary"

@@ -41,6 +41,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { name: "Inicio", icon: Users, link: "/user" },
   { name: "Mapa", icon: Map, link: "/user/map" },
   { name: "Beneficios", icon: Gift, link: "/user/benefits" },
+  { name: "Canjeados", icon: Receipt, link: "/user/redeemed" },
   { name: "Perfil", icon: User, link: "/user/profile" },
 ];
 
@@ -140,6 +141,11 @@ export const Navbar = ({ currentPageName, items, roleLabel }: NavbarProps) => {
                   {userData?.name} {userData?.lastName}
                 </p>
                 <p className="text-xs text-white/60">{roleLabel}</p>
+                {roleLabel === "Usuario" && userData?.points !== undefined && (
+                  <p className="text-xs text-magenta-fuchsia-300 font-semibold">
+                    {userData.points} puntos
+                  </p>
+                )}
               </div>
             </div>
 
@@ -239,11 +245,12 @@ export const DashboardLayout = ({
         roleLabel={roleLabel}
       />
       <main
-        className={`flex-1 min-h-screen transition-all duration-300 pb-32 md:pb-0 ${
+        className={`flex-1 min-h-screen transition-all duration-300 ${
           isNavOpen ? "md:ml-72" : "md:ml-0"
         }`}
       >
         {children}
+        <div className="md:hidden h-28" aria-hidden="true" />
       </main>
     </section>
   );

@@ -1,0 +1,1 @@
+export { useMapLocations } from "./useMapLocations";

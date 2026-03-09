@@ -37,7 +37,6 @@ export function useBenefits() {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching benefits:", error);
       dispatch(clearBenefitsData());
     }
   }, [error, dispatch]);

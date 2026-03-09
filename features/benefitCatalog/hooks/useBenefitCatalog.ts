@@ -1,33 +1,32 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { useApi } from "@/shared/hooks";
-
-import { selectEventsData } from "@/features/events/eventsSlice";
 import {
-  setEventsData,
-  clearEventsData,
+  selectBenefitCatalogData,
+  setBenefitCatalogData,
+  clearBenefitCatalogData,
   setLoading,
-} from "@/features/events/eventsSlice";
-import type { EventData } from "@/shared/types";
+} from "@/features/benefitCatalog/benefitCatalogSlice";
+import type { CatalogBenefitData } from "@/shared/types";
 
-export function useEvents() {
+export function useBenefitCatalog() {
   const dispatch = useDispatch();
-  const eventsState = useSelector(selectEventsData);
+  const benefitCatalogState = useSelector(selectBenefitCatalogData);
 
   const { data, loading, error } = useApi<{
     message?: string;
-    data: EventData[];
+    data: CatalogBenefitData[];
   }>({
-    endpoint: "/events",
+    endpoint: "/user/benefits",
     method: "GET",
-    enabled: eventsState.loaded === false,
+    includeCredentials: true,
+    enabled: benefitCatalogState.loaded === false,
   });
 
   useEffect(() => {
     if (data && data.data && Array.isArray(data.data)) {
       dispatch(
-        setEventsData({ events: data.data, loading: false, loaded: true }),
+        setBenefitCatalogData({ items: data.data, loading: false, loaded: true })
       );
     }
   }, [data, dispatch]);
@@ -38,7 +37,7 @@ export function useEvents() {
 
   useEffect(() => {
     if (error) {
-      dispatch(clearEventsData());
+      dispatch(clearBenefitCatalogData());
     }
   }, [error, dispatch]);
 }
