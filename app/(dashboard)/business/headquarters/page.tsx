@@ -2,7 +2,10 @@
 
 import TableSedes from "./_components/TableSedes";
 
-import { DashboardLayout, BUSINESS_NAV_ITEMS } from "@/shared/components/layout";
+import {
+  DashboardLayout,
+  BUSINESS_NAV_ITEMS,
+} from "@/shared/components/layout";
 
 export default function SedesPage() {
   return (

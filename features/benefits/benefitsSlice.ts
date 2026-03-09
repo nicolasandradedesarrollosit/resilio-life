@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import type { BenefitData } from "@/shared/types";
+
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface BenefitsState {
   items: BenefitData[];
@@ -37,6 +37,7 @@ const benefitsSlice = createSlice({
     },
     updateBenefit(state, action: PayloadAction<BenefitData>) {
       const index = state.items.findIndex((b) => b._id === action.payload._id);
+
       if (index !== -1) {
         state.items[index] = action.payload;
       }

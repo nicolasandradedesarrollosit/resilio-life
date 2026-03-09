@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import type { HeadquartersData } from "@/shared/types";
+
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface HeadquartersState {
   items: HeadquartersData[];
@@ -37,6 +37,7 @@ const headquartersSlice = createSlice({
     },
     updateHeadquarters(state, action: PayloadAction<HeadquartersData>) {
       const index = state.items.findIndex((h) => h._id === action.payload._id);
+
       if (index !== -1) {
         state.items[index] = action.payload;
       }
@@ -65,7 +66,9 @@ export const {
 } = headquartersSlice.actions;
 export default headquartersSlice.reducer;
 
-export const selectHeadquartersData = (state: { headquarters: HeadquartersState }) =>
-  state.headquarters;
-export const selectAllHeadquarters = (state: { headquarters: HeadquartersState }) =>
-  state.headquarters.items;
+export const selectHeadquartersData = (state: {
+  headquarters: HeadquartersState;
+}) => state.headquarters;
+export const selectAllHeadquarters = (state: {
+  headquarters: HeadquartersState;
+}) => state.headquarters.items;

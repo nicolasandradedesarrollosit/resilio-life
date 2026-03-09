@@ -1,5 +1,7 @@
 "use client";
 
+import type { TransactionData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -11,30 +13,24 @@ import {
 import { Input } from "@heroui/input";
 import { Pagination } from "@heroui/pagination";
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Trash2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { useSelector } from "react-redux";
-import { Button } from "@heroui/button";
 
-import ModalCreateTransaction from "./ModalCreateTransaction";
-import ModalDeleteTransaction from "./ModalDeleteTransaction";
-
-import { useModal } from "@/shared/hooks";
 import { selectAllTransactions } from "@/features/transactions/transactionsSlice";
-import type { TransactionData } from "@/shared/types";
 
 export default function TableTransactions() {
-  const transactions = (useSelector(selectAllTransactions) as TransactionData[]) || [];
-  const { onOpen: onOpenCreate } = useModal("createTransactionModal");
-  const { onOpen: onOpenDelete } = useModal("deleteTransactionModal");
-  const [selectedId, setSelectedId] = useState<string>("");
+  const transactions =
+    (useSelector(selectAllTransactions) as TransactionData[]) || [];
   const [page, setPage] = useState(1);
   const [filterUser, setFilterUser] = useState("");
   const rowsPerPage = 10;
 
   const rows = useMemo(() => {
     const base = Array.isArray(transactions) ? transactions : [];
+
     if (!filterUser) return base;
     const term = filterUser.toLowerCase();
+
     return base.filter(
       (t) =>
         (t.user?.name || "").toLowerCase().includes(term) ||
@@ -47,6 +43,7 @@ export default function TableTransactions() {
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
+
     return rows.slice(start, start + rowsPerPage);
   }, [page, rows]);
 
@@ -56,6 +53,7 @@ export default function TableTransactions() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "short",
@@ -146,7 +144,6 @@ export default function TableTransactions() {
               <TableColumn>BENEFICIO</TableColumn>
               <TableColumn>PUNTOS</TableColumn>
               <TableColumn>FECHA</TableColumn>
-              <TableColumn>ACCIONES</TableColumn>
             </TableHeader>
             <TableBody
               emptyContent={
@@ -188,26 +185,12 @@ export default function TableTransactions() {
                       {formatDate(item.redeemedAt)}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <button
-                      aria-label="Eliminar"
-                      className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 group border-none outline-none focus:outline-none focus:ring-0 active:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setSelectedId(item._id);
-                        onOpenDelete();
-                      }}
-                    >
-                      <Trash2 className="text-red-300" height={15} width={15} />
-                    </button>
-                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
       </div>
-      <ModalCreateTransaction />
-      <ModalDeleteTransaction id={selectedId} />
     </div>
   );
 }

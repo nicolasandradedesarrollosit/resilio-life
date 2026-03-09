@@ -5,7 +5,10 @@ import { Button } from "@heroui/button";
 import { useSelector } from "react-redux";
 import { ArrowRight } from "lucide-react";
 
-import { selectUserDataOnly, selectUserLoaded } from "@/features/auth/authSlice";
+import {
+  selectUserDataOnly,
+  selectUserLoaded,
+} from "@/features/auth/authSlice";
 
 export default function Hero() {
   const router = useRouter();
@@ -50,7 +53,7 @@ export default function Hero() {
           size="lg"
           onPress={() => {
             router.push(
-              `${userLoaded && userData?.id ? (userData.role === "Business" ? "/business" : (userData.isAdmin ? "/admin" : "/user")) : "/login"}`,
+              `${userLoaded && userData?.id ? (userData.role === "Business" ? "/business" : userData.isAdmin ? "/admin" : "/user") : "/login"}`,
             );
           }}
         >

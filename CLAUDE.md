@@ -1,485 +1,156 @@
----
-name: frontend-development
-description: Desarrollo frontend con React, Redux y Next.js siguiendo arquitectura feature-based con separación de módulos compartidos y no compartidos. Usar este contexto para todas las tareas relacionadas con UI, componentes, estado, routing, y lógica del cliente.
----
+# Auditoría Completa del Sistema Full Stack
 
-# Frontend Development - React + Redux + Next.js
+## Contexto del Proyecto
 
-## Arquitectura del Proyecto
+Este es un sistema full stack que actualmente presenta problemas con varios endpoints en el frontend. Necesitamos una revisión exhaustiva del repositorio para identificar y solucionar todos los errores.
 
-### Estructura Feature-Based
+## Tu Misión
 
-```
-src/
-├── app/                          # Next.js App Router
-│   ├── (auth)/                   # Route groups
-│   ├── (dashboard)/
-│   └── layout.tsx
-│
-├── features/                     # Feature modules (non-shared)
-│   ├── auth/
-│   │   ├── components/          # Componentes específicos del feature
-│   │   ├── hooks/               # Custom hooks del feature
-│   │   ├── store/               # Redux slice del feature
-│   │   ├── services/            # API calls específicas
-│   │   ├── types/               # TypeScript types
-│   │   ├── utils/               # Utilidades del feature
-│   │   └── index.ts             # Public API del feature
-│   │
-│   ├── dashboard/
-│   ├── products/
-│   └── users/
-│
-├── shared/                       # Shared modules
-│   ├── components/              # Componentes reutilizables
-│   │   ├── ui/                  # Componentes UI básicos
-│   │   ├── forms/               # Form components
-│   │   └── layouts/             # Layout components
-│   │
-│   ├── hooks/                   # Custom hooks compartidos
-│   ├── store/                   # Redux store configuration
-│   │   ├── rootReducer.ts
-│   │   ├── store.ts
-│   │   └── middleware.ts
-│   │
-│   ├── services/                # Servicios compartidos
-│   │   ├── api/                 # API client configuration
-│   │   └── storage/             # Local/session storage
-│   │
-│   ├── utils/                   # Utilidades compartidas
-│   ├── types/                   # Types compartidos
-│   ├── constants/               # Constantes globales
-│   └── styles/                  # Estilos globales
-│
-└── config/                      # Configuraciones
-    ├── env.ts
-    └── routes.ts
-```
+Realizar una auditoría completa del código para diagnosticar y resolver problemas de conectividad entre frontend y backend, endpoints fallidos, y cualquier error que esté afectando la funcionalidad del sistema.
 
-## Principios de Diseño
+## Proceso de Auditoría
 
-### 1. Single Responsibility Principle (SRP)
-- Cada componente, hook o función tiene una única responsabilidad
-- Los componentes grandes se dividen en subcomponentes especializados
-- Los hooks personalizados encapsulan lógica específica
+### 1. Mapeo de la Arquitectura
+- Identifica la estructura del proyecto (frontend/backend/monorepo)
+- Localiza archivos de configuración (package.json, tsconfig.json, .env.example, docker-compose.yml)
+- Mapea la arquitectura de carpetas y convenciones de naming
+- Identifica el framework/tecnologías usadas (React, Next.js, Express, NestJS, etc.)
 
-### 2. Feature Module Guidelines
+### 2. Análisis del Backend
+- **Endpoints**: Lista TODOS los endpoints definidos en el backend
+  - Rutas (GET, POST, PUT, DELETE, PATCH)
+  - Controllers/handlers asociados
+  - Middleware aplicado
+  - Validaciones y schemas
+- **Configuración**:
+  - Variables de entorno requeridas
+  - Configuración de CORS
+  - Puerto del servidor
+  - Base URLs y prefijos
+- **Base de datos**:
+  - Modelos/schemas definidos
+  - Migraciones pendientes
+  - Conexión a la BD
 
-**Non-Shared Modules (features/):**
-- Contienen lógica de negocio específica del feature
-- No deben ser importados por otros features
-- Pueden importar de `shared/`
-- Exponen una API pública clara a través de `index.ts`
+### 3. Análisis del Frontend
+- **Llamadas API**: Identifica TODAS las llamadas al backend
+  - Archivos de servicios/API clients
+  - Hooks personalizados que hacen fetch
+  - Componentes que hacen llamadas directas
+- **Configuración**:
+  - Variables de entorno para API URL
+  - Configuración de axios/fetch
+  - Interceptores y middleware
+- **URLs hardcodeadas**: Busca cualquier URL hardcodeada que pueda estar apuntando a lugares incorrectos
 
-**Shared Modules (shared/):**
-- Código reutilizable entre múltiples features
-- Sin dependencias de features específicos
-- Altamente genéricos y configurables
-- Bien documentados y testeados
+### 4. Verificación de Concordancia
 
-### 3. Reglas de Importación
+Crea una tabla de concordancia endpoint por endpoint:
 
-```typescript
-// ✅ CORRECTO
-// Feature puede importar de shared
-import { Button } from '@/shared/components/ui'
-import { useAuth } from '@/shared/hooks'
+| Endpoint Backend | Método | Frontend Llama a | Método | URL Usada | Estado | Problema Detectado |
+|-----------------|--------|------------------|--------|-----------|--------|-------------------|
+| /api/users | GET | ✅ | GET | /api/users | ⚠️ | CORS no configurado |
+| /api/auth/login | POST | ❌ | - | - | ❌ | No hay llamada en frontend |
 
-// Feature puede importar internamente
-import { LoginForm } from './components/LoginForm'
-import { authSlice } from './store/authSlice'
+### 5. Problemas Comunes a Verificar
 
-// ❌ INCORRECTO
-// Feature NO debe importar de otro feature
-import { ProductCard } from '@/features/products/components'
-```
+#### Configuración
+- [ ] Variables de entorno no definidas o incorrectas
+- [ ] CORS mal configurado (origins, methods, headers)
+- [ ] Puertos incorrectos
+- [ ] Base URL del API mal configurada
+- [ ] Proxy no configurado (en desarrollo)
 
-## Redux Pattern
+#### Rutas y URLs
+- [ ] Discrepancia en naming de rutas (backend: /users vs frontend: /user)
+- [ ] Falta de prefijo /api o versioning (/v1)
+- [ ] URLs hardcodeadas apuntando a localhost
+- [ ] Trailing slashes inconsistentes
 
-### Slice Structure
+#### Autenticación/Autorización
+- [ ] Headers de autorización no enviados
+- [ ] Tokens no almacenados/recuperados correctamente
+- [ ] Middleware de autenticación bloqueando requests válidos
+- [ ] Refresh token no implementado
 
-```typescript
-// features/auth/store/authSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '@/shared/store/store'
+#### Request/Response
+- [ ] Content-Type incorrecto
+- [ ] Body mal formateado (JSON.stringify faltante)
+- [ ] Parámetros de query mal construidos
+- [ ] Headers requeridos no enviados
 
-interface AuthState {
-  user: User | null
-  token: string | null
-  isLoading: boolean
-  error: string | null
-}
+#### Manejo de Errores
+- [ ] Errores no capturados (try-catch faltante)
+- [ ] Respuestas de error no parseadas
+- [ ] Status codes no manejados (401, 403, 500)
+- [ ] Timeouts no configurados
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isLoading: false,
-  error: null,
-}
+#### TypeScript/Validación
+- [ ] Tipos incompatibles entre frontend y backend
+- [ ] Validaciones de schemas diferentes
+- [ ] DTOs no sincronizados
+- [ ] Campos requeridos no enviados
 
-export const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload
-    },
-    clearAuth: (state) => {
-      state.user = null
-      state.token = null
-    },
-  },
-})
+### 6. Reporte de Hallazgos
 
-// Actions
-export const { setUser, clearAuth } = authSlice.actions
+Para cada problema encontrado, proporciona:
 
-// Selectors
-export const selectUser = (state: RootState) => state.auth.user
-export const selectIsAuthenticated = (state: RootState) => !!state.auth.token
+1. **Ubicación**: Archivo y línea exacta
+2. **Problema**: Descripción clara del error
+3. **Impacto**: Qué funcionalidad está afectada
+4. **Solución**: Código exacto para arreglar
+5. **Prioridad**: Crítico/Alto/Medio/Bajo
 
-// Reducer
-export default authSlice.reducer
+### 7. Plan de Remediación
+
+Proporciona:
+- Lista priorizada de fixes
+- Orden sugerido de implementación
+- Posibles breaking changes
+- Tests recomendados después de cada fix
+
+## Comandos Útiles para la Auditoría
+
+```bash
+# Buscar todas las llamadas fetch/axios
+rg "fetch\(|axios\." --type ts --type tsx --type js
+
+# Buscar URLs hardcodeadas
+rg "http://|https://" --type ts --type tsx --type js
+
+# Buscar definiciones de endpoints
+rg "@Get\(|@Post\(|@Put\(|@Delete\(|router\.(get|post|put|delete)" --type ts
+
+# Buscar variables de entorno no definidas
+rg "process\.env\." --type ts --type js
+
+# Buscar TODOs y FIXMEs
+rg "TODO|FIXME" --type ts --type js
 ```
 
-### Async Thunks
-
-```typescript
-// features/auth/store/authThunks.ts
-import { createAsyncThunk } from '@reduxjs/toolkit'
-import { authService } from '../services/authService'
-
-export const loginUser = createAsyncThunk(
-  'auth/login',
-  async (credentials: LoginCredentials, { rejectWithValue }) => {
-    try {
-      const response = await authService.login(credentials)
-      return response.data
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
-```
-
-## Component Patterns
-
-### Server Components (Next.js)
-
-```typescript
-// app/dashboard/page.tsx
-import { getDashboardData } from '@/features/dashboard/services'
-
-export default async function DashboardPage() {
-  const data = await getDashboardData()
-  
-  return <DashboardView data={data} />
-}
-```
-
-### Client Components
-
-```typescript
-'use client'
-
-import { useAppSelector, useAppDispatch } from '@/shared/hooks/redux'
-import { increment } from '@/features/counter/store/counterSlice'
-
-export function Counter() {
-  const count = useAppSelector((state) => state.counter.value)
-  const dispatch = useAppDispatch()
-
-  return (
-    <button onClick={() => dispatch(increment())}>
-      Count: {count}
-    </button>
-  )
-}
-```
-
-### Compound Components Pattern
-
-```typescript
-// shared/components/ui/Card/Card.tsx
-interface CardProps {
-  children: React.ReactNode
-  className?: string
-}
-
-export function Card({ children, className }: CardProps) {
-  return <div className={`card ${className}`}>{children}</div>
-}
-
-Card.Header = function CardHeader({ children }: { children: React.ReactNode }) {
-  return <div className="card-header">{children}</div>
-}
-
-Card.Body = function CardBody({ children }: { children: React.ReactNode }) {
-  return <div className="card-body">{children}</div>
-}
-
-Card.Footer = function CardFooter({ children }: { children: React.ReactNode }) {
-  return <div className="card-footer">{children}</div>
-}
-
-// Usage
-<Card>
-  <Card.Header>Title</Card.Header>
-  <Card.Body>Content</Card.Body>
-  <Card.Footer>Actions</Card.Footer>
-</Card>
-```
-
-## Custom Hooks Guidelines
-
-### Feature-Specific Hook
-
-```typescript
-// features/products/hooks/useProducts.ts
-import { useAppSelector, useAppDispatch } from '@/shared/hooks/redux'
-import { fetchProducts } from '../store/productsThunks'
-import { selectProducts, selectIsLoading } from '../store/productsSlice'
-
-export function useProducts() {
-  const dispatch = useAppDispatch()
-  const products = useAppSelector(selectProducts)
-  const isLoading = useAppSelector(selectIsLoading)
-
-  const loadProducts = () => {
-    dispatch(fetchProducts())
-  }
-
-  return {
-    products,
-    isLoading,
-    loadProducts,
-  }
-}
-```
-
-### Shared Hook
-
-```typescript
-// shared/hooks/useDebounce.ts
-import { useEffect, useState } from 'react'
-
-export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
-
-    return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
-
-  return debouncedValue
-}
-```
-
-## API Services Pattern
-
-### Feature Service
-
-```typescript
-// features/products/services/productsService.ts
-import { apiClient } from '@/shared/services/api/apiClient'
-import type { Product, CreateProductDTO } from '../types'
-
-export const productsService = {
-  getAll: () => apiClient.get<Product[]>('/products'),
-  
-  getById: (id: string) => apiClient.get<Product>(`/products/${id}`),
-  
-  create: (data: CreateProductDTO) => apiClient.post<Product>('/products', data),
-  
-  update: (id: string, data: Partial<Product>) => 
-    apiClient.put<Product>(`/products/${id}`, data),
-  
-  delete: (id: string) => apiClient.delete(`/products/${id}`),
-}
-```
-
-### Shared API Client
-
-```typescript
-// shared/services/api/apiClient.ts
-import axios from 'axios'
-
-export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-// Request interceptor
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-// Response interceptor
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized
-    }
-    return Promise.reject(error)
-  }
-)
-```
-
-## TypeScript Best Practices
-
-### Type Organization
-
-```typescript
-// features/products/types/index.ts
-export interface Product {
-  id: string
-  name: string
-  price: number
-  description: string
-}
-
-export interface CreateProductDTO {
-  name: string
-  price: number
-  description: string
-}
-
-export type ProductFilters = {
-  search?: string
-  minPrice?: number
-  maxPrice?: number
-}
-```
-
-### Generic Types
-
-```typescript
-// shared/types/api.ts
-export interface ApiResponse<T> {
-  data: T
-  message: string
-  success: boolean
-}
-
-export interface PaginatedResponse<T> {
-  items: T[]
-  total: number
-  page: number
-  pageSize: number
-}
-```
-
-## File Naming Conventions
-
-- Components: `PascalCase.tsx` (e.g., `LoginForm.tsx`)
-- Hooks: `camelCase.ts` (e.g., `useProducts.ts`)
-- Utils: `camelCase.ts` (e.g., `formatDate.ts`)
-- Types: `camelCase.ts` or `PascalCase.ts` (e.g., `types.ts` o `Product.types.ts`)
-- Constants: `UPPER_SNAKE_CASE.ts` (e.g., `API_ENDPOINTS.ts`)
-
-## Testing Structure
-
-```typescript
-// features/products/components/__tests__/ProductCard.test.tsx
-import { render, screen } from '@testing-library/react'
-import { ProductCard } from '../ProductCard'
-
-describe('ProductCard', () => {
-  it('renders product information', () => {
-    const product = { id: '1', name: 'Test', price: 100 }
-    render(<ProductCard product={product} />)
-    expect(screen.getByText('Test')).toBeInTheDocument()
-  })
-})
-```
-
-## Performance Optimization
-
-### Code Splitting
-
-```typescript
-// Dynamic imports para reducir bundle size
-import dynamic from 'next/dynamic'
-
-const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
-  loading: () => <Spinner />,
-  ssr: false,
-})
-```
-
-### Memoization
-
-```typescript
-import { memo, useMemo, useCallback } from 'react'
-
-export const ProductList = memo(({ products }: Props) => {
-  const sortedProducts = useMemo(
-    () => products.sort((a, b) => a.price - b.price),
-    [products]
-  )
-
-  const handleClick = useCallback((id: string) => {
-    console.log(id)
-  }, [])
-
-  return <div>{/* ... */}</div>
-})
-```
-
-## Code Quality Checklist
-
-Antes de hacer commit, verificar:
-
-- [ ] No hay imports cruzados entre features
-- [ ] Los componentes siguen el principio de responsabilidad única
-- [ ] Los tipos TypeScript están correctamente definidos
-- [ ] Los hooks personalizados siguen las reglas de hooks
-- [ ] El código está formateado (Prettier)
-- [ ] No hay warnings de ESLint
-- [ ] Los componentes están correctamente memoizados si es necesario
-- [ ] Las funciones async tienen manejo de errores
-
-## Common Pitfalls
-
-### ❌ Evitar
-
-```typescript
-// Feature importando otro feature
-import { UserCard } from '@/features/users'
-
-// Estado local para datos que deberían estar en Redux
-const [products, setProducts] = useState([])
-
-// Lógica de negocio en componentes
-function ProductCard({ product }) {
-  const calculateDiscount = () => {
-    // Compleja lógica de negocio
-  }
-}
-```
-
-### ✅ Hacer
-
-```typescript
-// Crear shared component o duplicar si es necesario
-import { Card } from '@/shared/components/ui'
-
-// Usar Redux para estado compartido
-const products = useAppSelector(selectProducts)
-
-// Extraer lógica a utils o hooks
-import { calculateDiscount } from '../utils/pricing'
-```
+## Output Esperado
+
+1. **Resumen ejecutivo**: 2-3 párrafos sobre el estado general
+2. **Tabla de concordancia completa**: Todos los endpoints mapeados
+3. **Lista de problemas**: Ordenada por prioridad
+4. **Código de fixes**: Para cada problema crítico
+5. **Checklist de verificación**: Para confirmar que todo funciona
+6. **Recomendaciones**: Mejoras arquitecturales si aplica
+
+## Notas Importantes
+
+- Sé exhaustivo: revisa TODO el código, no solo lo obvio
+- Usa búsquedas con ripgrep (rg) para no perderte nada
+- Verifica archivos de configuración en TODOS los niveles
+- No asumas nada: verifica cada conexión
+- Si encuentras patrones problemáticos, señala TODAS las ocurrencias
+- Prioriza problemas que bloquean funcionalidad core
+
+## Criterios de Éxito
+
+La auditoría está completa cuando:
+- ✅ Todos los endpoints están mapeados
+- ✅ Todos los problemas están identificados
+- ✅ Hay soluciones concretas para cada problema
+- ✅ Las prioridades están claras
+- ✅ Hay un plan de acción específico

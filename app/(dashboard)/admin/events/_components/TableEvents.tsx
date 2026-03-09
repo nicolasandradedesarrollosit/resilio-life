@@ -1,3 +1,5 @@
+import type { EventData } from "@/shared/types";
+
 import {
   Table,
   TableHeader,
@@ -21,9 +23,9 @@ import ModalUpdateEvent from "./ModalUpdateEvent";
 
 import { useModal } from "@/shared/hooks";
 import { selectAllEvents } from "@/features/events/eventsSlice";
-import type { EventData } from "@/shared/types";
 
 export default function TableEvents() {
+  // Events are fetched centrally in DataLoader (app/DataLoader.tsx)
   const events = (useSelector(selectAllEvents) as EventData[]) || [];
   const { onOpen: onOpenEvent } = useModal("createEventModal");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -194,9 +196,9 @@ export default function TableEvents() {
                   <TableCell>
                     {item.url_image && (
                       <button
-                        type="button"
                         aria-label={`Ver imagen de ${item.title}`}
                         className="relative w-12 h-12 rounded-lg overflow-hidden group cursor-zoom-in border border-gray-100 shadow-sm p-0"
+                        type="button"
                         onClick={() => {
                           setSelectedImage(item.url_image!);
                           onOpen();

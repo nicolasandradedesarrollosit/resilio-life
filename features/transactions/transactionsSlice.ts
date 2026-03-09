@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import type { TransactionData } from "@/shared/types";
+
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface TransactionsState {
   items: TransactionData[];
@@ -32,12 +32,6 @@ const transactionsSlice = createSlice({
       if (action.payload.loaded !== undefined)
         state.loaded = action.payload.loaded;
     },
-    addTransaction(state, action: PayloadAction<TransactionData>) {
-      state.items.push(action.payload);
-    },
-    removeTransaction(state, action: PayloadAction<string>) {
-      state.items = state.items.filter((t) => t._id !== action.payload);
-    },
     clearTransactionsData(state) {
       state.items = [];
       state.loaded = false;
@@ -49,16 +43,13 @@ const transactionsSlice = createSlice({
   },
 });
 
-export const {
-  setTransactionsData,
-  addTransaction,
-  removeTransaction,
-  clearTransactionsData,
-  setLoading,
-} = transactionsSlice.actions;
+export const { setTransactionsData, clearTransactionsData, setLoading } =
+  transactionsSlice.actions;
 export default transactionsSlice.reducer;
 
-export const selectTransactionsData = (state: { transactions: TransactionsState }) =>
-  state.transactions;
-export const selectAllTransactions = (state: { transactions: TransactionsState }) =>
-  state.transactions.items;
+export const selectTransactionsData = (state: {
+  transactions: TransactionsState;
+}) => state.transactions;
+export const selectAllTransactions = (state: {
+  transactions: TransactionsState;
+}) => state.transactions.items;

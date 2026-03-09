@@ -6,18 +6,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 
 import { useApi } from "@/shared/hooks";
-
-import { setUserData, clearUserData, setLoading, selectUserData, selectIsUserBusiness } from "@/features/auth/authSlice";
+import {
+  setUserData,
+  clearUserData,
+  setLoading,
+  selectUserData,
+  selectIsUserBusiness,
+} from "@/features/auth/authSlice";
 
 export const useUserData = () => {
   const dispatch = useDispatch();
   const userDataState = useSelector(selectUserData);
   const verificationAttempted = useRef(false);
 
-  const {
-    data: sessionData,
-    error,
-  } = useApi({
+  const { data: sessionData, error } = useApi<{
+    success: boolean;
+    message: string;
+    data: {
+      loggedIn: boolean;
+      user?: UserData;
+    };
+  }>({
     endpoint: "/check-session",
     method: "GET",
     includeCredentials: true,
@@ -27,14 +36,18 @@ export const useUserData = () => {
   useEffect(() => {
     if (userDataState.loaded || verificationAttempted.current) return;
 
-    if (sessionData) {
+    if (sessionData?.data) {
       verificationAttempted.current = true;
 
-      if (sessionData?.data?.loggedIn && sessionData.data?.user) {
+      // Access the nested data property from API response
+      const isLoggedIn = sessionData.data.loggedIn === true;
+      const userData = sessionData.data.user;
+
+      if (isLoggedIn && userData) {
         dispatch(
           setUserData({
-            loggedIn: sessionData.data.loggedIn,
-            data: sessionData.data.user as UserData,
+            loggedIn: true,
+            data: userData as UserData,
             loading: false,
             loaded: true,
           }),
@@ -60,6 +73,7 @@ export const useUserData = () => {
           data: null,
           loading: false,
           loaded: true,
+          loggedIn: false,
         }),
       );
     }

@@ -1,179 +1,23 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import Link from "next/link";
-import { addToast } from "@heroui/toast";
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
 import { EyeOff, Eye } from "lucide-react";
 
-import { setUserData } from "@/features/auth/authSlice";
-import type { UserData } from "@/shared/types";
-import { useApi } from "@/shared/hooks";
-import { getRedirectPath } from "@/shared/utils";
-
-interface RegisterFormData {
-  name: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
+import { useRegisterForm } from "@/features/auth";
 
 export default function FormRegister() {
   const [isVisiblePassword, setIsVisiblePassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const dispatch = useDispatch();
-  const router = useRouter();
 
-  const [registerData, setRegisterData] = useState<RegisterFormData | null>(
-    null,
-  );
-
-  const { data, error, loading } = useApi<{ user: UserData }>({
-    endpoint: "/users",
-    method: "POST",
-    body: registerData,
-    enabled: registerData !== null,
-  });
-
-  const [stateValidations, setStateValidations] = useState<{
-    name: boolean | null;
-    lastName: boolean | null;
-    email: boolean | null;
-    password: boolean | null;
-  }>({
-    name: null,
-    lastName: null,
-    email: null,
-    password: null,
-  });
-
-  const formRef = useRef<HTMLFormElement | null>(null);
-  const prevValidationsRef = useRef<{
-    name: boolean | null;
-    lastName: boolean | null;
-    email: boolean | null;
-    password: boolean | null;
-  }>({
-    name: null,
-    lastName: null,
-    email: null,
-    password: null,
-  });
-
-  const validationRegex = [
-    /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/,
-    /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/,
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-  ];
-
-  const fields = ["name", "lastName", "email", "password"] as const;
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number,
-  ) => {
-    const value = e.target.value;
-    const isValid = validationRegex[index].test(value);
-    const key = fields[index] as keyof typeof stateValidations;
-
-    if (prevValidationsRef.current[key] === isValid) return;
-    prevValidationsRef.current[key] = isValid;
-    setStateValidations((prev) => ({ ...prev, [key]: isValid }));
-  };
-
-  useEffect(() => {
-    if (loading) {
-      setIsSubmitting(true);
-
-      return;
-    }
-
-    if (error) {
-      addToast({
-        title: "Error al enviar",
-        description:
-          "Hubo un problema al procesar tu solicitud. Por favor, intentá nuevamente.",
-        color: "danger",
-        variant: "flat",
-        timeout: 5000,
-      });
-      setIsSubmitting(false);
-      setRegisterData(null);
-
-      return;
-    }
-
-    if (data?.user) {
-      formRef.current?.reset();
-      setStateValidations({
-        name: null,
-        lastName: null,
-        email: null,
-        password: null,
-      });
-      dispatch(
-        setUserData({
-          data: data.user,
-          loading: false,
-          loaded: true,
-          loggedIn: true,
-        }),
-      );
-
-      addToast({
-        title: "Registro exitoso",
-        description: "¡Tu cuenta ha sido creada correctamente!",
-        color: "success",
-        variant: "flat",
-        timeout: 3000,
-      });
-
-      setIsSubmitting(false);
-      setRegisterData(null);
-      router.push(getRedirectPath(data.user));
-    }
-  }, [data, error, loading, dispatch, router]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const data: RegisterFormData = Object.fromEntries(
-      Array.from(formData.entries()).map(([k, v]) => [
-        k,
-        typeof v === "string" ? v : "",
-      ]),
-    ) as unknown as RegisterFormData;
-
-    const allValid = Object.values(stateValidations).every(
-      (val) => val === true,
-    );
-
-    if (!allValid) {
-      addToast({
-        title: "Validación fallida",
-        description: "Por favor, completá correctamente todos los campos.",
-        color: "warning",
-        variant: "flat",
-        timeout: 5000,
-      });
-
-      return;
-    }
-
-    addToast({
-      title: "Registro en proceso",
-      description: "Estamos procesando tu solicitud.",
-      color: "success",
-      variant: "flat",
-      timeout: 3000,
-    });
-
-    setRegisterData(data);
-  };
+  const {
+    validations,
+    isSubmitting,
+    formRef,
+    handleChange,
+    handleSubmit,
+    getErrorMessage,
+  } = useRegisterForm();
 
   const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
 
@@ -206,7 +50,7 @@ export default function FormRegister() {
                 label: "font-semibold",
               }}
               color="secondary"
-              isInvalid={stateValidations.name === false}
+              isInvalid={validations.name === false}
               label="Nombre"
               name="name"
               placeholder="Tu nombre"
@@ -217,9 +61,9 @@ export default function FormRegister() {
               }}
             />
             <span
-              className={`text-xs text-red-500 mt-1 ${stateValidations.name === false ? "visible" : "invisible"}`}
+              className={`text-xs text-red-500 mt-1 ${validations.name === false ? "visible" : "invisible"}`}
             >
-              El nombre debe tener al menos 2 letras
+              {getErrorMessage("name")}
             </span>
           </div>
 
@@ -232,7 +76,7 @@ export default function FormRegister() {
                 label: "font-semibold",
               }}
               color="secondary"
-              isInvalid={stateValidations.lastName === false}
+              isInvalid={validations.lastName === false}
               label="Apellido"
               name="lastName"
               placeholder="Tu apellido"
@@ -243,9 +87,9 @@ export default function FormRegister() {
               }}
             />
             <span
-              className={`text-xs text-red-500 mt-1 ${stateValidations.lastName === false ? "visible" : "invisible"}`}
+              className={`text-xs text-red-500 mt-1 ${validations.lastName === false ? "visible" : "invisible"}`}
             >
-              El apellido debe tener al menos 2 letras
+              {getErrorMessage("lastName")}
             </span>
           </div>
 
@@ -258,7 +102,7 @@ export default function FormRegister() {
                 label: "font-semibold",
               }}
               color="secondary"
-              isInvalid={stateValidations.email === false}
+              isInvalid={validations.email === false}
               label="Email"
               name="email"
               placeholder="tu@email.com"
@@ -269,9 +113,9 @@ export default function FormRegister() {
               }}
             />
             <span
-              className={`text-xs text-red-500 mt-1 ${stateValidations.email === false ? "visible" : "invisible"}`}
+              className={`text-xs text-red-500 mt-1 ${validations.email === false ? "visible" : "invisible"}`}
             >
-              Ingresá un email válido
+              {getErrorMessage("email")}
             </span>
           </div>
 
@@ -294,7 +138,7 @@ export default function FormRegister() {
                   {isVisiblePassword ? <IconEyeOff /> : <IconEye />}
                 </button>
               }
-              isInvalid={stateValidations.password === false}
+              isInvalid={validations.password === false}
               label="Contraseña"
               name="password"
               placeholder="••••••••"
@@ -305,10 +149,9 @@ export default function FormRegister() {
               }}
             />
             <span
-              className={`text-xs text-red-500 mt-1 ${stateValidations.password === false ? "visible" : "invisible"}`}
+              className={`text-xs text-red-500 mt-1 ${validations.password === false ? "visible" : "invisible"}`}
             >
-              La contraseña debe tener al menos 8 caracteres, una mayúscula y un
-              número
+              {getErrorMessage("password")}
             </span>
           </div>
 

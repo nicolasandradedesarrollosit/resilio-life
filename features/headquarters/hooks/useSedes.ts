@@ -1,39 +1,24 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
+import { headquartersService } from "@/features/headquarters/services/headquartersService";
 import {
   selectHeadquartersData,
   setHeadquartersData,
   clearHeadquartersData,
   setLoading,
 } from "@/features/headquarters/headquartersSlice";
-import type { HeadquartersData } from "@/shared/types";
 
 export function useSedes() {
   const dispatch = useDispatch();
   const headquartersState = useSelector(selectHeadquartersData);
 
-  const { data, loading, error } = useApi<{
-    message?: string;
-    data: HeadquartersData[];
-  }>({
-    endpoint: "/headquarters",
-    method: "GET",
-    enabled: headquartersState.loaded === false,
-  });
-
   useEffect(() => {
-    if (data && data.data && Array.isArray(data.data)) {
-      dispatch(
-        setHeadquartersData({ items: data.data, loading: false, loaded: true }),
-      );
-    }
-  }, [data, dispatch]);
+    if (headquartersState.loaded) return;
 
-  useEffect(() => {
-    dispatch(setLoading(loading));
-  }, [loading, dispatch]);
+    const fetchHeadquarters = async () => {
+      try {
+        dispatch(setLoading(true));
 
   useEffect(() => {
     if (error) {

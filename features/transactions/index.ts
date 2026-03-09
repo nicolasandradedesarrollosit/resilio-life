@@ -1,8 +1,18 @@
+// Hooks
 export { useTransactions } from "./hooks";
+
+// Services
+export { transactionsService } from "./services/transactionsService";
+
+// Types
+export type {
+  TransactionData,
+  TransactionsResponse,
+} from "./types/transactions.types";
+
+// Redux
 export {
   setTransactionsData,
-  addTransaction,
-  removeTransaction,
   clearTransactionsData,
   setLoading,
   selectTransactionsData,

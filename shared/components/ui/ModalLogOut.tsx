@@ -29,7 +29,7 @@ export const ModalLogOut = () => {
 
   const { loading: isLoading } = useApi({
     endpoint: "/logout",
-    method: "GET",
+    method: "POST",
     enabled: shouldLogOut,
     includeCredentials: true,
   });

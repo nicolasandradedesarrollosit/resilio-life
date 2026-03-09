@@ -1,40 +1,24 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useApi } from "@/shared/hooks";
-
+import { eventsService } from "@/features/events/services/eventsService";
 import { selectEventsData } from "@/features/events/eventsSlice";
 import {
   setEventsData,
   clearEventsData,
   setLoading,
 } from "@/features/events/eventsSlice";
-import type { EventData } from "@/shared/types";
 
 export function useEvents() {
   const dispatch = useDispatch();
   const eventsState = useSelector(selectEventsData);
 
-  const { data, loading, error } = useApi<{
-    message?: string;
-    data: EventData[];
-  }>({
-    endpoint: "/events",
-    method: "GET",
-    enabled: eventsState.loaded === false,
-  });
-
   useEffect(() => {
-    if (data && data.data && Array.isArray(data.data)) {
-      dispatch(
-        setEventsData({ events: data.data, loading: false, loaded: true }),
-      );
-    }
-  }, [data, dispatch]);
+    if (eventsState.loaded) return;
 
-  useEffect(() => {
-    dispatch(setLoading(loading));
-  }, [loading, dispatch]);
+    const fetchEvents = async () => {
+      try {
+        dispatch(setLoading(true));
 
   useEffect(() => {
     if (error) {

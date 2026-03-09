@@ -18,7 +18,7 @@ interface UseApiReturn<T = any> {
   refetch: () => Promise<void>;
 }
 
-export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
+export const useApi = <T = any>(props: UseApiProps): UseApiReturn<T> => {
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001";
   const {
@@ -98,7 +98,7 @@ export const useApi = <T = any,>(props: UseApiProps): UseApiReturn<T> => {
 
   useEffect(() => {
     fetchData();
-  }, [endpoint, method, includeCredentials, enabled]);
+  }, [endpoint, method, JSON.stringify(body), includeCredentials, enabled]);
 
   return { data, error, loading, refetch: () => fetchData(true) };
 };

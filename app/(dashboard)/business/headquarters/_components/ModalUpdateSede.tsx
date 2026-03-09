@@ -7,117 +7,32 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/modal";
-import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { useDispatch, useSelector } from "react-redux";
+import { MapPin } from "lucide-react";
+import { useState } from "react";
 
-import { useApi, useIsMobile, useModal } from "@/shared/hooks";
-import { updateHeadquarters, selectAllHeadquarters } from "@/features/headquarters/headquartersSlice";
-import type { HeadquartersData } from "@/shared/types";
-
-interface StateValidations {
-  name: string | null;
-  latitude: string | null;
-  longitude: string | null;
-}
+import { useIsMobile, useModal } from "@/shared/hooks";
+import { useUpdateSede } from "@/features/headquarters/hooks/useUpdateSede";
+import LocationPickerWrapper from "@/app/(auth)/register-business/_components/LocationPickerWrapper";
 
 export default function ModalUpdateSede({ id }: { id: string }) {
   const { isOpen, onOpenChange } = useModal("updateSedeModal");
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const items = useSelector(selectAllHeadquarters);
-  const sedeToUpdate = items.find((h: HeadquartersData) => h._id === id);
+  const [showMap, setShowMap] = useState(false);
 
-  const [stateValidations, setStateValidations] = useState<StateValidations>({
-    name: null,
-    latitude: null,
-    longitude: null,
-  });
-
-  const [formData, setFormData] = useState<any>(null);
-  const [latitude, setLatitude] = useState<string>("");
-  const [longitude, setLongitude] = useState<string>("");
-
-  const { loading: isLoading, data } = useApi({
-    endpoint: `/headquarters/${id}`,
-    method: "PATCH",
-    includeCredentials: true,
-    body: formData,
-    enabled: formData !== null,
-  });
-
-  useEffect(() => {
-    if (isOpen && sedeToUpdate) {
-      setLatitude(String(sedeToUpdate.coordinates?.[0] ?? ""));
-      setLongitude(String(sedeToUpdate.coordinates?.[1] ?? ""));
-      setStateValidations({ name: null, latitude: null, longitude: null });
-    }
-  }, [isOpen, sedeToUpdate]);
-
-  useEffect(() => {
-    if (data && data.data) {
-      dispatch(updateHeadquarters(data.data));
-      setFormData(null);
-      onOpenChange();
-    }
-  }, [data, dispatch]);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, name: "Este campo es requerido" }));
-      return;
-    }
-    setStateValidations((prev) => ({
-      ...prev,
-      name: value.length < 2 || value.length > 100 ? "El nombre debe tener entre 2 y 100 caracteres" : null,
-    }));
-  };
-
-  const handleCoordChange = (field: "latitude" | "longitude", value: string) => {
-    if (field === "latitude") setLatitude(value);
-    else setLongitude(value);
-
-    if (!value || value.trim() === "") {
-      setStateValidations((prev) => ({ ...prev, [field]: "Este campo es requerido" }));
-      return;
-    }
-
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Debe ser un número válido" }));
-      return;
-    }
-
-    if (field === "latitude" && (num < -90 || num > 90)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -90 y 90" }));
-      return;
-    }
-    if (field === "longitude" && (num < -180 || num > 180)) {
-      setStateValidations((prev) => ({ ...prev, [field]: "Entre -180 y 180" }));
-      return;
-    }
-
-    setStateValidations((prev) => ({ ...prev, [field]: null }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formEl = e.currentTarget;
-    const name = (formEl.elements.namedItem("name") as HTMLInputElement)?.value;
-
-    if (Object.values(stateValidations).some((e) => e !== null)) return;
-    if (!latitude?.trim() || !longitude?.trim()) return;
-
-    setFormData({
-      name: name?.trim(),
-      coordinates: [parseFloat(latitude), parseFloat(longitude)],
-    });
-  };
+  const {
+    sedeToUpdate,
+    validations,
+    isLoading,
+    latitude,
+    longitude,
+    handleNameChange,
+    handleCoordChange,
+    handleSubmit,
+  } = useUpdateSede(id, isOpen as boolean, onOpenChange);
 
   if (!sedeToUpdate) return null;
 
@@ -127,9 +42,12 @@ export default function ModalUpdateSede({ id }: { id: string }) {
       classNames={{
         body: "py-6 sm:py-8 px-6 sm:px-8 flex flex-col justify-start gap-0 w-screen max-w-[calc(100vw-3rem)] sm:max-w-full",
         base: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white max-h-[95vh] rounded-lg shadow-2xl border border-slate-700/50 w-full",
-        header: "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
-        footer: "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
-        closeButton: "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
+        header:
+          "text-center pt-6 sm:pt-8 pb-3 sm:pb-4 px-6 sm:px-8 border-b border-slate-700/30",
+        footer:
+          "border-t border-slate-700/30 py-4 sm:py-5 px-6 sm:px-8 bg-slate-900/50",
+        closeButton:
+          "hover:bg-white/10 active:bg-white/20 top-2 right-2 sm:top-3 sm:right-3",
       }}
       isDismissable={false}
       isOpen={isOpen as boolean}
@@ -141,7 +59,12 @@ export default function ModalUpdateSede({ id }: { id: string }) {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col w-full items-center gap-4 sm:gap-5">
-              <Image alt="Logo Icon" height={40} src="/logo-icon.png" width={40} />
+              <Image
+                alt="Logo Icon"
+                height={40}
+                src="/logo-icon.png"
+                width={40}
+              />
               <div>
                 <h2 className="text-white font-semibold text-lg sm:text-xl">
                   Modificar Sede
@@ -152,12 +75,16 @@ export default function ModalUpdateSede({ id }: { id: string }) {
               </div>
             </ModalHeader>
             <ModalBody className="flex flex-col items-center">
-              <Form className="w-full space-y-5 flex flex-col items-center" onSubmit={handleSubmit}>
+              <Form
+                className="w-full space-y-5 flex flex-col items-center"
+                onSubmit={handleSubmit}
+              >
                 <div className="w-4/5 space-y-2 relative">
                   <Input
                     classNames={{
                       label: "text-slate-300 font-medium",
-                      inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                      inputWrapper:
+                        "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                       input: "text-white placeholder:text-slate-500",
                     }}
                     defaultValue={sedeToUpdate.name}
@@ -169,10 +96,10 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                   />
                   <span
                     aria-live="polite"
-                    className={`text-xs absolute left-0 ${stateValidations.name ? "visible text-red-400" : "invisible"}`}
+                    className={`text-xs absolute left-0 ${validations.name ? "visible text-red-400" : "invisible"}`}
                     role="alert"
                   >
-                    {stateValidations.name}
+                    {validations.name}
                   </span>
                 </div>
 
@@ -181,42 +108,77 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                     <Input
                       classNames={{
                         label: "text-slate-300 font-medium",
-                        inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                        inputWrapper:
+                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                         input: "text-white placeholder:text-slate-500",
                       }}
                       label="Latitud"
                       value={latitude}
                       variant="bordered"
-                      onChange={(e) => handleCoordChange("latitude", (e.target as HTMLInputElement).value)}
+                      onChange={(e) =>
+                        handleCoordChange(
+                          "latitude",
+                          (e.target as HTMLInputElement).value,
+                        )
+                      }
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.latitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.latitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.latitude}
+                      {validations.latitude}
                     </span>
                   </div>
                   <div className="space-y-2 relative">
                     <Input
                       classNames={{
                         label: "text-slate-300 font-medium",
-                        inputWrapper: "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
+                        inputWrapper:
+                          "border-slate-600 hover:border-slate-500 group-data-[focus=true]:border-magenta-fuchsia-500 group-data-[focus=true]:bg-slate-700/50",
                         input: "text-white placeholder:text-slate-500",
                       }}
                       label="Longitud"
                       value={longitude}
                       variant="bordered"
-                      onChange={(e) => handleCoordChange("longitude", (e.target as HTMLInputElement).value)}
+                      onChange={(e) =>
+                        handleCoordChange(
+                          "longitude",
+                          (e.target as HTMLInputElement).value,
+                        )
+                      }
                     />
                     <span
                       aria-live="polite"
-                      className={`text-xs absolute left-0 ${stateValidations.longitude ? "visible text-red-400" : "invisible"}`}
+                      className={`text-xs absolute left-0 ${validations.longitude ? "visible text-red-400" : "invisible"}`}
                       role="alert"
                     >
-                      {stateValidations.longitude}
+                      {validations.longitude}
                     </span>
                   </div>
+                </div>
+
+                <div className="w-4/5 space-y-3">
+                  <Button
+                    className="w-full border-slate-600 text-slate-200 hover:border-slate-500 hover:bg-slate-700/50"
+                    startContent={<MapPin size={16} />}
+                    type="button"
+                    variant="bordered"
+                    onPress={() => setShowMap((prev) => !prev)}
+                  >
+                    {showMap ? "Ocultar mapa" : "Seleccionar ubicación en mapa"}
+                  </Button>
+
+                  {showMap && (
+                    <LocationPickerWrapper
+                      initialLat={latitude ? Number(latitude) : undefined}
+                      initialLng={longitude ? Number(longitude) : undefined}
+                      onLocationSelect={(lat, lng) => {
+                        handleCoordChange("latitude", String(lat));
+                        handleCoordChange("longitude", String(lng));
+                      }}
+                    />
+                  )}
                 </div>
               </Form>
             </ModalBody>
@@ -237,6 +199,7 @@ export default function ModalUpdateSede({ id }: { id: string }) {
                   type="submit"
                   onPress={async () => {
                     const form = document.querySelector("form");
+
                     if (form) form.requestSubmit();
                   }}
                 >
