@@ -30,6 +30,7 @@ export interface RedeemedBenefitData {
   };
   pointsSpent: number;
   redeemedAt: string;
+  code: string;
 }
 
 export interface MapLocationData {

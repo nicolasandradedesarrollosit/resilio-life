@@ -34,7 +34,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { name: "Usuarios", icon: Users, link: "/admin" },
   { name: "Mensajes", icon: Mail, link: "/admin/messages" },
   { name: "Eventos", icon: Calendar, link: "/admin/events" },
-  { name: "Beneficios", icon: Gift, link: "/admin/orders" },
+  { name: "Beneficios", icon: Gift, link: "/admin/benefits" },
 ];
 
 export const USER_NAV_ITEMS: NavItem[] = [

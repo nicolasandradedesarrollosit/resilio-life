@@ -3,14 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSelector } from "react-redux";
-import { selectAllMapLocations, selectMapLocationsData } from "@/features/mapLocations/mapLocationsSlice";
+
+import {
+  selectAllMapLocations,
+  selectMapLocationsData,
+} from "@/features/mapLocations/mapLocationsSlice";
 import { selectAllCatalogBenefits } from "@/features/benefitCatalog/benefitCatalogSlice";
 import { selectIsNavOpen } from "@/features/navbar/navbarSlice";
 
 const DefaultIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -36,14 +42,18 @@ export default function BusinessMap({ focusBusinessId }: Props) {
   const catalogBenefits = useSelector(selectAllCatalogBenefits);
   const isNavOpen = useSelector(selectIsNavOpen);
 
-  // Init map
+  // Init map once — the container div is always in the DOM so this is safe
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current).setView([ROSARIO_LAT, ROSARIO_LNG], 13);
+    const map = L.map(mapContainerRef.current).setView(
+      [ROSARIO_LAT, ROSARIO_LNG],
+      13,
+    );
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     mapRef.current = map;
@@ -64,13 +74,13 @@ export default function BusinessMap({ focusBusinessId }: Props) {
     const timeout = setTimeout(() => {
       mapRef.current?.invalidateSize();
     }, 310);
+
     return () => clearTimeout(timeout);
   }, [isNavOpen]);
 
-  // Add markers — only runs when map is ready
+  // Add markers — only runs when map is ready and locations are loaded
   useEffect(() => {
     if (!mapReady || !mapRef.current || locations.length === 0) return;
-
 
     // Remove existing markers before re-adding
     mapRef.current.eachLayer((layer) => {
@@ -84,7 +94,7 @@ export default function BusinessMap({ focusBusinessId }: Props) {
       const [lat, lng] = loc.coordinates;
 
       const businessBenefits = catalogBenefits.filter(
-        (b) => b.business._id === loc.business?._id
+        (b) => b.business._id === loc.business?._id,
       );
 
       const benefitRows =
@@ -95,7 +105,7 @@ export default function BusinessMap({ focusBusinessId }: Props) {
                   `<li style="margin:3px 0;display:flex;justify-content:space-between;gap:12px">
                     <span>${b.title}</span>
                     <span style="color:#7c3aed;font-weight:600;white-space:nowrap">${b.pointsCost} pts</span>
-                  </li>`
+                  </li>`,
               )
               .join("")
           : `<li style="color:#999;font-style:italic">Sin beneficios activos</li>`;
@@ -135,19 +145,16 @@ export default function BusinessMap({ focusBusinessId }: Props) {
     });
   }, [mapReady, locations, catalogBenefits, focusBusinessId]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-magenta-fuchsia-600" />
-      </div>
-    );
-  }
-
+  // Always render the map container — never unmount it while the component is alive.
+  // The loading spinner is an overlay so it doesn't tear down the Leaflet DOM node.
   return (
-    <div
-      ref={mapContainerRef}
-      className="w-full h-screen"
-      style={{ zIndex: 0 }}
-    />
+    <div className="relative w-full h-screen" style={{ zIndex: 0 }}>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-[1000]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-magenta-fuchsia-600" />
+        </div>
+      )}
+      <div ref={mapContainerRef} className="w-full h-full" />
+    </div>
   );
 }

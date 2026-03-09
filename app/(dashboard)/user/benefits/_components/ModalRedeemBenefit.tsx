@@ -51,6 +51,7 @@ export default function ModalRedeemBenefit({ benefit }: Props) {
         },
         pointsSpent: benefit.pointsCost,
         redeemedAt: data.data.record.redeemedAt,
+        code: data.data.record.code,
       }));
 
       if (userState.data) {

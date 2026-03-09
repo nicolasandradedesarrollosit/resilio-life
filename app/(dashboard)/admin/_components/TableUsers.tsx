@@ -25,6 +25,7 @@ export default function TableUsers() {
   // Users are fetched centrally in DataLoader (app/DataLoader.tsx)
   const users = useSelector(selectAllUsers);
   const [isLoadingUnilink, setIsLoadingUnilink] = useState(false);
+  const [isLoadingUnilinkInfluencer, setIsLoadingUnilinkInfluencer] = useState(false);
 
   const [page, setPage] = useState(1);
   const [filterEmail, setFilterEmail] = useState("");
@@ -52,6 +53,12 @@ export default function TableUsers() {
 
   const { data: unilinkBusiness, refetch: refetchUnilinkBusiness } = useApi({
     endpoint: "/create-unilink",
+    method: "GET",
+    enabled: false,
+  });
+
+  const { data: unilinkInfluencer, refetch: refetchUnilinkInfluencer } = useApi({
+    endpoint: "/create-unilink-influencer",
     method: "GET",
     enabled: false,
   });
@@ -85,9 +92,43 @@ export default function TableUsers() {
     handleUnilinkResponse();
   }, [unilinkBusiness]);
 
+  useEffect(() => {
+    const handleUnilinkInfluencerResponse = async () => {
+      if (unilinkInfluencer?.data?.token) {
+        const url = `${process.env.NEXT_PUBLIC_APP_URL}/register-influencer/${unilinkInfluencer.data.token}`;
+
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const textArea = document.createElement("textarea");
+
+          textArea.value = url;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+        }
+
+        addToast({
+          title: "Unilink de influencer creado",
+          description: "El enlace ha sido copiado al portapapeles",
+          color: "success",
+        });
+      }
+      setIsLoadingUnilinkInfluencer(false);
+    };
+
+    handleUnilinkInfluencerResponse();
+  }, [unilinkInfluencer]);
+
   const handleUnilinkBusiness = async () => {
     setIsLoadingUnilink(true);
     await refetchUnilinkBusiness();
+  };
+
+  const handleUnilinkInfluencer = async () => {
+    setIsLoadingUnilinkInfluencer(true);
+    await refetchUnilinkInfluencer();
   };
 
   return (
@@ -99,18 +140,32 @@ export default function TableUsers() {
               Gestión de Usuarios
             </h1>
           </div>
-          <Button
-            className="bg-magenta-fuchsia-900 text-white"
-            color="primary"
-            isLoading={isLoadingUnilink}
-            startContent={<Paperclip className="h-4 w-4" />}
-            variant="solid"
-            onPress={() => {
-              handleUnilinkBusiness();
-            }}
-          >
-            Unilink de negocio
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              className="bg-magenta-fuchsia-900 text-white"
+              color="primary"
+              isLoading={isLoadingUnilink}
+              startContent={<Paperclip className="h-4 w-4" />}
+              variant="solid"
+              onPress={() => {
+                handleUnilinkBusiness();
+              }}
+            >
+              Unilink de negocio
+            </Button>
+            <Button
+              className="bg-fuchsia-600 text-white"
+              color="secondary"
+              isLoading={isLoadingUnilinkInfluencer}
+              startContent={<Paperclip className="h-4 w-4" />}
+              variant="solid"
+              onPress={() => {
+                handleUnilinkInfluencer();
+              }}
+            >
+              Unilink de influencer
+            </Button>
+          </div>
           <div className="w-full md:w-auto">
             <Input
               isClearable
@@ -222,12 +277,12 @@ export default function TableUsers() {
                   <TableCell>
                     <div
                       className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border whitespace-nowrap ${
-                        item.isPremium
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
+                        item.isInfluencer
+                          ? "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"
                           : "bg-slate-50 text-slate-600 border-slate-200"
                       }`}
                     >
-                      {item.isPremium ? "Premium" : "Gratis"}
+                      {item.isInfluencer ? "Influencer" : "Estándar"}
                     </div>
                   </TableCell>
                   <TableCell>

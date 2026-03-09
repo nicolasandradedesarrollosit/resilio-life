@@ -9,7 +9,6 @@ export interface UserData {
   businessDescription?: string;
   businessCategory?: string;
   isAdmin: boolean;
-  isPremium: boolean;
   isInfluencer: boolean;
   points: number;
   email_verified: boolean;

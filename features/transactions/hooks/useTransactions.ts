@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -5,7 +7,6 @@ import { transactionsService } from "@/features/transactions/services/transactio
 import {
   selectTransactionsData,
   setTransactionsData,
-  clearTransactionsData,
   setLoading,
 } from "@/features/transactions/transactionsSlice";
 
@@ -20,9 +21,28 @@ export function useTransactions() {
       try {
         dispatch(setLoading(true));
 
-  useEffect(() => {
-    if (error) {
-      dispatch(clearTransactionsData());
-    }
-  }, [error, dispatch]);
+        const response = await transactionsService.getAll();
+
+        dispatch(
+          setTransactionsData({
+            items: response.data,
+            loading: false,
+            loaded: true,
+          }),
+        );
+      } catch {
+        dispatch(setLoading(false));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+
+    fetchTransactions();
+  }, [transactionsState.loaded, dispatch]);
+
+  return {
+    transactions: transactionsState.items,
+    loading: transactionsState.loading,
+    loaded: transactionsState.loaded,
+  };
 }

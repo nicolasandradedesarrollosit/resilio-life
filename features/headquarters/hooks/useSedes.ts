@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -5,7 +7,6 @@ import { headquartersService } from "@/features/headquarters/services/headquarte
 import {
   selectHeadquartersData,
   setHeadquartersData,
-  clearHeadquartersData,
   setLoading,
 } from "@/features/headquarters/headquartersSlice";
 
@@ -20,9 +21,28 @@ export function useSedes() {
       try {
         dispatch(setLoading(true));
 
-  useEffect(() => {
-    if (error) {
-      dispatch(clearHeadquartersData());
-    }
-  }, [error, dispatch]);
+        const response = await headquartersService.getAll();
+
+        dispatch(
+          setHeadquartersData({
+            items: response.data,
+            loading: false,
+            loaded: true,
+          }),
+        );
+      } catch {
+        dispatch(setLoading(false));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+
+    fetchHeadquarters();
+  }, [headquartersState.loaded, dispatch]);
+
+  return {
+    sedes: headquartersState.items,
+    loading: headquartersState.loading,
+    loaded: headquartersState.loaded,
+  };
 }
