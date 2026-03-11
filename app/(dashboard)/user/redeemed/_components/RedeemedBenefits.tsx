@@ -19,12 +19,13 @@ import {
   selectAllRedeemedBenefits,
   selectRedeemedBenefitsData,
 } from "@/features/redeemedBenefits/redeemedBenefitsSlice";
-import { selectUserDataOnly } from "@/features/auth/authSlice";
+import { selectUserDataOnly, selectIsInfluencer } from "@/features/auth/authSlice";
 
 export default function RedeemedBenefits() {
   const benefits = useSelector(selectAllRedeemedBenefits);
   const { loading } = useSelector(selectRedeemedBenefitsData);
   const userData = useSelector(selectUserDataOnly);
+  const isInfluencer = useSelector(selectIsInfluencer);
   const router = useRouter();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -62,22 +63,24 @@ export default function RedeemedBenefits() {
           Mis Canjes
         </h1>
         <p className="text-xs md:text-sm text-gray-500 mt-1">
-          Hola {userData?.name}, tenés {userData?.points ?? 0} puntos
+          Hola {userData?.name}{userData?.isInfluencer ? ", sos Influencer" : `, tenés ${userData?.points ?? 0} puntos`}
         </p>
       </div>
 
       {/* Points info */}
-      <div className="mb-5 md:mb-8 bg-gradient-to-br from-fuchsia-900 to-fuchsia-800 rounded-2xl p-4 md:p-6 border border-fuchsia-700/50">
-        <div className="flex items-center gap-3 mb-3">
-          <Star className="h-4 w-4 md:h-5 md:w-5 text-yellow-400" />
-          <h2 className="text-white font-semibold text-sm md:text-base">
-            Tus Puntos
-          </h2>
+      {!isInfluencer && (
+        <div className="mb-5 md:mb-8 bg-gradient-to-br from-fuchsia-900 to-fuchsia-800 rounded-2xl p-4 md:p-6 border border-fuchsia-700/50">
+          <div className="flex items-center gap-3 mb-3">
+            <Star className="h-4 w-4 md:h-5 md:w-5 text-yellow-400" />
+            <h2 className="text-white font-semibold text-sm md:text-base">
+              Tus Puntos
+            </h2>
+          </div>
+          <p className="text-fuchsia-200 text-xs md:text-sm">
+            Gana puntos canjeando beneficios de tus negocios favoritos y usá tus puntos para acceder a más beneficios exclusivos.
+          </p>
         </div>
-        <p className="text-fuchsia-200 text-xs md:text-sm">
-          Gana puntos canjeando beneficios de tus negocios favoritos y usá tus puntos para acceder a más beneficios exclusivos.
-        </p>
-      </div>
+      )}
 
       {/* Redeemed list */}
       <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
@@ -123,8 +126,8 @@ export default function RedeemedBenefits() {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1.5 md:gap-2 shrink-0">
-                <Chip color="secondary" size="sm" variant="flat">
-                  -{item.pointsSpent} pts
+                <Chip color={item.pointsSpent === 0 ? "success" : "secondary"} size="sm" variant="flat">
+                  {item.pointsSpent === 0 ? "Influencer" : `-${item.pointsSpent} pts`}
                 </Chip>
                 <Button
                   className="text-magenta-fuchsia-600 px-1.5 md:px-2 h-6 md:h-7 min-w-0 text-[10px] md:text-xs"

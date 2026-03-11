@@ -49,7 +49,7 @@ export default function ModalRedeemBenefit({ benefit }: Props) {
           _id: benefit.business._id,
           businessName: benefit.business.businessName,
         },
-        pointsSpent: benefit.pointsCost,
+        pointsSpent: userState.data?.isInfluencer ? 0 : benefit.pointsCost,
         redeemedAt: data.data.record.redeemedAt,
         code: data.data.record.code,
       }));
@@ -111,7 +111,7 @@ export default function ModalRedeemBenefit({ benefit }: Props) {
                 <div className="bg-slate-800/50 border border-slate-600 rounded-xl p-4 mb-4">
                   <p className="text-slate-400 text-xs mb-1">Costo</p>
                   <p className="text-magenta-fuchsia-400 font-bold text-2xl">
-                    {benefit.pointsCost} puntos
+                    {userState.data?.isInfluencer ? "Gratis" : `${benefit.pointsCost} puntos`}
                   </p>
                 </div>
                 <p className="text-slate-400 text-xs">¿Confirmás el canje?</p>

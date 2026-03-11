@@ -59,3 +59,5 @@ export const selectUserRole = (state: { user: UserDataState }) =>
   state.user.data?.role;
 export const selectIsUserBusiness = (state: { user: UserDataState }) =>
   state.user.data?.role === "Business";
+export const selectIsInfluencer = (state: { user: UserDataState }) =>
+  state.user.data?.isInfluencer === true;

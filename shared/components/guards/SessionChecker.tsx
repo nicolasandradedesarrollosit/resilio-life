@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   "/login",
   "/register",
   "/register-business/:token",
+  "/register-influencer/:token",
 ];
 
 const isPublicRoute = (pathname: string) => {

@@ -15,7 +15,7 @@ export default function UserProfile() {
   const fields = [
     { icon: User, label: "Nombre", value: `${userData.name} ${userData.lastName}` },
     { icon: Mail, label: "Email", value: userData.email },
-    { icon: Star, label: "Puntos", value: `${userData.points ?? 0} puntos` },
+    { icon: Star, label: userData.isInfluencer ? "Tipo de cuenta" : "Puntos", value: userData.isInfluencer ? "Influencer" : `${userData.points ?? 0} puntos` },
     {
       icon: Calendar,
       label: "Miembro desde",

@@ -20,9 +20,19 @@ export default function HomeUserPage() {
         </div>
 
         <div className="bg-gradient-to-r from-magenta-fuchsia-600 to-magenta-fuchsia-500 rounded-2xl p-4 md:p-6 mb-5 md:mb-8 text-white">
-          <p className="text-white/80 text-xs md:text-sm mb-1">Tus puntos disponibles</p>
-          <p className="text-3xl md:text-4xl font-bold">{userData?.points ?? 0}</p>
-          <p className="text-white/70 text-xs md:text-sm mt-1">puntos</p>
+          {userData?.isInfluencer ? (
+            <>
+              <p className="text-white/80 text-xs md:text-sm mb-1">Tipo de cuenta</p>
+              <p className="text-3xl md:text-4xl font-bold">Influencer</p>
+              <p className="text-white/70 text-xs md:text-sm mt-1">acceso ilimitado a beneficios</p>
+            </>
+          ) : (
+            <>
+              <p className="text-white/80 text-xs md:text-sm mb-1">Tus puntos disponibles</p>
+              <p className="text-3xl md:text-4xl font-bold">{userData?.points ?? 0}</p>
+              <p className="text-white/70 text-xs md:text-sm mt-1">puntos</p>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-3 md:gap-4">

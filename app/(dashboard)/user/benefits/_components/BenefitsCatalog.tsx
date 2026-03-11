@@ -41,7 +41,7 @@ export default function BenefitsCatalog() {
       <div className="mb-5 md:mb-8">
         <h1 className="text-lg md:text-2xl font-bold text-gray-900">Catálogo de Beneficios</h1>
         <p className="text-xs md:text-sm text-gray-500 mt-1">
-          Tenés {userData?.points ?? 0} puntos disponibles
+          {userData?.isInfluencer ? "Acceso ilimitado como Influencer" : `Tenés ${userData?.points ?? 0} puntos disponibles`}
         </p>
       </div>
 
@@ -54,7 +54,7 @@ export default function BenefitsCatalog() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {benefits.map((benefit) => {
             const redeemed = isRedeemed(benefit._id);
-            const canAfford = (userData?.points ?? 0) >= benefit.pointsCost;
+            const canAfford = userData?.isInfluencer || (userData?.points ?? 0) >= benefit.pointsCost;
 
             return (
               <div
