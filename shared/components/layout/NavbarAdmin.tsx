@@ -15,6 +15,7 @@ import {
   User,
   MapPin,
   Receipt,
+  ShoppingBag,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
   { name: "Mapa", icon: Map, link: "/user/map" },
   { name: "Beneficios", icon: Gift, link: "/user/benefits" },
   { name: "Canjeados", icon: Receipt, link: "/user/redeemed" },
+  { name: "Puntos", icon: ShoppingBag, link: "/user/puntos" },
   { name: "Perfil", icon: User, link: "/user/profile" },
 ];
 

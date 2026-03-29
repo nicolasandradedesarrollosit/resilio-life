@@ -12,6 +12,7 @@ import TransactionsReducer from "@/features/transactions/transactionsSlice";
 import BenefitCatalogReducer from "@/features/benefitCatalog/benefitCatalogSlice";
 import RedeemedBenefitsReducer from "@/features/redeemedBenefits/redeemedBenefitsSlice";
 import MapLocationsReducer from "@/features/mapLocations/mapLocationsSlice";
+import PaymentsReducer from "@/features/payments/paymentsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     benefitCatalog: BenefitCatalogReducer,
     redeemedBenefits: RedeemedBenefitsReducer,
     mapLocations: MapLocationsReducer,
+    payments: PaymentsReducer,
   },
 });
 
