@@ -1,9 +1,8 @@
 "use client";
 
-import { Card, CardBody, CardFooter } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
-import { Zap, Star, Crown } from "lucide-react";
+import { Zap, Star, Crown, TrendingUp } from "lucide-react";
 
 import type { PointsPackageData } from "@/features/payments/types/payments.types";
 
@@ -11,69 +10,78 @@ interface Props {
   pkg: PointsPackageData;
   onBuy: (packageId: string) => void;
   loading: boolean;
+  isBestValue?: boolean;
 }
 
 const TIER_CONFIG = {
-  bronze: {
-    gradient: "from-amber-700 via-amber-600 to-amber-500",
-    chipColor: "warning" as const,
-    icon: Zap,
-    label: "Bronce",
-  },
-  silver: {
-    gradient: "from-gray-500 via-gray-400 to-gray-300",
-    chipColor: "default" as const,
-    icon: Star,
-    label: "Plata",
-  },
-  gold: {
-    gradient: "from-yellow-600 via-yellow-500 to-yellow-400",
-    chipColor: "warning" as const,
-    icon: Crown,
-    label: "Oro",
-  },
+  bronze: { icon: Zap, label: "Bronce" },
+  silver: { icon: Star, label: "Plata" },
+  gold: { icon: Crown, label: "Oro" },
 };
 
-export function PointsPackageCard({ pkg, onBuy, loading }: Props) {
+export function PointsPackageCard({ pkg, onBuy, loading, isBestValue = false }: Props) {
   const config = TIER_CONFIG[pkg.tier];
   const Icon = config.icon;
+  const ptsPerUsd = Math.round(pkg.points / pkg.priceUSD);
 
   return (
-    <Card className="w-full max-w-xs shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className={`bg-gradient-to-br ${config.gradient} p-6 rounded-t-xl flex flex-col items-center gap-2`}>
-        <Icon className="h-10 w-10 text-white drop-shadow" />
-        <h3 className="text-2xl font-bold text-white">{pkg.name}</h3>
-        <Chip color={config.chipColor} size="sm" variant="solid">
-          {config.label}
-        </Chip>
-      </div>
+    <div
+      className={`relative bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow ${
+        isBestValue ? "border-magenta-fuchsia-300 ring-1 ring-magenta-fuchsia-200" : "border-gray-100"
+      }`}
+    >
+      {isBestValue && (
+        <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
+          <Chip
+            color="secondary"
+            size="sm"
+            startContent={<TrendingUp className="h-3 w-3" />}
+            variant="solid"
+          >
+            Mejor valor
+          </Chip>
+        </div>
+      )}
 
-      <CardBody className="flex flex-col items-center gap-3 pt-4 pb-2">
-        <p className="text-3xl font-extrabold text-magenta-fuchsia-700">
+      <div className="p-4 md:p-5 flex flex-col items-center gap-3">
+        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-magenta-fuchsia-50 flex items-center justify-center text-magenta-fuchsia-600">
+          <Icon className="h-5 w-5 md:h-6 md:w-6" />
+        </div>
+
+        <div className="text-center">
+          <h3 className="font-semibold text-gray-900 text-sm md:text-base">{pkg.name}</h3>
+          <p className="text-[11px] md:text-xs text-gray-400">{config.label}</p>
+        </div>
+
+        <p className="text-2xl md:text-3xl font-bold text-magenta-fuchsia-700">
           {pkg.points.toLocaleString("es-AR")}
         </p>
-        <p className="text-sm text-gray-500 font-medium">puntos</p>
+        <p className="text-xs text-gray-500 -mt-2">puntos</p>
 
-        <div className="w-full border-t border-gray-100 pt-3 flex flex-col items-center gap-1">
-          <p className="text-xl font-bold text-gray-800">
+        <Chip size="sm" variant="flat" color="secondary">
+          {ptsPerUsd} pts/USD
+        </Chip>
+
+        <div className="w-full border-t border-gray-100 pt-3 flex flex-col items-center gap-0.5">
+          <p className="text-base md:text-lg font-bold text-gray-800">
             USD {pkg.priceUSD}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-[11px] md:text-xs text-gray-400">
             ≈ ARS {pkg.priceARS.toLocaleString("es-AR")}
           </p>
         </div>
-      </CardBody>
+      </div>
 
-      <CardFooter className="pt-1 pb-4">
+      <div className="px-4 pb-4 md:px-5 md:pb-5">
         <Button
-          className="w-full bg-magenta-fuchsia-600 text-white hover:bg-magenta-fuchsia-700 font-semibold"
+          className="w-full font-semibold text-sm bg-gradient-to-r from-magenta-fuchsia-600 to-magenta-fuchsia-500 text-white"
           isLoading={loading}
-          size="lg"
+          size="sm"
           onPress={() => onBuy(pkg.id)}
         >
           Comprar
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

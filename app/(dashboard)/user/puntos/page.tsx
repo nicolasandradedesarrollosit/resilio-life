@@ -9,10 +9,10 @@ import { PointsMarket } from "@/features/payments";
 export default function PuntosPage() {
   return (
     <DashboardLayout currentPageName="Puntos" items={USER_NAV_ITEMS} roleLabel="Usuario">
-      <div className="p-6 md:p-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Mercado de Puntos</h1>
-          <p className="text-gray-500 mt-1">Adquirí puntos para canjear beneficios exclusivos.</p>
+      <div className="p-4 md:p-8 pb-8 md:pb-12">
+        <div className="mb-5 md:mb-8">
+          <h1 className="text-lg md:text-2xl font-bold text-gray-900">Mercado de Puntos</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-1">Adquirí puntos para canjear beneficios exclusivos.</p>
         </div>
         <Suspense fallback={<Spinner size="lg" color="secondary" />}>
           <PointsMarket />
